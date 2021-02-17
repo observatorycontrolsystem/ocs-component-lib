@@ -20,6 +20,7 @@ To use the components in the library, after importing `Vue` and place the follow
 
 ```
 import Vue from 'vue';
+import BootstrapVue from 'bootstrap-vue';
 import { OCSComponentLibrary } from 'observation-portal-component-lib';
 
 Vue.use(BootstrapVue);
