@@ -1,26 +1,16 @@
 {
   "name": "observation-portal-component-lib",
-  "description": "Component library for an astronomical observatory control system frontend",
   "version": "0.1.0",
-  "homepage": "https://github.com/observatorycontrolsystem/observation-portal-component-lib",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:observatorycontrolsystem/observation-portal-component-lib.git"
-  },
-  "keywords": [
-    "vue",
-    "astronomy"
-  ],
-  "license": "GPL-3.0-only",
   "private": true,
-  "main": "dist/observation-portal-component-lib.umd.min.js",
-  "unpkg": "dist/observation-portal-component-lib.umd.min.js",
+  "description": "Component library for an astronomical observatory control system frontend",
   "scripts": {
     "build": "vue-cli-service build --target lib --name observation-portal-component-lib ./src/main.js",
     "test:unit": "vue-cli-service test:unit",
-    "lint:fix": "vue-cli-service lint",
-    "lint:check": "vue-cli-service lint --no-fix"
+    "lint:check": "vue-cli-service lint --no-fix",
+    "lint:fix": "vue-cli-service lint"
   },
+  "main": "dist/observation-portal-component-lib.umd.min.js",
+  "unpkg": "dist/observation-portal-component-lib.umd.min.js",
   "files": [
     "dist/*",
     "src/*"
@@ -29,14 +19,10 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11"
   },
-  "peerDependencies": {
-    "bootstrap-vue": "^2.20.x",
-    "jquery": "^3.5.x",
-    "lodash": "^4.17.x"
-  },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-unit-jest": "^4.5.11",
     "@vue/cli-plugin-unit-mocha": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/eslint-config-prettier": "^6.0.0",
@@ -48,5 +34,20 @@
     "eslint-plugin-vue": "^6.2.2",
     "prettier": "^1.19.1",
     "vue-template-compiler": "^2.6.11"
+  },
+  "peerDependencies": {
+    "bootstrap-vue": "^2.20.x",
+    "jquery": "^3.5.x",
+    "lodash": "^4.17.x"
+  },
+  "homepage": "https://github.com/observatorycontrolsystem/observation-portal-component-lib",
+  "keywords": [
+    "vue",
+    "astronomy"
+  ],
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:observatorycontrolsystem/observation-portal-component-lib.git"
   }
 }
