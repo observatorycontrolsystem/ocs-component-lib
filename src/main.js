@@ -1,6 +1,7 @@
 import * as components from './components';
+import * as OCSUtil from '@/util';
 
-const ObservationPortalComponentLibrary = {
+const OCSComponentLibrary = {
   install(Vue) {
     for (const componentName in components) {
       const component = components[componentName];
@@ -9,7 +10,7 @@ const ObservationPortalComponentLibrary = {
   }
 };
 
-// Auto-install when vue is found (eg. in browser via <script> tag)
+// Auto-install when vue is found (e.g. in browser via <script> tag)
 let GlobalVue = null;
 if (typeof window !== 'undefined') {
   GlobalVue = window.Vue;
@@ -17,7 +18,7 @@ if (typeof window !== 'undefined') {
   GlobalVue = global.Vue;
 }
 if (GlobalVue) {
-  GlobalVue.use(ObservationPortalComponentLibrary);
+  GlobalVue.use(OCSComponentLibrary);
 }
 
-export default ObservationPortalComponentLibrary;
+export { OCSComponentLibrary, OCSUtil };

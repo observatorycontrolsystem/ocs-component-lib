@@ -1,3 +1,3 @@
-import HelloWorld from './HelloWorld';
+import { RequestConfigurationsDetail } from './RequestConfigurationsDetail';
 
-export default HelloWorld;
+export { RequestConfigurationsDetail };

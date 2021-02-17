@@ -1,29 +1,67 @@
-# observation-portal-component-lib
+# OCS Component Library
+Component library and utilities for an astronomical observatory control system frontend
 
-## Project requirements
+## Usage
+
+### Dependencies
+These dependencies must be installed alongside the library.
+
+- BootstrapVue
+- JQuery
+- Lodash
+
+### Installation
+```
+npm install ocs-component-library
+```
+
+### Using the components
+To use the components in the library, after importing `Vue` and place the following in the entrypoint of your Vue project:
+
+```
+import Vue from 'vue';
+import { OCSComponentLibrary } from 'observation-portal-component-lib';
+
+Vue.use(BootstrapVue);
+Vue.use(OCSComponentLibrary);
+```
+
+### Using the utility methods
+To use the utility methods provided by the library, import the utilities and call a function. For example, to
+use the `decimalDecToSexigesimal()` function:
+
+```
+import { OCSUtil } from 'observation-portal-component-lib';
+
+OCSUtil.decimalDecToSexigesimal(dec).str;
+```
+
+## Local Development
+
+### Project requirements
 -  Node.js version 8.9 or above (v10+ recommended).
 
-## Project setup
+### Project setup
 ```
 npm install
 ```
 
-### Compiles and minifies library for production
+### Compile and minify library for production
 ```
 npm run build
 ```
 
-### Run your unit tests
+### Run unit tests
 ```
 npm run test:unit
 ```
 
-### Lints files and display lint errors
+### Lint files and display lint errors
 ```
 npm run lint:check
 ```
 
-### Lints and fixes files
+### Lint files and fix linting errors
 ```
 npm run lint:fix
 ```
