@@ -27,7 +27,6 @@
                   <b-row v-if="configuration.target[idx] && x">
                     <b-col v-if="configuration.target[idx]" class="font-weight-bold text-nowrap">
                       <!-- TODO: What does this formatField do? -->
-                      BOOP
                       {{ idx | formatField }}
                     </b-col>
                     <b-col v-if="x" class="text-right">
@@ -42,7 +41,7 @@
               </ul>
               <br />
               <h4>Instrument Configs</h4>
-              <table class="table table-sm table-responsive">
+              <table class="table table-sm table-responsive instrument-configs">
                 <thead class="no-top-border">
                   <tr>
                     <td><strong>Mode</strong></td>
