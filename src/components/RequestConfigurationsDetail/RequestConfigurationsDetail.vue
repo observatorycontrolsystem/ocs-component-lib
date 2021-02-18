@@ -2,7 +2,7 @@
   <div>
     <b-card v-for="(configuration, index) in configurations" :key="configuration.id" no-body class="mb-1">
       <b-card-header header-tag="header" class="p-0" role="tab">
-        <b-button v-b-toggle="'accordion-' + index" block href="#" variant="light">
+        <b-button v-b-toggle="'accordion-' + index" block href="#" variant="light" :class="'configuration-toggle-' + index">
           <b-row>
             <b-col md="4"> Type: {{ configuration.type }} </b-col>
             <b-col v-if="configuration.repeat_duration" md="4"> Duration: {{ configuration.repeat_duration }} </b-col>
@@ -22,7 +22,7 @@
               <div v-if="!configuration.target">
                 No target
               </div>
-              <ul v-else class="list-unstyled card-count card-column-two">
+              <ul v-else class="list-unstyled card-count card-column-two target-information">
                 <li v-for="(x, idx) in configuration.target" :key="'target-' + idx">
                   <b-row v-if="configuration.target[idx] && x">
                     <b-col v-if="configuration.target[idx]" class="font-weight-bold text-nowrap">
