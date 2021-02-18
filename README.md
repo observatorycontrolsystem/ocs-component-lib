@@ -1,16 +1,16 @@
 # OCS Component Library
 ![Build](https://github.com/observatorycontrolsystem/ocs-component-lib/workflows/Build/badge.svg)
 
-Component library and utilities for an astronomical observatory control system frontend
+Vue component library and utilities for an astronomical observatory control system frontend
 
 ## Usage
 
 ### Dependencies
 These dependencies must be installed alongside the library.
 
-- BootstrapVue
-- JQuery
-- Lodash
+- [BootstrapVue](https://bootstrap-vue.org/)
+- [JQuery](https://jquery.com/)
+- [Lodash](https://lodash.com/)
 
 ### Installation
 ```
@@ -39,10 +39,22 @@ import { OCSUtil } from 'ocs-component-lib';
 OCSUtil.decimalDecToSexigesimal(dec);
 ```
 
+### Browser
+The library is also available from a CDN by including the script in the head section of your HTML file. Remember to include the other dependencies as well.
+
+```
+<head>
+   ...
+  <script type="text/javascript" src="https://unpkg.com/ocs-component-lib@0.1.0/dist/ocs-component-lib.umd.min.js"><script>
+  ...
+</head>
+
+```
+
 ## Local Development
 
 ### Project requirements
--  Node.js version 8.9 or above (v10+ recommended).
+Node.js version 8.9 or above (v10+ recommended).
 
 ### Project setup
 ```
