@@ -18,7 +18,7 @@ describe('decimalDecToSexigesimal', () => {
 
 describe('formatValue', () => {
   it('formats numbers to 4 decimal places', () => {
-    let expected = '5.900';
+    let expected = '5.9000';
     let result = formatValue(5.9);
     expect(result).toEqual(expected);
   });
