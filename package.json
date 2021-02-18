@@ -1,16 +1,16 @@
 {
-  "name": "observation-portal-component-lib",
+  "name": "ocs-component-lib",
   "version": "0.1.0",
   "private": true,
   "description": "Component library for an astronomical observatory control system frontend",
   "scripts": {
-    "build": "vue-cli-service build --target lib --name observation-portal-component-lib ./src/main.js",
+    "build": "vue-cli-service build --target lib --name ocs-component-lib ./src/main.js",
     "test:unit": "vue-cli-service test:unit",
     "lint:check": "vue-cli-service lint --no-fix",
     "lint:fix": "vue-cli-service lint"
   },
-  "main": "dist/observation-portal-component-lib.umd.min.js",
-  "unpkg": "dist/observation-portal-component-lib.umd.min.js",
+  "main": "dist/ocs-component-lib.umd.min.js",
+  "unpkg": "dist/ocs-component-lib.umd.min.js",
   "files": [
     "dist/*",
     "src/*"
@@ -41,7 +41,7 @@
     "jquery": "^3.5.x",
     "lodash": "^4.17.x"
   },
-  "homepage": "https://github.com/observatorycontrolsystem/observation-portal-component-lib",
+  "homepage": "https://github.com/observatorycontrolsystem/ocs-component-lib",
   "keywords": [
     "vue",
     "astronomy"
@@ -49,6 +49,6 @@
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git@github.com:observatorycontrolsystem/observation-portal-component-lib.git"
+    "url": "git@github.com:observatorycontrolsystem/ocs-component-lib.git"
   }
 }
