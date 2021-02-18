@@ -1,7 +1,7 @@
 {
   "name": "ocs-component-lib",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Component library for an astronomical observatory control system frontend",
   "scripts": {
     "build": "vue-cli-service build --target lib --name ocs-component-lib ./src/main.js",
