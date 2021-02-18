@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vue-cli-service build --target lib --name ocs-component-lib ./src/main.js",
     "test:unit": "vue-cli-service test:unit",
-    "lint:check": "vue-cli-service lint --no-fix",
+    "lint:check": "vue-cli-service lint --no-fix --max-errors 0 --max-warnings 0",
     "lint:fix": "vue-cli-service lint"
   },
   "main": "dist/ocs-component-lib.umd.min.js",
