@@ -16,25 +16,25 @@ npm install ocs-component-library
 ```
 
 ### Using the components
-To use the components in the library, after importing `Vue` and place the following in the entrypoint of your Vue project:
+To use the components in the library, place the following in the entrypoint of your Vue project:
 
 ```
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
-import { OCSComponentLibrary } from 'observation-portal-component-lib';
+import { OCSComponentLib } from 'ocs-component-lib';
 
 Vue.use(BootstrapVue);
-Vue.use(OCSComponentLibrary);
+Vue.use(OCSComponentLib);
 ```
 
 ### Using the utility methods
 To use the utility methods provided by the library, import the utilities and call a function. For example, to
-use the `decimalDecToSexigesimal()` function:
+use the `decimalDecToSexigesimal(...)` function:
 
 ```
-import { OCSUtil } from 'observation-portal-component-lib';
+import { OCSUtil } from 'ocs-component-lib';
 
-OCSUtil.decimalDecToSexigesimal(dec).str;
+OCSUtil.decimalDecToSexigesimal(dec);
 ```
 
 ## Local Development

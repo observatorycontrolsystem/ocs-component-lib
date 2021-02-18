@@ -1,7 +1,7 @@
 import * as components from './components';
 import * as OCSUtil from '@/util';
 
-const OCSComponentLibrary = {
+const OCSComponentLib = {
   install(Vue) {
     for (const componentName in components) {
       const component = components[componentName];
@@ -18,7 +18,7 @@ if (typeof window !== 'undefined') {
   GlobalVue = global.Vue;
 }
 if (GlobalVue) {
-  GlobalVue.use(OCSComponentLibrary);
+  GlobalVue.use(OCSComponentLib);
 }
 
-export { OCSComponentLibrary, OCSUtil };
+export { OCSComponentLib, OCSUtil };
