@@ -1,4 +1,6 @@
 # OCS Component Library
+![Build](https://github.com/observatorycontrolsystem/ocs-component-lib/workflows/Build/badge.svg)
+
 Component library and utilities for an astronomical observatory control system frontend
 
 ## Usage

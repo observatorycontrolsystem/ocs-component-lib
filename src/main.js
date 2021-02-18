@@ -11,7 +11,7 @@ const OCSComponentLib = {
 };
 
 // Auto-install when vue is found (e.g. in browser via <script> tag)
-let GlobalVue = null;
+let GlobalVue = null
 if (typeof window !== 'undefined') {
   GlobalVue = window.Vue;
 } else if (typeof global !== 'undefined') {
