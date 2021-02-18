@@ -29,8 +29,8 @@ Vue.use(BootstrapVue);
 Vue.use(OCSComponentLib);
 ```
 
-### Using the utility methods
-To use the utility methods provided by the library, import the utilities and call a function. For example, to
+### Using the utilities
+To use the utilities provided by the library, import them and call a function. For example, to
 use the `decimalDecToSexigesimal(...)` function:
 
 ```
@@ -44,7 +44,7 @@ The library is also available from a CDN by including the script in the head sec
 
 ```
 <head>
-   ...
+  ...
   <script type="text/javascript" src="https://unpkg.com/ocs-component-lib@0.1.0/dist/ocs-component-lib.umd.min.js"><script>
   ...
 </head>
@@ -71,12 +71,13 @@ npm run build
 npm run test:unit
 ```
 
-### Lint files and display lint errors
+### Lint files
+View lint errors:
 ```
 npm run lint:check
 ```
 
-### Lint files and fix linting errors
+Fix lint errors:
 ```
 npm run lint:fix
 ```
