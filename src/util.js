@@ -76,10 +76,8 @@ function formatField(value, apiFieldToHumanReadable) {
   }
 }
 
-let datetimeFormat = 'YYYY-MM-DD HH:mm:ss';
-
 function formatDate(date, formatString) {
-  formatString = formatString || datetimeFormat;
+  formatString = formatString || 'YYYY-MM-DD HH:mm:ss';
   if (date) {
     return moment.utc(String(date)).format(formatString);
   }

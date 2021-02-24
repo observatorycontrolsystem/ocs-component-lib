@@ -1,5 +1,5 @@
 <template>
-  <b-row style="position: relative;">
+  <b-row class="position-relative">
     <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
     <b-col md="8" cols="12">
       <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href">
