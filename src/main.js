@@ -6,7 +6,10 @@ const OCSComponentLib = {
   install(Vue) {
     for (const componentName in components) {
       const component = components[componentName];
-      Vue.component(component.name, component);
+      // Namespace all components with "ocs". For example, if the name of a SFC is "RequestDetail",
+      // adding the namespace will make the component available in projects where it is installed
+      // as <ocs-request-detail></ocs-request-detail>.
+      Vue.component('Ocs' + component.name, component);
     }
   }
 };

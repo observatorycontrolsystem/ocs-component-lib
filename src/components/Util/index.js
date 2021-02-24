@@ -1,3 +1,3 @@
-import CustomPagination from './CustomPagination.vue';
+import Pagination from './Pagination.vue';
 
-export { CustomPagination };
+export { Pagination };

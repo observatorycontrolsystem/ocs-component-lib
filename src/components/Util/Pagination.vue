@@ -24,7 +24,7 @@
 </template>
 <script>
 export default {
-  name: 'CustomPagination',
+  name: 'Pagination',
   props: {
     tableId: {
       type: String,

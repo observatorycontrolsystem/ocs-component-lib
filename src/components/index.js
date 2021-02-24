@@ -1,5 +1,5 @@
-import { RequestConfigurationsDetail } from './RequestConfigurationsDetail';
-import { RequestGroupOverview, RequestGroupList } from './RequestGroups';
-import { CustomPagination } from './Util';
+import { RequestConfigurationsDetail } from './Configurations';
+import { RequestGroupOverview, RequestGroupTable } from './RequestGroups';
+import { Pagination } from './Util';
 
-export { RequestConfigurationsDetail, RequestGroupOverview, RequestGroupList, CustomPagination };
+export { RequestConfigurationsDetail, RequestGroupOverview, RequestGroupTable, Pagination };

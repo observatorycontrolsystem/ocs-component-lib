@@ -1,4 +1,4 @@
 import RequestGroupOverview from './RequestGroupOverview.vue';
-import RequestGroupList from './RequestGroupList.vue';
+import RequestGroupTable from './RequestGroupTable.vue';
 
-export { RequestGroupOverview, RequestGroupList };
+export { RequestGroupOverview, RequestGroupTable };
