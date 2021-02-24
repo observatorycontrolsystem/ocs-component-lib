@@ -9,8 +9,10 @@ Vue component library and utilities for an astronomical observatory control syst
 These dependencies must be installed alongside the library.
 
 - [BootstrapVue](https://bootstrap-vue.org/)
+- [Bootstrap](https://getbootstrap.com/)
 - [JQuery](https://jquery.com/)
 - [Lodash](https://lodash.com/)
+- Fontawesome for font support
 
 ### Installation
 ```
@@ -23,6 +25,9 @@ To use the components in the library, place the following in the entrypoint of y
 ```
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'ocs-component-lib/dist/ocs-component-lib.css';
 import { OCSComponentLib } from 'ocs-component-lib';
 
 Vue.use(BootstrapVue);

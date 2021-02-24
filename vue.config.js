@@ -15,6 +15,12 @@ module.exports = {
           commonjs2: 'jquery',
           amd: 'jquery',
           root: 'JQuery'
+        },
+        moment: {
+          commonjs: 'moment',
+          commonjs2: 'moment',
+          amd: 'moment',
+          root: 'moment'
         }
       });
     }

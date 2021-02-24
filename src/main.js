@@ -1,5 +1,6 @@
 import * as components from './components';
 import * as OCSUtil from '@/util';
+import * as OCSMixin from '@/mixins';
 
 const OCSComponentLib = {
   install(Vue) {
@@ -21,4 +22,4 @@ if (GlobalVue) {
   GlobalVue.use(OCSComponentLib);
 }
 
-export { OCSComponentLib, OCSUtil };
+export { OCSComponentLib, OCSUtil, OCSMixin };
