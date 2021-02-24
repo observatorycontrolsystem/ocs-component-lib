@@ -1,61 +1,62 @@
 <template>
-  <b-row class="position-relative">
-    <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
-    <b-col md="8" cols="12">
-      <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href">
-        {{ requestgroupDisplayName }}
-      </b-link>
-      <b-link v-if="requestgroupLink.to" :to="requestgroupLink.to">
-        {{ requestgroupDisplayName }}
-      </b-link>
-      <span v-else>
-        {{ requestgroupDisplayName }}
-      </span>
-      <b-row>
-        <b-col>
-          <!-- TODO: requestgroup-block class I don't think is used -->
-          <div class="requestgroup-details requestgroup-block border-right">
-            <div><i class="fa fa-fw fa-user" /> {{ requestgroup.submitter }}</div>
-            <div>
-              <i class="fa fa-fw fa-users" />
-              <b-link v-if="proposalLink.href" :href="proposalLink.href">
-                {{ requestgroup.proposal }}
-              </b-link>
-              <b-link v-if="proposalLink.to" :to="proposalLink.to">
-                {{ requestgroup.proposal }}
-              </b-link>
-              <span v-else>
-                {{ requestgroup.proposal }}
-              </span>
+  <b-col>
+    <b-row class="position-relative">
+      <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
+      <b-col md="8" cols="12">
+        <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href" class="requestgroup-title">
+          {{ requestgroupDisplayName }}
+        </b-link>
+        <b-link v-if="requestgroupLink.to" :to="requestgroupLink.to" class="requestgroup-title">
+          {{ requestgroupDisplayName }}
+        </b-link>
+        <span v-else class="requestgroup-title">
+          {{ requestgroupDisplayName }}
+        </span>
+        <b-row>
+          <b-col class="pr-1 text-truncate">
+            <div class="requestgroup-details border-right">
+              <div><i class="fa fa-fw fa-user" /> {{ requestgroup.submitter }}</div>
+              <div>
+                <i class="fa fa-fw fa-users" />
+                <b-link v-if="proposalLink.href" :href="proposalLink.href">
+                  {{ requestgroup.proposal }}
+                </b-link>
+                <b-link v-if="proposalLink.to" :to="proposalLink.to">
+                  {{ requestgroup.proposal }}
+                </b-link>
+                <span v-else>
+                  {{ requestgroup.proposal }}
+                </span>
+              </div>
             </div>
-          </div>
-        </b-col>
-        <b-col>
-          <div class="requestgroup-details requestgroup-block">
-            <div :class="requestgroup.state | stateToBsClass('text')"><i :class="requestgroup.state | stateToIcon" />{{ requestgroup.state }}</div>
-            <div>
-              <i class="fa fa-fw fa-calendar" />
-              <span class="tool-tip" :title="requestgroup.modified | timeFromNow">{{ requestgroup.modified | formatDate }}</span>
+          </b-col>
+          <b-col class="p-0">
+            <div class="requestgroup-details">
+              <div :class="requestgroup.state | stateToBsClass('text')"><i :class="requestgroup.state | stateToIcon" />{{ requestgroup.state }}</div>
+              <div>
+                <i class="fa fa-fw fa-calendar" />
+                <span :title="requestgroup.modified | timeFromNow">{{ requestgroup.modified | formatDate }}</span>
+              </div>
             </div>
-          </div>
-        </b-col>
-      </b-row>
-    </b-col>
-    <b-col md="1" cols="12" class="request-count request-block">
-      <div class="text-center align-middle" title="Number of requests">{{ requestgroup.requests.length }}</div>
-    </b-col>
-    <b-col md="1" cols="12" class="request-count request-block text-info">
-      <div class="text-center align-middle" title="Number of pending requests">{{ requestgroup | requestStateCount(['PENDING']) }}</div>
-    </b-col>
-    <b-col md="1" cols="12" class="request-count request-block text-danger">
-      <div class="text-center align-middle" title="Number of failed requests">
-        {{ requestgroup | requestStateCount(['WINDOW_EXPIRED', 'FAILURE_LIMIT_REACHED']) }}
-      </div>
-    </b-col>
-    <b-col md="1" cols="12" class="request-count request-block text-success">
-      <div class="text-center align-middle" title="Number of completed requests">{{ requestgroup | requestStateCount(['COMPLETED']) }}</div>
-    </b-col>
-  </b-row>
+          </b-col>
+        </b-row>
+      </b-col>
+      <b-col md="1" cols="12" class="request-count request-block">
+        <div class="text-center align-middle" title="Total number of requests">{{ requestgroup.requests.length }}</div>
+      </b-col>
+      <b-col md="1" cols="12" class="request-count request-block text-info">
+        <div class="text-center align-middle" title="Number of pending requests">{{ requestgroup | requestStateCount(['PENDING']) }}</div>
+      </b-col>
+      <b-col md="1" cols="12" class="request-count request-block text-danger">
+        <div class="text-center align-middle" title="Number of failed requests">
+          {{ requestgroup | requestStateCount(['WINDOW_EXPIRED', 'FAILURE_LIMIT_REACHED']) }}
+        </div>
+      </b-col>
+      <b-col md="1" cols="12" class="request-count request-block text-success">
+        <div class="text-center align-middle" title="Number of completed requests">{{ requestgroup | requestStateCount(['COMPLETED']) }}</div>
+      </b-col>
+    </b-row>
+  </b-col>
 </template>
 <script>
 import _ from 'lodash';
