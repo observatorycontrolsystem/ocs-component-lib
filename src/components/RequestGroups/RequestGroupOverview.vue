@@ -98,7 +98,7 @@ export default {
       default: () => {
         return {};
       },
-      validator: (value) => {
+      validator: value => {
         let hasHref = 'href' in value;
         let hasTo = 'to' in value;
         if (hasHref && hasTo) return false;
@@ -116,7 +116,7 @@ export default {
       default: function() {
         return {};
       },
-      validator: (value) => {
+      validator: value => {
         let hasHref = 'href' in value;
         let hasTo = 'to' in value;
         if (hasHref && hasTo) return false;

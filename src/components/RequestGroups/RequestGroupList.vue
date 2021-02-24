@@ -77,7 +77,7 @@
         <template v-slot:table-busy>
           <slot name="loading-requests">
             <br />
-              <div class="text-center my-2"><i class="fa fa-spin fa-spinner" /> Loading observation requests...</div>
+            <div class="text-center my-2"><i class="fa fa-spin fa-spinner" /> Loading observation requests...</div>
             <br />
           </slot>
         </template>
@@ -143,17 +143,23 @@ export default {
       type: Function,
       required: false,
       // eslint-disable-next-line no-unused-vars
-      default: (proposalId) => { return {}; },
-      description: 'Function that takes a proposal ID as input and returns an object describing the ' +
-      'link to the proposal page. If supplied, the proposal ID displayed for each row in the table will be a link.'
+      default: proposalId => {
+        return {};
+      },
+      description:
+        'Function that takes a proposal ID as input and returns an object describing the ' +
+        'link to the proposal page. If supplied, the proposal ID displayed for each row in the table will be a link.'
     },
     requestgroupLink: {
       type: Function,
       required: false,
       // eslint-disable-next-line no-unused-vars
-      default: (requestgroupId) => { return {}; },
-      description: 'Function that takes a requestgroup ID as input and returns an object describing the ' +
-      'link to the proposal page. If supplied, the requestgroup ID displayed for each row in the table will be a link.'
+      default: requestgroupId => {
+        return {};
+      },
+      description:
+        'Function that takes a requestgroup ID as input and returns an object describing the ' +
+        'link to the proposal page. If supplied, the requestgroup ID displayed for each row in the table will be a link.'
     }
   },
   data: function() {
