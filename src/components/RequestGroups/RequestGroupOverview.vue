@@ -3,28 +3,32 @@
     <b-row class="position-relative">
       <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
       <b-col md="8" cols="12">
-        <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href" class="requestgroup-title">
-          {{ requestgroupDisplayName }}
-        </b-link>
-        <b-link v-if="requestgroupLink.to" :to="requestgroupLink.to" class="requestgroup-title">
-          {{ requestgroupDisplayName }}
-        </b-link>
-        <span v-else class="requestgroup-title">
-          {{ requestgroupDisplayName }}
-        </span>
+        <slot name="requestgroup-name">
+          <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href" class="requestgroup-title">
+            {{ requestgroupDisplayName }}
+          </b-link>
+          <b-link v-if="requestgroupLink.to" :to="requestgroupLink.to" class="requestgroup-title">
+            {{ requestgroupDisplayName }}
+          </b-link>
+          <span v-else class="requestgroup-title">
+            {{ requestgroupDisplayName }}
+          </span>
+        </slot>
         <b-row>
           <b-col class="pr-1 text-truncate">
             <div class="requestgroup-details border-right">
               <div><i class="fa fa-fw fa-user" /> {{ requestgroup.submitter }}</div>
               <div>
                 <i class="fa fa-fw fa-users" />
-                <b-link v-if="proposalLink.href" :href="proposalLink.href">
+                <b-link v-if="proposalLink.href" :href="proposalLink.href" class="proposal-display-code">
                   {{ requestgroup.proposal }}
                 </b-link>
-                <b-link v-if="proposalLink.to" :to="proposalLink.to">
+                <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code"
+                  >>
                   {{ requestgroup.proposal }}
                 </b-link>
-                <span v-else>
+                <span v-else class="proposal-display-code"
+                  >>
                   {{ requestgroup.proposal }}
                 </span>
               </div>
@@ -41,18 +45,18 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col md="1" cols="12" class="request-count request-block">
+      <b-col md="1" cols="12" class="request-count request-block total-requests">
         <div class="text-center align-middle" title="Total number of requests">{{ requestgroup.requests.length }}</div>
       </b-col>
-      <b-col md="1" cols="12" class="request-count request-block text-info">
+      <b-col md="1" cols="12" class="request-count request-block text-info pending-requests">
         <div class="text-center align-middle" title="Number of pending requests">{{ requestgroup | requestStateCount(['PENDING']) }}</div>
       </b-col>
-      <b-col md="1" cols="12" class="request-count request-block text-danger">
+      <b-col md="1" cols="12" class="request-count request-block text-danger failed-requests">
         <div class="text-center align-middle" title="Number of failed requests">
           {{ requestgroup | requestStateCount(['WINDOW_EXPIRED', 'FAILURE_LIMIT_REACHED']) }}
         </div>
       </b-col>
-      <b-col md="1" cols="12" class="request-count request-block text-success">
+      <b-col md="1" cols="12" class="request-count request-block text-success completed-requests">
         <div class="text-center align-middle" title="Number of completed requests">{{ requestgroup | requestStateCount(['COMPLETED']) }}</div>
       </b-col>
     </b-row>

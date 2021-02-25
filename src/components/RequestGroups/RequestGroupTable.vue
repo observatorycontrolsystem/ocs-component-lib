@@ -148,7 +148,8 @@ export default {
       },
       description:
         'Function that takes a proposal ID as input and returns an object describing the ' +
-        'link to the proposal page. If supplied, the proposal ID displayed for each row in the table will be a link.'
+        'link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target. ' +
+        'If supplied, the proposal ID displayed for each row in the table will be a link.'
     },
     requestgroupLink: {
       type: Function,
@@ -159,7 +160,8 @@ export default {
       },
       description:
         'Function that takes a requestgroup ID as input and returns an object describing the ' +
-        'link to the proposal page. If supplied, the requestgroup ID displayed for each row in the table will be a link.'
+        'link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target. ' +
+        'If supplied, the requestgroup ID displayed for each row in the table will be a link.'
     }
   },
   data: function() {
