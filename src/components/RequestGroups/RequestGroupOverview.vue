@@ -23,12 +23,10 @@
                 <b-link v-if="proposalLink.href" :href="proposalLink.href" class="proposal-display-code">
                   {{ requestgroup.proposal }}
                 </b-link>
-                <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code"
-                  >>
+                <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code">
                   {{ requestgroup.proposal }}
                 </b-link>
-                <span v-else class="proposal-display-code"
-                  >>
+                <span v-else class="proposal-display-code">
                   {{ requestgroup.proposal }}
                 </span>
               </div>
