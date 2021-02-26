@@ -6,7 +6,7 @@ import { copyObject } from '@/util';
 export var paginationAndFilteringMixin = {
   /* 
   Mixin that provides basic functionality for pagination and filtering of results from an API endpoint. This mixin
-  assumes the app is an SPA that uses vue-router.
+  assumes the app is an SPA that uses VueRouter.
 
   Results from the endpoint are filtered using query parameters, and results are in the form
   of `{ count: totalNumberOfResults, results: listOfAPageOfResults }`.
