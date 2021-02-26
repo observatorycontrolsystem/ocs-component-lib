@@ -1,13 +1,14 @@
 import { createLocalVue, enableAutoDestroy, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
+import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
+import $ from 'jquery';
 
 import { RequestGroupTable, RequestGroupOverview } from '@/components/RequestGroups';
 import { Pagination } from '@/components/Util';
 
 // Mock out remote network calls
 jest.mock('jquery');
-import $ from 'jquery';
 const { Deferred } = jest.requireActual('jquery');
 
 // Make sure the bootstrap-vue components are available during testing and
@@ -154,9 +155,6 @@ const wrapperFactory = (
     propsData.requestgroupLink = requestgroupLink;
   }
 
-  // Initialize a current route
-  router.push('/');
-
   return mount(RequestGroupTable, {
     localVue,
     router,
@@ -166,18 +164,24 @@ const wrapperFactory = (
 };
 
 describe('RequestGroupTable.vue', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('custom title is displayed', () => {
     let requestgroupListData = requestgroupListFactory();
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData, 'Filtered Requestgroups');
     expect(wrapper.text()).toContain('Filtered Requestgroups');
   });
+
   it('default title is displayed when no title is passed in', () => {
     let requestgroupListData = requestgroupListFactory();
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
     expect(wrapper.text()).toContain('Submitted Observation Requests');
   });
+
   it('custom content for empty requests slot is rendered', () => {
     let requestgroupListData = requestgroupListFactory([]);
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
@@ -191,37 +195,83 @@ describe('RequestGroupTable.vue', () => {
     );
     expect(wrapper.text()).toContain('There seems to be nothing here');
   });
+
   it('default content for empty requests is rendered when named slot is not used', () => {
     let requestgroupListData = requestgroupListFactory([]);
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
     expect(wrapper.text()).toContain('No observation requests found.');
   });
+
   it('success event emitted on successful data retrieval', async () => {
     let requestgroupListData = requestgroupListFactory(['PENDING', 'COMPLETED']);
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
-    await wrapper.vm.$nextTick();
+    await flushPromises();
     expect(wrapper.emitted().success).toBeTruthy();
   });
+
   it('error event emitted on error retrieving data', async () => {
     let requestgroupListData = requestgroupListFactory(['PENDING', 'COMPLETED']);
     $.ajax.mockReturnValue(Deferred().reject(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
-    await wrapper.vm.$nextTick();
+    await flushPromises();
     expect(wrapper.emitted().error).toBeTruthy();
   });
+
   it('pagination component is rendered', () => {
     let requestgroupListData = requestgroupListFactory(['PENDING', 'COMPLETED']);
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
     expect(wrapper.findAllComponents(Pagination)).toHaveLength(1);
   });
+
   it('request groups overview components are rendered for each requestgroup', () => {
     let requestgroupListData = requestgroupListFactory(['PENDING', 'COMPLETED', 'PENDING']);
     $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
     const wrapper = wrapperFactory('http://localhost', profileData);
     expect(wrapper.text()).not.toContain('No observation requests found');
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(3);
+  });
+
+  it('updates route with API query params', async () => {
+    let requestgroupListData = requestgroupListFactory(['PENDING', 'COMPLETED', 'PENDING']);
+    $.ajax.mockReturnValue(Deferred().resolve(requestgroupListData));
+    const wrapper = wrapperFactory('http://localhost', profileData);
+    await flushPromises();
+    expect(wrapper.vm.$route.fullPath).toBe('/?limit=20');
+  });
+
+  it('filters requestgroups by state', async () => {
+    let requestgroupListDataUnfiltered = requestgroupListFactory(['PENDING', 'COMPLETED', 'PENDING']);
+    let requestgroupListDataFiltered = requestgroupListFactory(['COMPLETED']);
+    $.ajax
+      .mockReturnValueOnce(Deferred().resolve(requestgroupListDataUnfiltered))
+      .mockReturnValueOnce(Deferred().resolve(requestgroupListDataFiltered));
+
+    const wrapper = wrapperFactory('http://localhost', profileData);
+    // Check that 3 requestgroups are displayed, and also that the AJAX call sent a query
+    // with the expected parameters.
+    expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(3);
+    expect(wrapper.vm.$route.fullPath).toBe('/?limit=20');
+    expect($.ajax.mock.calls.length).toBe(1);
+    expect($.ajax.mock.calls[0][0].data.limit).toBe(20);
+    expect($.ajax.mock.calls[0][0].data.state).toBeFalsy();
+
+    // Simulate updating the filter choice for requestgroup state
+    let filterButton = wrapper.find('button[type=submit]');
+    let stateSelect = wrapper.find('select#input-state');
+    await stateSelect.setValue('COMPLETED');
+    filterButton.trigger('submit');
+    await flushPromises();
+
+    // Check that the second AJAX call used the right query params and also that
+    // only one requestgroup is displayed now
+    expect($.ajax.mock.calls.length).toBe(2);
+    expect($.ajax.mock.calls[1][0].data.limit).toBe(20);
+    expect($.ajax.mock.calls[1][0].data.state).toBe('COMPLETED');
+    expect(wrapper.vm.$route.fullPath).toContain('state=COMPLETED');
+    expect(wrapper.vm.$route.fullPath).toContain('limit=20');
+    expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(1);
   });
 });
