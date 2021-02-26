@@ -48,6 +48,7 @@ describe('formatDate', () => {
     let expected = '2021-02-03 04:55:28';
     expect(result).toEqual(expected);
   });
+
   it('formats date using supplied format', () => {
     let date = '2021-02-03T04:55:28.474845Z';
     let result = formatDate(date, 'YYYY/MM/DD HH:mm');

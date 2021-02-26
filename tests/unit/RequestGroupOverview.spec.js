@@ -109,6 +109,7 @@ describe('RequestGroupOverview.vue', () => {
     expect(wrapper.text()).toContain('2021-02-03 04:55:30');
     expect(wrapper.text()).toContain(requestgroupData.submitter);
   });
+
   it('displays requestgroup title without link', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData);
@@ -120,6 +121,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(false);
   });
+
   it('displays requestgroup title as link using href', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData, {}, { href: 'http://localhost' });
@@ -131,6 +133,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(true);
   });
+
   it('displays requestgroup title as link using to', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData, {}, { to: { name: 'rgPath', params: { id: 1 } } });
@@ -142,6 +145,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(true);
   });
+
   it('displays proposal without link', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData);
@@ -153,6 +157,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(false);
   });
+
   it('displays proposal as link using href', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData, { href: 'http://localhost' });
@@ -164,6 +169,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(true);
   });
+
   it('displays proposal as link using to', () => {
     let requestgroupData = requestgroupFactory();
     const wrapper = wrapperFactory(requestgroupData, { to: { name: 'proposalPath', params: { id: 1 } } });
@@ -175,6 +181,7 @@ describe('RequestGroupOverview.vue', () => {
         .exists()
     ).toBe(true);
   });
+
   it('displays correct number of requests', () => {
     let requestgroupData = requestgroupFactory(['PENDING', 'PENDING', 'WINDOW_EXPIRED', 'COMPLETED', 'FAILURE_LIMIT_REACHED']);
     const wrapper = wrapperFactory(requestgroupData);

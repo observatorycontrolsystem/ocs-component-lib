@@ -6,13 +6,17 @@ Vue component library and utilities for an astronomical observatory control syst
 ## Usage
 
 ### Dependencies
-These dependencies must be installed alongside the library.
+This library depends on a few external libraries. The following are installed as peer dependencies when you install the library:
 
 - [BootstrapVue](https://bootstrap-vue.org/)
 - [Bootstrap](https://getbootstrap.com/)
 - [JQuery](https://jquery.com/)
 - [Lodash](https://lodash.com/)
-- Fontawesome for font support
+- [Momentjs](https://momentjs.com/)
+
+[Font Awesome 5](https://fontawesome.com/) is used for icon support. It must be included in your application.
+
+Some components in the library depend on [Vue Router](https://router.vuejs.org/) to function properly. To use these components your application must user Vue Router.
 
 ### Installation
 ```
@@ -44,6 +48,20 @@ import { OCSUtil } from 'ocs-component-lib';
 OCSUtil.decimalDecToSexigesimal(dec);
 ```
 
+## Using the mixins
+To use the mixins provided by the library, import them and include them in your component. For example, to use the
+`paginationAndFilteringMixin` mixin:
+
+```
+import { OCSMixin } from 'ocs-component-lib';
+
+export default {
+  name: 'MyComponent',
+  mixins: [OCSMixin.paginationAndFilteringMixin]
+  ...
+}
+```
+
 ### Browser
 The library is also available from a CDN by including the script in the head section of your HTML file. Remember to include the other dependencies as well.
 
@@ -65,6 +83,15 @@ Node.js version 8.9 or above (v10+ recommended).
 ```
 npm install
 ```
+
+### Installing a local copy of the library into your app
+When installing the library into your application from a local directory, from your application directory:
+```
+npm install /path/to/local/ocs/component/lib
+```
+
+You might need to turn off `lintOnSave` in your project's `vue.config.js` file to speed up your project build
+time when running the hot reload server.
 
 ### Compile and minify library for production
 ```
