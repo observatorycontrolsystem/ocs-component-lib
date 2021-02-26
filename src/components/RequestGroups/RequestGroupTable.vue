@@ -95,7 +95,7 @@
           </request-group-overview>
         </template>
       </b-table>
-      <ocs-pagination
+      <pagination
         v-if="!isBusy"
         table-id="requestgroups-table"
         :per-page="queryParams.limit"
@@ -104,7 +104,7 @@
         display-per-page-dropdown
         @pageChange="onPageChange"
         @limitChange="onLimitChange"
-      ></ocs-pagination>
+      ></pagination>
     </div>
   </b-container>
 </template>
@@ -113,12 +113,12 @@ import _ from 'lodash';
 
 import { paginationAndFilteringMixin } from '@/mixins/paginationMixins.js';
 import RequestGroupOverview from '@/components/RequestGroups/RequestGroupOverview.vue';
-import OcsPagination from '@/components/Util/Pagination.vue';
+import Pagination from '@/components/Util/Pagination.vue';
 
 export default {
   name: 'RequestGroupTable',
   components: {
-    OcsPagination,
+    Pagination,
     RequestGroupOverview
   },
   mixins: [paginationAndFilteringMixin],
