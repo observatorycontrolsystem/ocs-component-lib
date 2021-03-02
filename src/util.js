@@ -83,6 +83,18 @@ function formatDate(date, formatString) {
   }
 }
 
+function formatFloat(value, precision) {
+  /* Round a number and format it with the given precision */
+  let valueAsNumber = Number(value);
+  precision = precision || 0;
+  if (valueAsNumber === 0 || valueAsNumber) {
+    const multiplier = Math.pow(10, precision);
+    return (Math.round(valueAsNumber * multiplier) / multiplier).toFixed(precision);
+  } else {
+    return value;
+  }
+}
+
 function stateToBsClass(state, classPrefix) {
   let state_map = {
     PENDING: 'info',
@@ -126,8 +138,9 @@ export {
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
   formatDate,
-  formatValue,
   formatField,
+  formatFloat,
+  formatValue,
   stateToBsClass,
   stateToIcon,
   timeFromNow
