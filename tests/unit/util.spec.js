@@ -116,5 +116,4 @@ describe('formatFloat', () => {
     let expected = '0.0';
     expect(result).toEqual(expected);
   });
-
 });
