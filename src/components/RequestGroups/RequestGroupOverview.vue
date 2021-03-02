@@ -95,6 +95,9 @@ export default {
       type: Object,
       required: true
     },
+    // Set `proposalLink` to turn the displayed proposal ID into a link. Pass in an object with either { "href": "..." } specifying
+    // the "href" attribute for a normal <a> tag or { "to": ... } specifying a vue-router target route "to" attribute
+    // for the <router-link> tag.
     proposalLink: {
       type: Object,
       required: false,
@@ -107,12 +110,11 @@ export default {
         if (hasHref && hasTo) return false;
         if (_.isEmpty(value)) return true;
         return hasHref || hasTo;
-      },
-      description:
-        'Set to turn the displayed proposal ID into a link. Pass in an object with either { "href": "..." } specifying ' +
-        'the "href" attribute for a normal <a> tag or { "to": ... } specifying a vue-router target route "to" attribute ' +
-        'for the <router-link> tag.'
+      }
     },
+    // Set `requestgroupLink` to turn the displayed requestgroup ID into a link. Pass in an object with either { "href": "..." } specifying
+    // the "href" attribute for a normal <a> tag or { "to": ... } specifying a vue-router target route "to" attribute
+    // for the <router-link> tag.
     requestgroupLink: {
       type: Object,
       required: false,
@@ -125,11 +127,7 @@ export default {
         if (hasHref && hasTo) return false;
         if (_.isEmpty(value)) return true;
         return hasHref || hasTo;
-      },
-      description:
-        'Set to turn the displayed requestgroup ID into a link. Pass in an object with either { "href": "..." } specifying ' +
-        'the "href" attribute for a normal <a> tag or { "to": ... } specifying a vue-router target route "to" attribute ' +
-        'for the <router-link> tag.'
+      }
     }
   },
   computed: {

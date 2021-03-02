@@ -139,29 +139,27 @@ export default {
       required: true,
       description: 'Object containing the response from the profile API endpoint.'
     },
+    // `proposalLink` is a function that takes a proposal ID as input and returns an object describing the
+    // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
+    // If supplied, the proposal ID displayed for each row in the table will be a link.
     proposalLink: {
       type: Function,
       required: false,
       // eslint-disable-next-line no-unused-vars
       default: proposalId => {
         return {};
-      },
-      description:
-        'Function that takes a proposal ID as input and returns an object describing the ' +
-        'link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target. ' +
-        'If supplied, the proposal ID displayed for each row in the table will be a link.'
+      }
     },
+    // `requestgroupLink` is a function that takes a requestgroup ID as input and returns an object describing the
+    // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
+    // If supplied, the requestgroup ID displayed for each row in the table will be a link.
     requestgroupLink: {
       type: Function,
       required: false,
       // eslint-disable-next-line no-unused-vars
       default: requestgroupId => {
         return {};
-      },
-      description:
-        'Function that takes a requestgroup ID as input and returns an object describing the ' +
-        'link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target. ' +
-        'If supplied, the requestgroup ID displayed for each row in the table will be a link.'
+      }
     }
   },
   data: function() {

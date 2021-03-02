@@ -26,10 +26,10 @@
 export default {
   name: 'Pagination',
   props: {
+    // `tableId` is the ID of the table element to which the pagination applies
     tableId: {
       type: String,
-      required: true,
-      description: 'The ID of the table element to which the pagination applies'
+      required: true
     },
     perPage: {
       validator: value => {
