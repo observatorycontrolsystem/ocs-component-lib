@@ -1,7 +1,7 @@
 import { createLocalVue, enableAutoDestroy, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 
-import RequestConfigurationsDetail from '@/components/RequestConfigurationsDetail/RequestConfigurationsDetail.vue';
+import RequestConfigurationsDetail from '@/components/Configurations/RequestConfigurationsDetail.vue';
 
 // Make sure the bootstrap-vue components are available during testing
 const localVue = createLocalVue();

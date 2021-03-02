@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 
 function zPadFloat(num) {
   return num.toLocaleString(undefined, { minimumIntegerDigits: 2, maximumFractionDigits: 4 });
@@ -75,4 +76,59 @@ function formatField(value, apiFieldToHumanReadable) {
   }
 }
 
-export { decimalDecToSexigesimal, decimalRaToSexigesimal, formatValue, formatField };
+function formatDate(date, formatString) {
+  formatString = formatString || 'YYYY-MM-DD HH:mm:ss';
+  if (date) {
+    return moment.utc(String(date)).format(formatString);
+  }
+}
+
+function stateToBsClass(state, classPrefix) {
+  let state_map = {
+    PENDING: 'info',
+    SCHEDULED: 'info',
+    COMPLETED: 'success',
+    FAILURE_LIMIT_REACHED: 'danger',
+    WINDOW_EXPIRED: 'danger',
+    CANCELED: 'danger'
+  };
+  return classPrefix + '-' + state_map[state];
+}
+
+function stateToIcon(state) {
+  let stateMap = {
+    PENDING: 'sync',
+    SCHEDULED: 'sync',
+    COMPLETED: 'check',
+    FAILURE_LIMIT_REACHED: 'times',
+    WINDOW_EXPIRED: 'times',
+    CANCELED: 'times'
+  };
+  return 'fa fa-fw fa-' + stateMap[state];
+}
+
+function timeFromNow(date) {
+  if (date) {
+    return moment.utc(String(date)).fromNow();
+  } else {
+    return '';
+  }
+}
+
+function copyObject(source) {
+  let copy = {};
+  _.assign(copy, source);
+  return copy;
+}
+
+export {
+  copyObject,
+  decimalDecToSexigesimal,
+  decimalRaToSexigesimal,
+  formatDate,
+  formatValue,
+  formatField,
+  stateToBsClass,
+  stateToIcon,
+  timeFromNow
+};

@@ -26,7 +26,6 @@
                 <li v-for="(x, idx) in configuration.target" :key="'target-' + idx">
                   <b-row v-if="configuration.target[idx] && x">
                     <b-col v-if="configuration.target[idx]" class="font-weight-bold text-nowrap">
-                      <!-- TODO: What does this formatField do? -->
                       {{ idx | formatField }}
                     </b-col>
                     <b-col v-if="x" class="text-right">
