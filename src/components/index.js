@@ -1,5 +1,5 @@
 import { RequestConfigurationsDetail } from './Configurations';
-import { RequestGroupOverview, RequestGroupTable } from './RequestGroups';
+import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable } from './RequestGroups';
 import { Pagination } from './Util';
 
-export { RequestConfigurationsDetail, RequestGroupOverview, RequestGroupTable, Pagination };
+export { RequestConfigurationsDetail, RequestGroupHeader, RequestGroupOverview, RequestGroupTable, Pagination };
