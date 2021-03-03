@@ -17,13 +17,13 @@
     <b-col lg="auto" cols="12" class="p-1 flex-lg-fill">
       <div class="font-weight-bold">Proposal</div>
       <div>
-        <b-link v-if="proposalLink.href" :href="proposalLink.href">
+        <b-link v-if="proposalLink.href" :href="proposalLink.href" class="proposal-display-code">
           {{ requestgroup.proposal }}
         </b-link>
-        <b-link v-if="proposalLink.to" :to="proposalLink.to">
+        <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code">
           {{ requestgroup.proposal }}
         </b-link>
-        <span v-else>
+        <span v-else class="proposal-display-code">
           {{ requestgroup.proposal }}
         </span>
       </div>
