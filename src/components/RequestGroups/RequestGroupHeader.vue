@@ -40,7 +40,7 @@
       <div class="font-weight-bold" title="Observation Type">Type</div>
       <div>{{ requestgroup.observation_type }}</div>
     </b-col>
-    <b-col v-if="showExtraColumn" lg="auto" cols="12" class="p-1 flex-lg-fill">
+    <b-col v-if="showExtraColumn" lg="auto" cols="12" class="p-1 flex-lg-fill" v-bind="extraColumnAttrs" :class="extraColumnClasses">
       <slot name="extra-column-content"></slot>
     </b-col>
   </div>
@@ -74,6 +74,16 @@ export default {
     // If true, an extra flex column is diplayed, showing the content in the "extra-column-content" named slot.
     showExtraColumn: {
       type: Boolean
+    },
+    extraColumnAttrs: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    extraColumnClasses: {
+      type: String,
+      default: ''
     },
     // Set `proposalLink` to turn the displayed proposal ID into a link. Pass in an object with either { "href": "..." } specifying
     // the "href" attribute for a normal <a> tag or { "to": ... } specifying a vue-router target route "to" attribute

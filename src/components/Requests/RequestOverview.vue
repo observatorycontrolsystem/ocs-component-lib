@@ -5,7 +5,7 @@
       <b-row>
         <b-col cols="12" md class="request-block border-right">
           <b-link v-if="requestLink.href" :href="requestLink.href" class="request-display-code request-title"> # {{ request.id }} </b-link>
-          <b-link v-if="requestLink.to" :to="requestLink.to" class="request-display-code request-title"> # {{ request.id }} </b-link>
+          <b-link v-else-if="requestLink.to" :to="requestLink.to" class="request-display-code request-title"> # {{ request.id }} </b-link>
           <span v-else class="request-display-code request-title"> # {{ request.id }} </span>
           <p>
             <i class="far fa-clock" />

@@ -70,9 +70,11 @@ const requestFactory = (state = 'PENDING') => {
   };
 };
 
-const instrumentsFactory = (instrumentCode) => {
-  return { instrumentCode: { name: 'Instrument Code' } };
-}
+const instrumentsFactory = (instrumentCode = 'instrument_a') => {
+  let instruments = {};
+  instruments[instrumentCode] = { name: 'Instrument Code' };
+  return instruments;
+};
 
 const wrapperFactory = (request = {}, instruments = {}, requestLink = {}, slots = {}, showExtraColumn = false) => {
   return mount(RequestOverview, {
