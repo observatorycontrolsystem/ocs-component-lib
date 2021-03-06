@@ -15,15 +15,19 @@ enableAutoDestroy(afterEach);
 const windowFactory = (nWindows = 1) => {
   let windows = [];
   for (let i = 0; i < nWindows; i++) {
-    windows.push(
-      {
-        start: moment.utc('2021-02-02', 'YYYY-MM-DD').add(i, 'days').format(),
-        end: moment.utc('2021-02-02', 'YYYY-MM-DD').add(i + 1, 'days').format()
-      }
-    );
+    windows.push({
+      start: moment
+        .utc('2021-02-02', 'YYYY-MM-DD')
+        .add(i, 'days')
+        .format(),
+      end: moment
+        .utc('2021-02-02', 'YYYY-MM-DD')
+        .add(i + 1, 'days')
+        .format()
+    });
   }
   return windows;
-}
+};
 
 const wrapperFactory = (windows = {}) => {
   return mount(RequestWindowsDetail, {
