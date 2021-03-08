@@ -183,6 +183,8 @@ export default {
       let plot = new vis.Timeline(this.$refs.plot, new vis.DataSet([]), this.options);
       let that = this;
       plot.on('rangechanged', function() {
+        // on rangechanged, the user of this component can call the .updateWindow() method provided by
+        // the plotZoomMixin mixin.
         that.$emit('rangechanged', that.plot.getWindow());
       });
       return plot;

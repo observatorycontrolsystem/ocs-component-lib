@@ -211,6 +211,8 @@ export default {
           });
       });
       plot.on('rangechanged', function() {
+        // on rangechanged, the user of this component can call the .updateWindow() method provided by
+        // the plotZoomMixin mixin.
         that.$emit('rangechanged', that.plot.getWindow());
       });
       return plot;

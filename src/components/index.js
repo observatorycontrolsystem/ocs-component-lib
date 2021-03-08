@@ -5,10 +5,11 @@ import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable } from './R
 import { ObservationDetail } from './Observations';
 import { RequestOverview, RequestWindowsDetail } from './Requests';
 import { AirmassPlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
-import { Pagination } from './Util';
+import { DataLoader, Pagination } from './Util';
 
 export {
   AirmassPlot,
+  DataLoader,
   ObservationDetail,
   ObservationHistoryPlot,
   Pagination,
