@@ -1,14 +1,18 @@
 <template>
   <b-container fluid class="p-0">
     <template v-if="dataLoadError">
-      <p class="text-center my-2">
-        {{ loadErrorMessage }}
-      </p>
+      <slot name="data-load-error">
+        <p class="text-center my-2">
+          {{ loadErrorMessage }}
+        </p>
+      </slot>
     </template>
     <template v-else-if="!dataLoaded">
-      <div class="text-center my-2">
-        <i class="fa fa-spin fa-spinner" />
-      </div>
+      <slot name="data-loading">
+        <div class="text-center my-2">
+          <i class="fa fa-spin fa-spinner" />
+        </div>
+      </slot>
     </template>
     <template v-else-if="dataLoaded && dataNotFound">
       <slot name="not-found">
