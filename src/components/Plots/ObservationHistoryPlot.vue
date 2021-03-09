@@ -214,7 +214,7 @@ export default {
   watch: {
     data: function() {
       let datasets = this.toVis;
-      //Need to first zero out the items and groups or vis.js throws an error
+      // Need to first zero out the items and groups or vis.js throws an error
       this.plot.setItems(new vis.DataSet());
       this.plot.setGroups(new vis.DataSet());
       this.plot.setGroups(datasets.groups);
