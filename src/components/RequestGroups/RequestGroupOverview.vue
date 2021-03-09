@@ -4,15 +4,7 @@
       <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
       <b-col md="8" cols="12">
         <slot name="requestgroup-name">
-          <b-link v-if="requestgroupLink.href" :href="requestgroupLink.href" class="requestgroup-title">
-            {{ requestgroupDisplayName }}
-          </b-link>
-          <b-link v-if="requestgroupLink.to" :to="requestgroupLink.to" class="requestgroup-title">
-            {{ requestgroupDisplayName }}
-          </b-link>
-          <span v-else class="requestgroup-title">
-            {{ requestgroupDisplayName }}
-          </span>
+          <text-display :display-text="requestgroupDisplayName" :link="requestgroupLink" display-text-classes="requestgroup-title" />
         </slot>
         <b-row>
           <b-col class="pr-1 text-truncate">
@@ -20,15 +12,7 @@
               <div><i class="fa fa-fw fa-user" /> {{ requestgroup.submitter }}</div>
               <div>
                 <i class="fa fa-fw fa-users" />
-                <b-link v-if="proposalLink.href" :href="proposalLink.href" class="proposal-display-code">
-                  {{ requestgroup.proposal }}
-                </b-link>
-                <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code">
-                  {{ requestgroup.proposal }}
-                </b-link>
-                <span v-else class="proposal-display-code">
-                  {{ requestgroup.proposal }}
-                </span>
+                <text-display :display-text="requestgroup.proposal" :link="proposalLink" display-text-classes="proposal-display-code" />
               </div>
             </div>
           </b-col>
@@ -61,12 +45,14 @@
   </b-col>
 </template>
 <script>
-import _ from 'lodash';
-
+import { TextDisplay } from '@/components/Util';
 import { stateToBsClass, stateToIcon, formatDate, timeFromNow } from '@/util';
 
 export default {
   name: 'RequestGroupOverview',
+  components: {
+    TextDisplay
+  },
   filters: {
     requestStateCount: function(requestgroup, states) {
       let count = 0;
@@ -103,13 +89,6 @@ export default {
       required: false,
       default: () => {
         return {};
-      },
-      validator: value => {
-        let hasHref = 'href' in value;
-        let hasTo = 'to' in value;
-        if (hasHref && hasTo) return false;
-        if (_.isEmpty(value)) return true;
-        return hasHref || hasTo;
       }
     },
     // Set `requestgroupLink` to turn the displayed requestgroup ID into a link. Pass in an object with either { "href": "..." } specifying
@@ -120,13 +99,6 @@ export default {
       required: false,
       default: function() {
         return {};
-      },
-      validator: value => {
-        let hasHref = 'href' in value;
-        let hasTo = 'to' in value;
-        if (hasHref && hasTo) return false;
-        if (_.isEmpty(value)) return true;
-        return hasHref || hasTo;
       }
     }
   },

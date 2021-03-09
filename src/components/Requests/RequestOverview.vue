@@ -4,9 +4,7 @@
     <b-col>
       <b-row>
         <b-col cols="12" md class="request-block border-right">
-          <b-link v-if="requestLink.href" :href="requestLink.href" class="request-display-code request-title"> # {{ request.id }} </b-link>
-          <b-link v-else-if="requestLink.to" :to="requestLink.to" class="request-display-code request-title"> # {{ request.id }} </b-link>
-          <span v-else class="request-display-code request-title"> # {{ request.id }} </span>
+          <text-display :link="requestLink" :text="'# ' + request.id" text-classes="request-display-code request-title" />
           <p>
             <i class="far fa-clock" />
             <span title="Total exposure time + observing overhead">Duration: {{ request.duration }} seconds</span>
@@ -42,6 +40,7 @@
 <script>
 import _ from 'lodash';
 
+import { TextDisplay } from '@/components/Util';
 import { stateToBsClass, stateToIcon, formatDate } from '@/util';
 
 export default {
@@ -56,6 +55,9 @@ export default {
     formatDate(value) {
       return formatDate(value);
     }
+  },
+  components: {
+    TextDisplay
   },
   props: {
     request: {
@@ -88,13 +90,6 @@ export default {
       required: false,
       default: () => {
         return {};
-      },
-      validator: value => {
-        let hasHref = 'href' in value;
-        let hasTo = 'to' in value;
-        if (hasHref && hasTo) return false;
-        if (_.isEmpty(value)) return true;
-        return hasHref || hasTo;
       }
     }
   },

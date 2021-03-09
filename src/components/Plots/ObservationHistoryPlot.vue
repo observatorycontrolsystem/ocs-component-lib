@@ -57,8 +57,8 @@ export default {
   },
   mixins: [plotZoomMixin],
   props: {
-    // TODO: Describe data, including that the observation state colors can be overridden by applying classes that are the
-    // state
+    // Observation data in the form returned from the `/api/requests/{requestId}/observations/` endpoint of the observation portal.
+    // Observation states are applied as CSS classes to each observation in the plot, these can be used to customize styling.
     data: {
       type: Array,
       required: true
@@ -230,7 +230,7 @@ export default {
         // An observation on the timeline was cliked, get that observation info
         let item = that.toVis.datasets.get(event.item);
         if (item !== null) {
-          that.$router.push({ name: 'observationDetail', params: { id: item.observationId } });
+          that.$emit('observationClicked', item.observationId);
         }
       }
     });

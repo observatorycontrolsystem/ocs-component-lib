@@ -17,15 +17,7 @@
     <b-col lg="auto" cols="12" class="p-1 flex-lg-fill">
       <div class="font-weight-bold">Proposal</div>
       <div>
-        <b-link v-if="proposalLink.href" :href="proposalLink.href" class="proposal-display-code">
-          {{ requestgroup.proposal }}
-        </b-link>
-        <b-link v-if="proposalLink.to" :to="proposalLink.to" class="proposal-display-code">
-          {{ requestgroup.proposal }}
-        </b-link>
-        <span v-else class="proposal-display-code">
-          {{ requestgroup.proposal }}
-        </span>
+        <text-display :link="proposalLink" :text="requestgroup.proposal" text-classes="proposal-display-code" />
       </div>
     </b-col>
     <b-col lg="auto" cols="12" class="p-1 flex-lg-fill">
@@ -49,9 +41,13 @@
 import _ from 'lodash';
 
 import { formatFloat, stateToBsClass, stateToIcon, formatDate } from '@/util';
+import { TextDisplay } from '@/components/Util';
 
 export default {
   name: 'RequestGroupHeader',
+  components: {
+    TextDisplay
+  },
   filters: {
     stateToBsClass: function(state, prefix) {
       return stateToBsClass(state, prefix);

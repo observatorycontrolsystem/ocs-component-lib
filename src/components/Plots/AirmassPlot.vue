@@ -20,7 +20,22 @@ export default {
   },
   mixins: [plotZoomMixin],
   props: {
-    // TODO: Add description of data
+    // Airmass data. Assuming there is visibility at a site with site code "abc", data is in the following form:
+    // {
+    //   "airmass_data": {
+    //     "abc": {
+    //       "times": [
+    //         "2021-02-10T03:08",
+    //         "2021-02-11T03:04"
+    //       ],
+    //       "airmasses": [
+    //         1.9937497463966114,
+    //         1.993729745536924
+    //       ]
+    //     }
+    //   },
+    //   "airmass_limit": 2.0
+    // }
     data: {
       type: Object,
       required: true

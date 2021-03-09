@@ -18,15 +18,7 @@
       <tbody>
         <tr>
           <td>
-            <b-link v-if="requestLink.href" :href="requestLink.href" class="request-display-code">
-              {{ observation.request }}
-            </b-link>
-            <b-link v-else-if="requestLink.to" :to="requestLink.to" class="request-display-code">
-              {{ observation.request }}
-            </b-link>
-            <span v-else class="request-display-code">
-              {{ observation.request }}
-            </span>
+            <text-display :link="requestLink" :text="observation.request | toString" text-classes="request-display-code" />
           </td>
           <td>{{ observation.site }}</td>
           <td>{{ observation.enclosure }}</td>
@@ -85,13 +77,20 @@
 import _ from 'lodash';
 
 import { formatDate } from '@/util';
+import { TextDisplay } from '@/components/Util';
 
 export default {
   name: 'ObservationDetail',
   filters: {
     formatDate(value) {
       return formatDate(value);
+    },
+    toString: function(value) {
+      return _.toString(value);
     }
+  },
+  components: {
+    TextDisplay
   },
   props: {
     observation: {
@@ -106,13 +105,6 @@ export default {
       required: false,
       default: () => {
         return {};
-      },
-      validator: value => {
-        let hasHref = 'href' in value;
-        let hasTo = 'to' in value;
-        if (hasHref && hasTo) return false;
-        if (_.isEmpty(value)) return true;
-        return hasHref || hasTo;
       }
     }
   },

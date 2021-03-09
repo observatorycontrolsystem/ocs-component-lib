@@ -29,8 +29,47 @@ export default {
   },
   mixins: [plotZoomMixin],
   props: {
-    // TODO: Add description of data, including that the event type code will be applied as a class to each telescope class
-    // on the plot as well as used in the legend, so add css classes defining background color and color
+    // Telescope states data. Given telescope states at telescopes `abc.domx.1m0a` and `def.domx.2m0a` where
+    // the first item is the site code, the second is the enclosure code, and the third is the telescope code,
+    // the data is structured as such:
+    //
+    // {
+    //   "abc.domx.1m0a": [
+    //     {
+    //       "telescope": "abc.domx.1m0a",
+    //       "event_type": "AVAILABLE",
+    //       "event_reason": "Available for scheduling",
+    //       "start": "2021-02-10T03:08:21.512615Z",
+    //       "end": "2021-02-10T03:12:42.221100Z"
+    //     },
+    //     {
+    //       "telescope": "abc.domx.1m0a",
+    //       "event_type": "AVAILABLE",
+    //       "event_reason": "Available for scheduling",
+    //       "start": "2021-02-11T03:04:25.780467Z",
+    //       "end": "2021-02-11T03:13:46.530521Z"
+    //     }
+    //   ],
+    //   "def.domx.2m0a": [
+    //     {
+    //       "telescope": "def.domx.2m0a",
+    //       "event_type": "AVAILABLE",
+    //       "event_reason": "Available for scheduling",
+    //       "start": "2021-02-01T02:51:28.304584Z",
+    //       "end": "2021-02-01T03:28:38.828000Z"
+    //     },
+    //     {
+    //       "telescope": "def.domx.2m0a",
+    //       "event_type": "NOT_OK_TO_OPEN",
+    //       "event_reason": "Weather: Raining",
+    //       "start": "2021-02-01T03:28:38.828000Z",
+    //       "end": "2021-02-01T03:28:40.059000Z"
+    //     }
+    //   ]
+    // }
+    //
+    // The event type code of the event will be applied as a class to each event on the plot. CSS rules setting the
+    // `background-color` and `border-color` can be added to visually differentiate the states on the plot.
     data: {
       validator: function(value) {
         return value === undefined || typeof value === 'object';
