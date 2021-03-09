@@ -97,6 +97,7 @@ export default {
     showZoomControls: {
       type: Boolean
     },
+    // Array of objects with mapping from eventType to event type description to be displayed in the legend.
     legendData: {
       type: Array,
       default: () => {
@@ -205,7 +206,7 @@ export default {
   watch: {
     data: function() {
       let datasets = this.toVis;
-      //Need to first zero out the items and groups or vis.js throws an error
+      // Need to first zero out the items and groups or vis.js throws an error
       this.plot.setItems(new vis.DataSet());
       this.plot.setGroups(new vis.DataSet());
       this.plot.setGroups(datasets.groups);
@@ -222,8 +223,8 @@ export default {
       let plot = new vis.Timeline(this.$refs.plot, new vis.DataSet([]), this.options);
       let that = this;
       plot.on('rangechanged', function() {
-        // on rangechanged, the user of this component can call the .updateWindow() method provided by
-        // the plotZoomMixin mixin.
+        // On rangechanged, the user of this component can call the .updateWindow() method on the
+        // component that is provided by the plotZoomMixin mixin.
         that.$emit('rangechanged', that.plot.getWindow());
       });
       return plot;

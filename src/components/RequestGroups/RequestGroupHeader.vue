@@ -38,8 +38,6 @@
   </div>
 </template>
 <script>
-import _ from 'lodash';
-
 import { formatFloat, stateToBsClass, stateToIcon, formatDate } from '@/util';
 import { TextDisplay } from '@/components/Util';
 
@@ -89,13 +87,6 @@ export default {
       required: false,
       default: () => {
         return {};
-      },
-      validator: value => {
-        let hasHref = 'href' in value;
-        let hasTo = 'to' in value;
-        if (hasHref && hasTo) return false;
-        if (_.isEmpty(value)) return true;
-        return hasHref || hasTo;
       }
     }
   }

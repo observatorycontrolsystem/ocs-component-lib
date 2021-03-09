@@ -2,8 +2,8 @@ import $ from 'jquery';
 
 export var getDataMixin = {
   /*
-  Mixin to retrieve a single object from the observation portal API given an endpoint to query.
-  You must override the `initializeDataEndpoint()` function. This mixin works well with the DataLoader
+  Mixin to retrieve a single response from the observation portal API given an endpoint to query.
+  The `initializeDataEndpoint()` function must be overridden. This mixin works well with the DataLoader
   component.
   */
   data: function() {
@@ -15,11 +15,6 @@ export var getDataMixin = {
       data: this.initializeEmptyData(),
       dataEndpoint: dataEndpoint
     };
-  },
-  computed: {
-    observationPortalApiUrl: function() {
-      return this.$store.state.urls.observationPortalApi;
-    }
   },
   created: function() {
     this.getData();
@@ -39,7 +34,7 @@ export var getDataMixin = {
       this.clearLoadStates();
       let that = this;
       $.ajax({
-        url: this.observationPortalApiUrl + this.dataEndpoint
+        url: this.dataEndpoint
       })
         .done(function(response) {
           that.successCallback(response);
@@ -62,6 +57,7 @@ export var getDataMixin = {
       } else {
         this.dataLoadError = true;
       }
+      this.onDataRetrievalError(response);
     },
     successCallback: function(response) {
       this.data = response;
@@ -69,6 +65,10 @@ export var getDataMixin = {
     },
     onSuccessfulRetrieval: function(response) {
       // Override this function to run an action when data retrieval is successful.
+      return response;
+    },
+    onDataRetrievalError: function(response) {
+      // Override this function to run an action when data retrieval errors.
       return response;
     }
   }

@@ -69,6 +69,7 @@ export default {
       type: Object,
       required: true
     },
+    // If true, content in the "extra-column-content" named slot is displayed.
     showExtraColumn: {
       type: Boolean
     },
