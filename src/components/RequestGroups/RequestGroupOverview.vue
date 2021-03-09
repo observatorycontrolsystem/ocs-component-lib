@@ -4,7 +4,7 @@
       <div class="state-color-marker" :class="requestgroup.state | stateToBsClass('bg')"></div>
       <b-col md="8" cols="12">
         <slot name="requestgroup-name">
-          <text-display :display-text="requestgroupDisplayName" :link="requestgroupLink" display-text-classes="requestgroup-title" />
+          <text-display :text="requestgroupDisplayName" :link="requestgroupLink" text-classes="requestgroup-title" />
         </slot>
         <b-row>
           <b-col class="pr-1 text-truncate">
@@ -12,7 +12,7 @@
               <div><i class="fa fa-fw fa-user" /> {{ requestgroup.submitter }}</div>
               <div>
                 <i class="fa fa-fw fa-users" />
-                <text-display :display-text="requestgroup.proposal" :link="proposalLink" display-text-classes="proposal-display-code" />
+                <text-display :text="requestgroup.proposal" :link="proposalLink" text-classes="proposal-display-code" />
               </div>
             </div>
           </b-col>
