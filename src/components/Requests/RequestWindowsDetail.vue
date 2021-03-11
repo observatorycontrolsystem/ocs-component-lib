@@ -32,3 +32,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.no-top-border > tr > td {
+  border-top: none;
+}
+</style>
