@@ -169,28 +169,21 @@
 </template>
 <script>
 import $ from 'jquery';
-import { formatDate } from '@/util';
 import Pagination from '@/components/Util/Pagination.vue';
+import { formatDate } from '@/util';
 import { paginationAndFilteringMixin } from '@/mixins/paginationMixins.js';
-import { clearAndSetErrorsMixin } from '@/mixins/clearAndSetErrorsMixin.js';
 
 export default {
   name: 'ObservationsTable',
-  filters: {
-    formatDate(value) {
-      return formatDate(value);
-    }
-  },
+  components: { Pagination },
+  mixins: [ paginationAndFilteringMixin ],
+  filters: { formatDate },
   props: {
     observationPortalApiBaseUrl: {
       type: String,
       required: true,
     },
   },
-  components: {
-    Pagination,
-  },
-  mixins: [paginationAndFilteringMixin, clearAndSetErrorsMixin],
   data: function() {
     return {
       fields: [
@@ -226,9 +219,11 @@ export default {
     this.getFilterOptions();
   },
   methods: {
+    // Overrides method in paginationAndFilteringMixin
     initializeDataEndpoint: function() {
       return this.observationPortalApiBaseUrl + '/api/observations/';
     },
+    // Overrides method in paginationAndFilteringMixin
     initializeDefaultQueryParams: function() {
       const defaultQueryParams = {
         site: [],
@@ -252,11 +247,13 @@ export default {
       };
       return defaultQueryParams;
     },
+    // Overrides method in pagination mixin
     onSuccessfulDataRetrieval: function() {
-      this.clearErrors();
+      this.$emit('onSuccessfulDataRetrieval')
     },
+    // Overrides method in pagination mixin
     onErrorRetrievingData: function(response) {
-      this.setErrorsOnFailedAJAXCall(response);
+      this.$emit('onErrorRetrievingData', response)
     },
     parseInstrumentsInObservation: function(observation) {
       let instruments = [];
