@@ -21,6 +21,18 @@ module.exports = {
           commonjs2: 'moment',
           amd: 'moment',
           root: 'moment'
+        },
+        vis: {
+          commonjs: 'vis',
+          commonjs2: 'vis',
+          amd: 'vis',
+          root: 'vis'
+        },
+        'vis/dist/vis.css': {
+          commonjs: 'vis/dist/vis.css',
+          commonjs2: 'vis/dist/vis.css',
+          amd: 'vis/dist/vis.css',
+          root: 'vis/dist/vis.css'
         }
       });
     }

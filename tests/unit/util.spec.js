@@ -3,6 +3,7 @@ import {
   decimalDecToSexigesimal,
   formatValue,
   formatField,
+  formatFloat,
   formatDate,
   stateToBsClass,
   stateToIcon,
@@ -77,5 +78,42 @@ describe('timeFromNow', () => {
   it('returns time in past', () => {
     let result = timeFromNow('2009-10-10 00:00:00'); // This date is definitely in the past
     expect(result).toContain('ago');
+  });
+});
+
+describe('formatFloat', () => {
+  it('formats float to precision 0 rounding up', () => {
+    let value = 41.666;
+    let result = formatFloat(value);
+    let expected = '42';
+    expect(result).toEqual(expected);
+  });
+
+  it('formats float represented as string to precision 0 rounding up', () => {
+    let value = '41.666';
+    let result = formatFloat(value);
+    let expected = '42';
+    expect(result).toEqual(expected);
+  });
+
+  it('formats float represented as string to precision 0', () => {
+    let value = '41.166';
+    let result = formatFloat(value);
+    let expected = '41';
+    expect(result).toEqual(expected);
+  });
+
+  it('formats float to precision 5', () => {
+    let value = 41.12;
+    let result = formatFloat(value, 5);
+    let expected = '41.12000';
+    expect(result).toEqual(expected);
+  });
+
+  it('formats zero', () => {
+    let value = '0';
+    let result = formatFloat(value, 1);
+    let expected = '0.0';
+    expect(result).toEqual(expected);
   });
 });
