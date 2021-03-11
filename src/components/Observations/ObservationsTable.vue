@@ -35,7 +35,7 @@
             </div>
           </template>
           <template v-slot:cell(id)="data">
-            <router-link :to="{ name: 'observationDetail', params: { id: data.item.id } }">{{ data.item.id }}</router-link>
+            <text-display :text="data.item.id.toString()" :link="observationDetailLink(data.item.id)" />
           </template>
           <template v-slot:cell(start)="data">
             <span>{{ data.value | formatDate }}</span>
@@ -50,7 +50,7 @@
             <span>{{ data.value | formatDate }}</span>
           </template>
           <template v-slot:cell(requestId)="data">
-            <router-link :to="{ name: 'requestDetail', params: { id: data.item.request.id } }">{{ data.item.request.id }}</router-link>
+            <text-display :text="data.item.request.id.toString()" :link="requestgroupLink(data.item.request.id)" />
           </template>
           <template v-slot:cell(instruments)="data">
             <span v-for="instrument in parseInstrumentsInObservation(data.item)" :key="instrument">{{ instrument }}</span
@@ -79,37 +79,37 @@
             </b-button>
           </b-button-group>
           <b-form-group id="input-group-site" label="Site" label-for="input-site">
-            <b-form-select id="input-site" v-model="queryParams.site" :options="formattedFilterOptions.site" multiple></b-form-select>
+            <b-form-select id="input-site" v-model="queryParams.site" :options="formattedFilterOptions.site" multiple />
           </b-form-group>
           <b-form-group id="input-group-enclosure" label="Enclosure" label-for="input-enclosure">
-            <b-form-select id="input-enclosure" v-model="queryParams.enclosure" :options="formattedFilterOptions.enclosure" multiple></b-form-select>
+            <b-form-select id="input-enclosure" v-model="queryParams.enclosure" :options="formattedFilterOptions.enclosure" multiple />
           </b-form-group>
           <b-form-group id="input-group-telescope" label="Telescope" label-for="input-telescope">
-            <b-form-select id="input-telescope" v-model="queryParams.telescope" :options="formattedFilterOptions.telescope" multiple></b-form-select>
+            <b-form-select id="input-telescope" v-model="queryParams.telescope" :options="formattedFilterOptions.telescope" multiple />
           </b-form-group>
           <b-form-group id="input-group-priority" label="Priority" label-for="input-priority">
-            <b-form-input id="input-priority" v-model="queryParams.priority" type="number"></b-form-input>
+            <b-form-input id="input-priority" v-model="queryParams.priority" type="number" />
           </b-form-group>
           <b-form-group id="input-group-state" label="State" label-for="input-state">
-            <b-form-select id="input-state" v-model="queryParams.state" :options="formattedFilterOptions.state" multiple></b-form-select>
+            <b-form-select id="input-state" v-model="queryParams.state" :options="formattedFilterOptions.state" multiple />
           </b-form-group>
           <b-form-group id="input-group-time-span" label="Time Span" label-for="input-time-span">
-            <b-form-select id="input-time-span" v-model="queryParams.time_span" :options="formattedFilterOptions.time_span"></b-form-select>
+            <b-form-select id="input-time-span" v-model="queryParams.time_span" :options="formattedFilterOptions.time_span" />
           </b-form-group>
           <b-form-group id="input-group-start-after" label="Start After (Inclusive)" label-for="input-start-after">
-            <b-form-input id="input-start-after" v-model="queryParams.start_after" type="date"></b-form-input>
+            <b-form-input id="input-start-after" v-model="queryParams.start_after" type="date" />
           </b-form-group>
           <b-form-group id="input-group-start-before" label="Start Before" label-for="input-start-before">
-            <b-form-input id="input-start-before" v-model="queryParams.start_before" type="date"></b-form-input>
+            <b-form-input id="input-start-before" v-model="queryParams.start_before" type="date" />
           </b-form-group>
           <b-form-group id="input-group-modified-after" label="Modified After (Inclusive)" label-for="input-modified-after">
-            <b-form-input id="input-modified-after" v-model="queryParams.modified_after" type="date"></b-form-input>
+            <b-form-input id="input-modified-after" v-model="queryParams.modified_after" type="date" />
           </b-form-group>
           <b-form-group id="input-group-request-id" label="Request ID" label-for="input-request-id">
-            <b-form-input id="input-request-id" v-model="queryParams.request_id" type="number"></b-form-input>
+            <b-form-input id="input-request-id" v-model="queryParams.request_id" type="number" />
           </b-form-group>
           <b-form-group id="input-group-request-group-id" label="Request Group ID" label-for="input-request-group-id">
-            <b-form-input id="input-request-group-id" v-model="queryParams.request_group_id" type="number"></b-form-input>
+            <b-form-input id="input-request-group-id" v-model="queryParams.request_group_id" type="number" />
           </b-form-group>
           <b-form-group id="input-group-observation-type" label="Observation Type" label-for="input-observation-type">
             <b-form-select
@@ -117,7 +117,7 @@
               v-model="queryParams.observation_type"
               :options="formattedFilterOptions.observation_type"
               multiple
-            ></b-form-select>
+            />
           </b-form-group>
           <b-form-group id="input-group-request-state" label="Request State" label-for="input-request-state">
             <b-form-select
@@ -125,10 +125,10 @@
               v-model="queryParams.request_state"
               :options="formattedFilterOptions.request_state"
               multiple
-            ></b-form-select>
+            />
           </b-form-group>
           <b-form-group id="input-group-proposal" label="Proposal" label-for="input-proposal">
-            <b-form-input id="input-proposal" v-model="queryParams.proposal" type="text"></b-form-input>
+            <b-form-input id="input-proposal" v-model="queryParams.proposal" type="text" />
           </b-form-group>
           <b-form-group id="input-group-instrument-type" label="Instrument Type" label-for="input-instrument-type">
             <b-form-select
@@ -136,7 +136,7 @@
               v-model="queryParams.instrument_type"
               :options="formattedFilterOptions.instrument_type"
               multiple
-            ></b-form-select>
+            />
           </b-form-group>
           <b-form-group id="input-group-configuration-type" label="Configuration Type" label-for="input-configuration-type">
             <b-form-select
@@ -144,10 +144,13 @@
               v-model="queryParams.configuration_type"
               :options="formattedFilterOptions.configuration_type"
               multiple
-            ></b-form-select>
+            />
           </b-form-group>
           <b-form-group id="input-group-ordering" label="Ordering" label-for="input-ordering">
-            <b-form-select id="input-ordering" v-model="queryParams.ordering" :options="formattedFilterOptions.ordering"></b-form-select>
+            <b-form-select 
+              id="input-ordering" 
+              v-model="queryParams.ordering" 
+              :options="formattedFilterOptions.ordering" />
           </b-form-group>
           <b-button-group>
             <b-button type="submit" variant="outline-primary" :disabled="isBusy">
@@ -170,18 +173,38 @@
 <script>
 import $ from 'jquery';
 import Pagination from '@/components/Util/Pagination.vue';
+import { TextDisplay } from '@/components/Util';
 import { formatDate } from '@/util';
 import { paginationAndFilteringMixin } from '@/mixins/paginationMixins.js';
 
 export default {
   name: 'ObservationsTable',
-  components: { Pagination },
+  components: { 
+    Pagination, 
+    TextDisplay 
+  },
   mixins: [ paginationAndFilteringMixin ],
   filters: { formatDate },
   props: {
     observationPortalApiBaseUrl: {
       type: String,
       required: true,
+    },
+    // `observationDetailLink` is a function that takes an observation ID as input and returns an object describing the
+    // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
+    // If supplied, the observation ID displayed for each row in the table will be a link.
+    observationDetailLink: {
+      type: Function,
+      required: false,
+      default: () => {} // By default, we don't generate a link.
+    },
+    // `requestgroupLink` is a function that takes a requestgroup ID as input and returns an object describing the
+    // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
+    // If supplied, the requestgroup ID displayed for each row in the table will be a link.
+    requestgroupLink: {
+      type: Function,
+      required: false,
+      default: () => {} // By default, don't generate a link.
     },
   },
   data: function() {
@@ -290,7 +313,7 @@ export default {
         this.filterOptions = response;
         this.filtersLoaded = true;
       });
-    }
-  }
+    },
+  },
 };
 </script>
