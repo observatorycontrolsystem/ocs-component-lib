@@ -120,12 +120,7 @@
             />
           </b-form-group>
           <b-form-group id="input-group-request-state" label="Request State" label-for="input-request-state">
-            <b-form-select
-              id="input-request-state"
-              v-model="queryParams.request_state"
-              :options="formattedFilterOptions.request_state"
-              multiple
-            />
+            <b-form-select id="input-request-state" v-model="queryParams.request_state" :options="formattedFilterOptions.request_state" multiple />
           </b-form-group>
           <b-form-group id="input-group-proposal" label="Proposal" label-for="input-proposal">
             <b-form-input id="input-proposal" v-model="queryParams.proposal" type="text" />
@@ -147,10 +142,7 @@
             />
           </b-form-group>
           <b-form-group id="input-group-ordering" label="Ordering" label-for="input-ordering">
-            <b-form-select 
-              id="input-ordering" 
-              v-model="queryParams.ordering" 
-              :options="formattedFilterOptions.ordering" />
+            <b-form-select id="input-ordering" v-model="queryParams.ordering" :options="formattedFilterOptions.ordering" />
           </b-form-group>
           <b-button-group>
             <b-button type="submit" variant="outline-primary" :disabled="isBusy">
@@ -179,16 +171,16 @@ import { paginationAndFilteringMixin } from '@/mixins/paginationMixins.js';
 
 export default {
   name: 'ObservationsTable',
-  components: { 
-    Pagination, 
-    TextDisplay 
+  components: {
+    Pagination,
+    TextDisplay
   },
-  mixins: [ paginationAndFilteringMixin ],
   filters: { formatDate },
+  mixins: [paginationAndFilteringMixin],
   props: {
     observationPortalApiBaseUrl: {
       type: String,
-      required: true,
+      required: true
     },
     // `observationDetailLink` is a function that takes an observation ID as input and returns an object describing the
     // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
@@ -205,7 +197,7 @@ export default {
       type: Function,
       required: false,
       default: () => {} // By default, don't generate a link.
-    },
+    }
   },
   data: function() {
     return {
@@ -272,11 +264,11 @@ export default {
     },
     // Overrides method in pagination mixin
     onSuccessfulDataRetrieval: function() {
-      this.$emit('onSuccessfulDataRetrieval')
+      this.$emit('onSuccessfulDataRetrieval');
     },
     // Overrides method in pagination mixin
     onErrorRetrievingData: function(response) {
-      this.$emit('onErrorRetrievingData', response)
+      this.$emit('onErrorRetrievingData', response);
     },
     parseInstrumentsInObservation: function(observation) {
       let instruments = [];
@@ -313,7 +305,7 @@ export default {
         this.filterOptions = response;
         this.filtersLoaded = true;
       });
-    },
-  },
+    }
+  }
 };
 </script>
