@@ -13,6 +13,7 @@ This library depends on a few external libraries. The following are installed as
 - [JQuery](https://jquery.com/)
 - [Lodash](https://lodash.com/)
 - [Momentjs](https://momentjs.com/)
+- [Visjs](https://visjs.org/)
 
 [Font Awesome 5](https://fontawesome.com/) is used for icon support. It must be included in your application.
 

@@ -224,13 +224,12 @@ export default {
   },
   mounted: function() {
     this.plot = this.buildPlot();
-    let that = this;
-    this.plot.on('click', function(event) {
+    this.plot.on('click', event => {
       if (event.item !== null) {
         // An observation on the timeline was cliked, get that observation info
-        let item = that.toVis.datasets.get(event.item);
+        let item = this.toVis.datasets.get(event.item);
         if (item !== null) {
-          that.$emit('observationClicked', item.observationId);
+          this.$emit('observationClicked', item.observationId);
         }
       }
     });
