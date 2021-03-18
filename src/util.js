@@ -41,6 +41,41 @@ function decimalDecToSexigesimal(deg) {
   };
 }
 
+function sexagesimalRaToDecimal(ra) {
+  // algorithm: ra_decimal = 15 * ( hh + mm/60 + ss/(60 * 60) )
+  /*                 (    hh     ):(     mm            ):  (   ss  ) */
+  if (typeof ra === 'string') {
+    let m = ra.match('^([0-9]?[0-9])[: ]([0-5]?[0-9][.0-9]*)[: ]?([.0-9]+)?$');
+    if (m) {
+      let hh = parseInt(m[1], 10);
+      let mm = parseFloat(m[2]);
+      let ss = m[3] ? parseFloat(m[3]) : 0.0;
+      if (hh >= 0 && hh <= 23 && mm >= 0 && mm < 60 && ss >= 0 && ss < 60) {
+        ra = (15.0 * (hh + mm / 60.0 + ss / 3600.0)).toFixed(10);
+      }
+    }
+  }
+  return ra;
+}
+
+function sexagesimalDecToDecimal(dec) {
+  // algorithm: dec_decimal = sign * ( dd + mm/60 + ss/(60 * 60) )
+  /*                  ( +/-   ) (    dd     ):(     mm            ): (   ss   ) */
+  if (typeof dec === 'string') {
+    let m = dec.match('^([+-])?([0-9]?[0-9])[: ]([0-5]?[0-9][.0-9]*)[: ]?([.0-9]+)?$');
+    if (m) {
+      let sign = m[1] === '-' ? -1 : 1;
+      let dd = parseInt(m[2], 10);
+      let mm = parseFloat(m[3]);
+      let ss = m[4] ? parseFloat(m[4]) : 0.0;
+      if (dd >= 0 && dd <= 90 && mm >= 0 && mm <= 59 && ss >= 0 && ss < 60) {
+        dec = (sign * (dd + mm / 60.0 + ss / 3600.0)).toFixed(10);
+      }
+    }
+  }
+  return dec;
+}
+
 function formatJson(dict) {
   let stringVal = '';
   for (let key in dict) {
@@ -141,6 +176,8 @@ export {
   formatField,
   formatFloat,
   formatValue,
+  sexagesimalDecToDecimal,
+  sexagesimalRaToDecimal,
   stateToBsClass,
   stateToIcon,
   timeFromNow
