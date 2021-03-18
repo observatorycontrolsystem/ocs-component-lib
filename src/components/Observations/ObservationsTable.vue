@@ -50,7 +50,7 @@
             <span>{{ data.value | formatDate }}</span>
           </template>
           <template v-slot:cell(requestId)="data">
-            <text-display :text="data.item.request.id.toString()" :link="requestgroupLink(data.item.request.id)" />
+            <text-display :text="data.item.request.id.toString()" :link="requestLink(data.item.request.id)" />
           </template>
           <template v-slot:cell(instruments)="data">
             <span v-for="instrument in parseInstrumentsInObservation(data.item)" :key="instrument">{{ instrument }}</span
@@ -190,10 +190,10 @@ export default {
       required: false,
       default: () => {} // By default, we don't generate a link.
     },
-    // `requestgroupLink` is a function that takes a requestgroup ID as input and returns an object describing the
-    // link to the proposal page, either { "href": ... } for a URL or { "to": ... } for a vue router target.
-    // If supplied, the requestgroup ID displayed for each row in the table will be a link.
-    requestgroupLink: {
+    // `requestLink` is a function that takes a request ID as input and returns an object describing the
+    // link to a page displaying the request, either { "href": ... } for a URL or { "to": ... } for a vue router target.
+    // If supplied, the request ID displayed for each row in the table will be a link.
+    requestLink: {
       type: Function,
       required: false,
       default: () => {} // By default, don't generate a link.

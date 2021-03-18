@@ -211,15 +211,15 @@ const observationsListFactory = statusList => {
   };
 };
 
-const wrapperFactory = (observationPortalApiBaseUrl = '', observationDetailLink = () => {}, requestgroupLink = () => {}, slots = {}) => {
+const wrapperFactory = (observationPortalApiBaseUrl = '', observationDetailLink = () => {}, requestLink = () => {}, slots = {}) => {
   let propsData = {
     observationPortalApiBaseUrl: observationPortalApiBaseUrl
   };
   if (observationDetailLink) {
     propsData.observationDetailLink = observationDetailLink;
   }
-  if (requestgroupLink) {
-    propsData.requestgroupLink = requestgroupLink;
+  if (requestLink) {
+    propsData.requestLink = requestLink;
   }
 
   return mount(ObservationsTable, {
