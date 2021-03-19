@@ -15,7 +15,11 @@
               </b-form-group>
               <b-form-group id="input-group-state" label-for="input-state" label-class="m-0" class="my-2">
                 <template v-slot:label> <i class="fas fa-sync" /> State </template>
-                <b-form-select id="input-state" v-model="queryParams.state" :options="stateOptions" size="sm" />
+                <b-form-select id="input-state" v-model="queryParams.state" :options="stateOptions" multiple size="sm" />
+              </b-form-group>
+              <b-form-group id="input-group-exclude-state" label-for="input-exclude-state" label-class="m-0" class="my-2">
+                <template v-slot:label> <i class="fas fa-sync" /> Exclude State </template>
+                <b-form-select id="input-exclude-state" v-model="queryParams.exclude_state" :options="stateOptions" multiple size="sm" />
               </b-form-group>
               <b-form-group id="input-group-name" label-for="input-name" label-class="m-0" class="my-2">
                 <b-form-input id="input-name" v-model="queryParams.name" placeholder="Name contains" size="sm" />
@@ -28,6 +32,10 @@
               <b-form-group id="input-group-proposal" label-for="input-proposal" label-class="m-0" class="my-2">
                 <template v-slot:label> <i class="fa fa-users" /> Proposal </template>
                 <b-form-select id="input-proposal" v-model="queryParams.proposal" :options="proposalOptions" size="sm" />
+              </b-form-group>
+              <b-form-group id="input-group-semester" label-for="input-semester" label-class="m-0" class="my-2">
+                <template v-slot:label> <i class="fa fa-users" /> Semester </template>
+                <b-form-select v-on:change="onSemesterChange" id="input-semester" :options="semesterOptions" size="sm" />
               </b-form-group>
               <b-form-group id="input-group-created-after" label-for="input-created-after" label-class="m-0" class="my-2">
                 <b-form-input id="input-created-after" v-model="queryParams.created_after" type="date" size="sm" />
@@ -110,10 +118,13 @@
 </template>
 <script>
 import _ from 'lodash';
+import $ from 'jquery';
+import moment from 'moment';
 
 import { paginationAndFilteringMixin } from '@/mixins/paginationMixins.js';
 import RequestGroupOverview from '@/components/RequestGroups/RequestGroupOverview.vue';
 import Pagination from '@/components/Util/Pagination.vue';
+import { formatDate } from '@/util';
 
 export default {
   name: 'RequestGroupTable',
@@ -182,9 +193,13 @@ export default {
       { value: 'end', text: 'End of window' },
       { value: '-end', text: 'End of window (descending)' }
     ];
+    const semesterOptions = [
+      {value: { id: '', start: '', end: ''}, text: '-----------' },
+    ];
     return {
       orderOptions: orderOptions,
       stateOptions: stateOptions,
+      semesterOptions: semesterOptions,
       fields: [{ key: 'requestgroupInfo', tdClass: 'p-0 m-0', thClass: 'border-0' }]
     };
   },
@@ -208,7 +223,11 @@ export default {
     },
     viewAuthoredRequestsOnly: function() {
       return this.profile.profile && this.profile.profile.view_authored_requests_only && !this.profile.profile.staff_view;
-    }
+    },
+  },
+  created: function() {
+    this.update();
+    this.getSemesterOptions();
   },
   methods: {
     initializeDataEndpoint: function() {
@@ -218,22 +237,43 @@ export default {
       const defaultQueryParams = {
         proposal: '',
         order: '',
-        state: '',
+        state: [],
+        exclude_state: [],
         name: '',
         target: '',
         created_after: '',
         created_before: '',
+        semester: '',
         user: '',
         limit: 20,
         offset: 0
       };
       return defaultQueryParams;
     },
+    updateSemesterOptions: function(data) {
+      for (let semester of data.results) {
+          this.semesterOptions.push({ value: semester, text: semester.id });
+      }
+    },
+    onSemesterChange: function(e) {
+      // TODO: Make a little helper to sanitize these dates
+      this.queryParams.created_after = e.start.split('T')[0];
+      this.queryParams.created_before = e.end.split('T')[0];
+    },
     onSuccessfulDataRetrieval: function(response) {
       this.$emit('success', response);
     },
     onErrorRetrievingData: function(response) {
       this.$emit('error', response);
+    },
+    getSemesterOptions: function() {
+      // function to get past semesters
+      let datetimeNow = formatDate(moment.utc());
+      $.ajax({
+        url: this.observationPortalApiBaseUrl + '/api/semesters/?start_lte=' +  datetimeNow,
+        type: 'GET',
+        success: this.updateSemesterOptions
+      });
     }
   }
 };
