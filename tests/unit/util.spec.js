@@ -5,10 +5,28 @@ import {
   formatField,
   formatFloat,
   formatDate,
+  sexagesimalDecToDecimal,
+  sexagesimalRaToDecimal,
   stateToBsClass,
   stateToIcon,
   timeFromNow
 } from '@/util';
+
+describe('sexagesimalDecToDecimal', () => {
+  it('converts positive decimal right ascension to sexagesimal correctly', () => {
+    let expected = 90.4443;
+    let result = sexagesimalRaToDecimal('06:01:46.632');
+    expect(parseFloat(result)).toBeCloseTo(parseFloat(expected), 3);
+  });
+});
+
+describe('sexagesimalRaToDecimal', () => {
+  it('converts positive decimal declination to sexagesimal correctly', () => {
+    let expected = 14.888;
+    let result = sexagesimalDecToDecimal('14:53:16.8');
+    expect(parseFloat(result)).toBeCloseTo(expected, 3);
+  });
+});
 
 describe('decimalRaToSexigesimal', () => {
   it('converts positive decimal right ascension to sexagesimal correctly', () => {
