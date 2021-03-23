@@ -7,8 +7,8 @@
         :total-rows="totalRows"
         :per-page="perPage"
         :aria-controls="tableId"
-        @change="onPageChange"
         v-bind="paginationAttrs"
+        @change="onPageChange"
       />
     </b-col>
     <b-col md="3" cols="12" class="text-right font-weight-bold">
@@ -55,11 +55,15 @@ export default {
     },
     paginationAttrs: {
       type: Object,
-      default: () => { return {}; }
+      default: () => {
+        return {};
+      }
     },
     selectAttrs: {
       type: Object,
-      default: () => { return {}; }
+      default: () => {
+        return {};
+      }
     },
     totalRowsClass: {
       type: String,
@@ -74,7 +78,7 @@ export default {
           { value: '20', text: 'Show: 20' },
           { value: '50', text: 'Show: 50' },
           { value: '100', text: 'Show: 100' }
-        ]
+        ];
       }
     }
   },
