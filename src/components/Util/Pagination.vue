@@ -7,17 +7,18 @@
         :total-rows="totalRows"
         :per-page="perPage"
         :aria-controls="tableId"
+        v-bind="paginationAttrs"
         @change="onPageChange"
       />
     </b-col>
     <b-col md="3" cols="12" class="text-right font-weight-bold">
       <template v-if="displayPerPageDropdown">
         <b-form-group label-for="perPageSelect">
-          <b-form-select id="perPageSelect" :value="perPage" :options="perPageOptions" @change="onLimitChange" />
+          <b-form-select id="perPageSelect" :value="perPage" v-bind="selectAttrs" :options="perPageOptions" @change="onLimitChange" />
         </b-form-group>
       </template>
       <template v-else-if="!displayPerPageDropdown && totalRows > 0">
-        <div>{{ totalRows }} result{{ totalRows === 1 ? '' : 's' }}</div>
+        <div :class="totalRowsClass">{{ totalRows }} result{{ totalRows === 1 ? '' : 's' }}</div>
       </template>
     </b-col>
   </b-row>
@@ -51,19 +52,35 @@ export default {
     },
     displayPerPageDropdown: {
       type: Boolean
+    },
+    paginationAttrs: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    selectAttrs: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    totalRowsClass: {
+      type: String,
+      default: ''
+    },
+    perPageOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { value: '5', text: 'Show: 5' },
+          { value: '10', text: 'Show: 10' },
+          { value: '20', text: 'Show: 20' },
+          { value: '50', text: 'Show: 50' },
+          { value: '100', text: 'Show: 100' }
+        ];
+      }
     }
-  },
-  data: function() {
-    return {
-      // TODO: Make this configurable
-      perPageOptions: [
-        { value: '5', text: 'Show: 5' },
-        { value: '10', text: 'Show: 10' },
-        { value: '20', text: 'Show: 20' },
-        { value: '50', text: 'Show: 50' },
-        { value: '100', text: 'Show: 100' }
-      ]
-    };
   },
   methods: {
     onPageChange: function(evt) {
