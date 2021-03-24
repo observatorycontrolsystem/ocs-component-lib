@@ -34,8 +34,8 @@
                 <b-form-select id="input-proposal" v-model="queryParams.proposal" :options="proposalOptions" size="sm" />
               </b-form-group>
               <b-form-group id="input-group-semester" label-for="input-semester" label-class="m-0" class="my-2">
-                <template v-slot:label> <i class="fa fa-users" /> Semester </template>
-                <b-form-select id="input-semester" :options="semesterOptions" size="sm" @change="onSemesterChange" />
+                <template v-slot:label> <i class="fa fa-calendar-check" /> Semester </template>
+                <b-form-select id="input-semester" v-model="semesterSelect" :options="semesterOptions" size="sm" @change="onSemesterChange" />
               </b-form-group>
               <b-form-group id="input-group-created-after" label-for="input-created-after" label-class="m-0" class="my-2">
                 <b-form-input id="input-created-after" v-model="queryParams.created_after" type="date" size="sm" />
@@ -193,11 +193,15 @@ export default {
       { value: 'end', text: 'End of window' },
       { value: '-end', text: 'End of window (descending)' }
     ];
-    const semesterOptions = [{ value: { id: '', start: '', end: '' }, text: '-----------' }];
+    const semesterData = { '': { start: '', end: '', id: '' } };
+    const semesterOptions = [{ value: '', text: '---------', selected: true }];
+    const semesterSelect = '';
     return {
       orderOptions: orderOptions,
       stateOptions: stateOptions,
+      semesterData: semesterData,
       semesterOptions: semesterOptions,
+      semesterSelect: semesterSelect,
       fields: [{ key: 'requestgroupInfo', tdClass: 'p-0 m-0', thClass: 'border-0' }]
     };
   },
@@ -248,12 +252,14 @@ export default {
     },
     updateSemesterOptions: function(data) {
       for (let semester of data.results) {
-        this.semesterOptions.push({ value: semester, text: semester.id });
+        this.semesterData[semester.id] = semester;
+        this.semesterOptions.push({ value: semester.id, text: semester.id });
       }
     },
-    onSemesterChange: function(e) {
-      this.queryParams.created_after = formatDate(e.start, 'YYYY-MM-DD');
-      this.queryParams.created_before = formatDate(e.end, 'YYYY-MM-DD');
+    onSemesterChange: function(event) {
+      let selectedSemesterData = this.semesterData[event];
+      this.queryParams.created_after = formatDate(selectedSemesterData.start, 'YYYY-MM-DD');
+      this.queryParams.created_before = formatDate(selectedSemesterData.end, 'YYYY-MM-DD');
     },
     onSuccessfulDataRetrieval: function(response) {
       this.$emit('success', response);
@@ -262,7 +268,6 @@ export default {
       this.$emit('error', response);
     },
     getSemesterOptions: function() {
-      // function to get past semesters
       let that = this;
       let datetimeNow = formatDate(moment.utc().format());
       $.ajax({

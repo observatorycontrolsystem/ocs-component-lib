@@ -268,10 +268,7 @@ describe('RequestGroupTable.vue', () => {
     let stateSelect = wrapper.find('select#input-state');
     let semesterSelect = wrapper.find('select#input-semester');
     await stateSelect.setValue(['COMPLETED']);
-
-    //wrapper.setValue does not seem to work, so get the first valid semester option and select it manually
-    semesterSelect.element.options[1].selected = true;
-    await semesterSelect.trigger('change');
+    await semesterSelect.setValue('2021A');
     filterButton.trigger('submit');
     await flushPromises();
 
