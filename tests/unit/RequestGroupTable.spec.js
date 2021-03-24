@@ -2,7 +2,7 @@ import { createLocalVue, enableAutoDestroy, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
-import $ from 'jquery';
+import $, { ajax } from 'jquery';
 
 import { RequestGroupTable, RequestGroupOverview } from '@/components/RequestGroups';
 import { Pagination } from '@/components/Util';
@@ -243,10 +243,15 @@ describe('RequestGroupTable.vue', () => {
   });
 
   it('filters requestgroups by state', async () => {
+    let semesterResults = {
+      count: 1,
+      results: [{id: '2021A', start: '2021-02-01T00:00:00Z', end: '2021-07-31T23:59:59Z'}],
+                          };
     let requestgroupListDataUnfiltered = requestgroupListFactory(['PENDING', 'COMPLETED', 'PENDING']);
     let requestgroupListDataFiltered = requestgroupListFactory(['COMPLETED']);
     $.ajax
       .mockReturnValueOnce(Deferred().resolve(requestgroupListDataUnfiltered))
+      .mockReturnValueOnce(Deferred().resolve(semesterResults))
       .mockReturnValueOnce(Deferred().resolve(requestgroupListDataFiltered));
 
     const wrapper = wrapperFactory('http://localhost', profileData);
@@ -254,24 +259,34 @@ describe('RequestGroupTable.vue', () => {
     // with the expected parameters.
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(3);
     expect(wrapper.vm.$route.fullPath).toBe('/?limit=20');
-    expect($.ajax.mock.calls.length).toBe(1);
+    expect($.ajax.mock.calls.length).toBe(2);
     expect($.ajax.mock.calls[0][0].data.limit).toBe(20);
     expect($.ajax.mock.calls[0][0].data.state).toBeFalsy();
 
-    // Simulate updating the filter choice for requestgroup state
+    // Simulate updating the filter choice for requestgroup state and semester
     let filterButton = wrapper.find('button[type=submit]');
     let stateSelect = wrapper.find('select#input-state');
-    await stateSelect.setValue('COMPLETED');
+    let semesterSelect = wrapper.find('select#input-semester');
+    await stateSelect.setValue(['COMPLETED']);
+
+    //wrapper.setValue does not seem to work, so get the first valid semester option and select it manually
+    semesterSelect.element.options[1].selected = true;
+    await semesterSelect.trigger('change');
     filterButton.trigger('submit');
     await flushPromises();
 
     // Check that the second AJAX call used the right query params and also that
     // only one requestgroup is displayed now
-    expect($.ajax.mock.calls.length).toBe(2);
-    expect($.ajax.mock.calls[1][0].data.limit).toBe(20);
-    expect($.ajax.mock.calls[1][0].data.state).toBe('COMPLETED');
+    expect($.ajax.mock.calls.length).toBe(3);
+    expect($.ajax.mock.calls[2][0].data.limit).toBe(20);
+    expect($.ajax.mock.calls[2][0].data.state).toStrictEqual(["COMPLETED"]);
     expect(wrapper.vm.$route.fullPath).toContain('state=COMPLETED');
     expect(wrapper.vm.$route.fullPath).toContain('limit=20');
+    expect(wrapper.vm.$route.fullPath).toContain('created_after=2021-02-01');
+    expect(wrapper.vm.$route.fullPath).toContain('created_before=2021-07-31');
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(1);
+    expect(wrapper.vm.queryParams.created_after).toBe('2021-02-01');
+    expect(wrapper.vm.queryParams.created_before).toBe('2021-07-31');
+
   });
 });
