@@ -2,7 +2,7 @@ import { createLocalVue, enableAutoDestroy, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
-import $, { ajax } from 'jquery';
+import $ from 'jquery';
 
 import { RequestGroupTable, RequestGroupOverview } from '@/components/RequestGroups';
 import { Pagination } from '@/components/Util';
@@ -245,8 +245,8 @@ describe('RequestGroupTable.vue', () => {
   it('filters requestgroups by state', async () => {
     let semesterResults = {
       count: 1,
-      results: [{id: '2021A', start: '2021-02-01T00:00:00Z', end: '2021-07-31T23:59:59Z'}],
-                          };
+      results: [{ id: '2021A', start: '2021-02-01T00:00:00Z', end: '2021-07-31T23:59:59Z' }]
+    };
     let requestgroupListDataUnfiltered = requestgroupListFactory(['PENDING', 'COMPLETED', 'PENDING']);
     let requestgroupListDataFiltered = requestgroupListFactory(['COMPLETED']);
     $.ajax
@@ -279,7 +279,7 @@ describe('RequestGroupTable.vue', () => {
     // only one requestgroup is displayed now
     expect($.ajax.mock.calls.length).toBe(3);
     expect($.ajax.mock.calls[2][0].data.limit).toBe(20);
-    expect($.ajax.mock.calls[2][0].data.state).toStrictEqual(["COMPLETED"]);
+    expect($.ajax.mock.calls[2][0].data.state).toStrictEqual(['COMPLETED']);
     expect(wrapper.vm.$route.fullPath).toContain('state=COMPLETED');
     expect(wrapper.vm.$route.fullPath).toContain('limit=20');
     expect(wrapper.vm.$route.fullPath).toContain('created_after=2021-02-01');
@@ -287,6 +287,5 @@ describe('RequestGroupTable.vue', () => {
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(1);
     expect(wrapper.vm.queryParams.created_after).toBe('2021-02-01');
     expect(wrapper.vm.queryParams.created_before).toBe('2021-07-31');
-
   });
 });
