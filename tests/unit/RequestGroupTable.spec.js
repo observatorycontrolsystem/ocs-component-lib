@@ -285,7 +285,5 @@ describe('RequestGroupTable.vue', () => {
     expect(wrapper.vm.$route.fullPath).toContain('created_after=2021-02-01');
     expect(wrapper.vm.$route.fullPath).toContain('created_before=2021-07-31');
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(1);
-    expect(wrapper.vm.queryParams.created_after).toBe('2021-02-01');
-    expect(wrapper.vm.queryParams.created_before).toBe('2021-07-31');
   });
 });
