@@ -222,10 +222,9 @@ export default {
       return options;
     },
     semesterOptions: function() {
-      let semesterOptions = [{value: '', text: '---------'}];
-      for (let semesterId of Object.keys(this.semesterData))
-      {
-        semesterOptions.push( {value: semesterId, text: semesterId } );
+      let semesterOptions = [{ value: '', text: '---------' }];
+      for (let semesterId of Object.keys(this.semesterData)) {
+        semesterOptions.push({ value: semesterId, text: semesterId });
       }
       return semesterOptions;
     },
