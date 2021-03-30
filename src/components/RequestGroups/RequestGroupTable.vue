@@ -193,14 +193,12 @@ export default {
       { value: 'end', text: 'End of window' },
       { value: '-end', text: 'End of window (descending)' }
     ];
-    const semesterData = { '': { start: '', end: '', id: '' } };
-    const semesterOptions = [{ value: '', text: '---------', selected: true }];
+    const semesterData = {};
     const semesterSelect = '';
     return {
       orderOptions: orderOptions,
       stateOptions: stateOptions,
       semesterData: semesterData,
-      semesterOptions: semesterOptions,
       semesterSelect: semesterSelect,
       fields: [{ key: 'requestgroupInfo', tdClass: 'p-0 m-0', thClass: 'border-0' }]
     };
@@ -222,6 +220,14 @@ export default {
         }
       }
       return options;
+    },
+    semesterOptions: function() {
+      let semesterOptions = [{value: '', text: '---------'}];
+      for (let semesterId of Object.keys(this.semesterData))
+      {
+        semesterOptions.push( {value: semesterId, text: semesterId } );
+      }
+      return semesterOptions;
     },
     viewAuthoredRequestsOnly: function() {
       return this.profile.profile && this.profile.profile.view_authored_requests_only && !this.profile.profile.staff_view;
@@ -250,16 +256,15 @@ export default {
       };
       return defaultQueryParams;
     },
-    updateSemesterOptions: function(data) {
+    updateSemesterData: function(data) {
       for (let semester of data.results) {
-        this.semesterData[semester.id] = semester;
-        this.semesterOptions.push({ value: semester.id, text: semester.id });
+        this.$set(this.semesterData, semester.id, semester);
       }
     },
-    onSemesterChange: function(event) {
-      let selectedSemesterData = this.semesterData[event];
-      this.queryParams.created_after = formatDate(selectedSemesterData.start, 'YYYY-MM-DD');
-      this.queryParams.created_before = formatDate(selectedSemesterData.end, 'YYYY-MM-DD');
+    onSemesterChange: function(semesterId) {
+      let selectedSemesterData = this.semesterData[semesterId];
+      this.queryParams.created_after = formatDate(_.get(selectedSemesterData, 'start', ''), 'YYYY-MM-DD');
+      this.queryParams.created_before = formatDate(_.get(selectedSemesterData, 'end', ''), 'YYYY-MM-DD');
     },
     onSuccessfulDataRetrieval: function(response) {
       this.$emit('success', response);
@@ -274,7 +279,7 @@ export default {
         url: this.observationPortalApiBaseUrl + '/api/semesters/?limit=20&start_lte=' + datetimeNow,
         type: 'GET'
       }).done(function(data) {
-        that.updateSemesterOptions(data);
+        that.updateSemesterData(data);
       });
     }
   }
