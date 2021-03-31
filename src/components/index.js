@@ -1,7 +1,7 @@
 // All the components exported from this file are available through the library
 
 import { RequestConfigurationsDetail } from './Configurations';
-import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable } from './RequestGroups';
+import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable, RequestGroupApiDisplay, RequestGroupDraftsTable } from './RequestGroups';
 import { ObservationDetail, ObservationsTable } from './Observations';
 import { RequestOverview, RequestWindowsDetail } from './Requests';
 import { AirmassPlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
@@ -15,6 +15,8 @@ export {
   ObservationHistoryPlot,
   Pagination,
   RequestConfigurationsDetail,
+  RequestGroupApiDisplay,
+  RequestGroupDraftsTable,
   RequestGroupHeader,
   RequestGroupOverview,
   RequestGroupTable,
