@@ -296,12 +296,11 @@ describe('RequestGroupTable.vue', () => {
     await createdAfterForm.setValue('2021-02-01');
 
     expect(wrapper.vm.semesterSelection).toBe('');
-    
+
     // Simulate updating both to valid semester boundaries
     await createdAfterForm.setValue('2021-02-01');
     await createdBeforeForm.setValue('2021-07-31');
 
     expect(wrapper.vm.semesterSelection).toBe('2021A');
-
   });
 });
