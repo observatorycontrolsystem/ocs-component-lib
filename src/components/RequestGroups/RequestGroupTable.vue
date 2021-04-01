@@ -35,17 +35,17 @@
               </b-form-group>
               <b-form-group id="input-group-semester" label-for="input-semester" label-class="m-0" class="my-2">
                 <template v-slot:label> <i class="fa fa-calendar-check" /> Semester </template>
-                <b-form-select id="input-semester" v-model="semesterSelect" :options="semesterOptions" size="sm" @change="onSemesterChange" />
+                <b-form-select id="input-semester" v-model="semesterSelection" :options="semesterOptions" size="sm" @change="onSemesterChange" />
               </b-form-group>
               <b-form-group id="input-group-created-after" label-for="input-created-after" label-class="m-0" class="my-2">
-                <b-form-input id="input-created-after" v-model="queryParams.created_after" type="date" size="sm" />
+                <b-form-input id="input-created-after" v-model="createdAfterSelection" type="date" size="sm" />
                 <template v-slot:label>
-                  <i class="fa fa-calendar"> <i class="fa fa-arrow-right" /> </i> Submitted After
+                  <i class="fa fa-calendar"> <i class="fa fa-arrow-right" /> </i> Submitted After (Inclusive)
                 </template>
               </b-form-group>
               <b-form-group id="input-group-created-before" label-for="input-created-before" label-class="m-0" class="my-2">
-                <b-form-input id="input-created-before" v-model="queryParams.created_before" type="date" size="sm" />
-                <template v-slot:label> <i class="fa fa-arrow-left" /> <i class="fa fa-calendar" /> Submitted Before </template>
+                <b-form-input id="input-created-before" v-model="createdBeforeSelection" type="date" size="sm" />
+                <template v-slot:label> <i class="fa fa-arrow-left" /> <i class="fa fa-calendar" /> Submitted Before (Inclusive) </template>
               </b-form-group>
               <div v-if="!viewAuthoredRequestsOnly">
                 <b-form-group id="input-group-user" label-for="input-user" label-class="m-0" class="my-2">
@@ -194,12 +194,12 @@ export default {
       { value: '-end', text: 'End of window (descending)' }
     ];
     const semesterData = {};
-    const semesterSelect = '';
+    const semesterSelection = '';
     return {
       orderOptions: orderOptions,
       stateOptions: stateOptions,
       semesterData: semesterData,
-      semesterSelect: semesterSelect,
+      semesterSelection: semesterSelection,
       fields: [{ key: 'requestgroupInfo', tdClass: 'p-0 m-0', thClass: 'border-0' }]
     };
   },
@@ -230,6 +230,34 @@ export default {
     },
     viewAuthoredRequestsOnly: function() {
       return this.profile.profile && this.profile.profile.view_authored_requests_only && !this.profile.profile.staff_view;
+    },
+    createdAfterSelection: {
+      get() {
+        return moment(this.queryParams.created_after).isValid() ? moment.utc(this.queryParams.created_after).format('YYYY-MM-DD') : '';
+      },
+      set(createdAfterDate) {
+        let createdAfterDateTime = moment.utc(createdAfterDate, 'YYYY-MM-DD');
+        createdAfterDateTime.set({ hour: 0, minute: 0, second: 0 });
+        this.queryParams.created_after = formatDate(createdAfterDateTime.format(), 'YYYY-MM-DD HH:mm:ss');
+      }
+    },
+    createdBeforeSelection: {
+      get() {
+        return moment(this.queryParams.created_before).isValid() ? moment.utc(this.queryParams.created_before).format('YYYY-MM-DD') : '';
+      },
+      set(createdBeforeDate) {
+        let createdBeforeDateTime = moment.utc(createdBeforeDate, 'YYYY-MM-DD');
+        createdBeforeDateTime.set({ hour: 23, minute: 59, second: 59 });
+        this.queryParams.created_before = formatDate(createdBeforeDateTime.format(), 'YYYY-MM-DD HH:mm:ss');
+      }
+    }
+  },
+  watch: {
+    createdAfterSelection: function() {
+      this.selectSemesterFromQueryParams();
+    },
+    createdBeforeSelection: function() {
+      this.selectSemesterFromQueryParams();
     }
   },
   created: function() {
@@ -259,11 +287,13 @@ export default {
       for (let semester of data.results) {
         this.$set(this.semesterData, semester.id, semester);
       }
+      // on initial data load, correctly select the semester
+      this.selectSemesterFromQueryParams();
     },
     onSemesterChange: function(semesterId) {
       let selectedSemesterData = this.semesterData[semesterId];
-      this.queryParams.created_after = formatDate(_.get(selectedSemesterData, 'start', ''), 'YYYY-MM-DD');
-      this.queryParams.created_before = formatDate(_.get(selectedSemesterData, 'end', ''), 'YYYY-MM-DD');
+      this.createdAfterSelection = formatDate(_.get(selectedSemesterData, 'start', ''), 'YYYY-MM-DD');
+      this.createdBeforeSelection = formatDate(_.get(selectedSemesterData, 'end', ''), 'YYYY-MM-DD');
     },
     onSuccessfulDataRetrieval: function(response) {
       this.$emit('success', response);
@@ -280,6 +310,21 @@ export default {
       }).done(function(data) {
         that.updateSemesterData(data);
       });
+    },
+    selectSemesterFromQueryParams: function() {
+      // identify semester that matches queryParams created_before and created_after
+      this.semesterSelection = '';
+      let createdAfter = moment.utc(this.queryParams.created_after).format('YYYY-MM-DD');
+      let createdBefore = moment.utc(this.queryParams.created_before).format('YYYY-MM-DD');
+
+      for (let semester of Object.values(this.semesterData)) {
+        let startMatches = createdAfter === moment.utc(semester.start).format('YYYY-MM-DD');
+        let endMatches = createdBefore === moment.utc(semester.end).format('YYYY-MM-DD');
+        if (startMatches && endMatches) {
+          this.semesterSelection = semester.id;
+          break;
+        }
+      }
     }
   }
 };

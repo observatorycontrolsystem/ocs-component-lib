@@ -282,5 +282,26 @@ describe('RequestGroupTable.vue', () => {
     expect(wrapper.vm.$route.fullPath).toContain('created_after=2021-02-01');
     expect(wrapper.vm.$route.fullPath).toContain('created_before=2021-07-31');
     expect(wrapper.findAllComponents(RequestGroupOverview)).toHaveLength(1);
+
+    // Simulate updating the submitted_after date to test semester check
+    let createdAfterForm = wrapper.find('input#input-created-after');
+    let createdBeforeForm = wrapper.find('input#input-created-before');
+
+    await createdAfterForm.setValue('2021-01-05');
+    await createdBeforeForm.setValue('2021-09-13');
+
+    expect(wrapper.vm.semesterSelection).toBe('');
+
+    // Simulate updating the submitted_after date back to a valid semester boundary
+    await createdAfterForm.setValue('2021-02-01');
+
+    expect(wrapper.vm.semesterSelection).toBe('');
+    
+    // Simulate updating both to valid semester boundaries
+    await createdAfterForm.setValue('2021-02-01');
+    await createdBeforeForm.setValue('2021-07-31');
+
+    expect(wrapper.vm.semesterSelection).toBe('2021A');
+
   });
 });
