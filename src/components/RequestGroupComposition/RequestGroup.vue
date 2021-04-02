@@ -261,9 +261,8 @@ export default {
       return _.get(this.errors, ['requests', idx], {});
     },
     expandCadence: function(data) {
-
       // TODO: Use a modal and not an alert
-      
+
       if (!_.isEmpty(this.errors)) {
         alert('Please make sure your request is valid before generating a cadence');
         return false;

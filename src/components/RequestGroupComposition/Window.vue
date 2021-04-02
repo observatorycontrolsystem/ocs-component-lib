@@ -32,7 +32,6 @@
             show-zoom-controls
           />
           -->
-
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
@@ -101,12 +100,15 @@
   </panel>
 </template>
 <script>
+import $ from 'jquery';
+import _ from 'lodash';
+
 import Panel from '@/components/RequestGroupComposition/Panel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import CustomDatetime from '@/components/RequestGroupComposition/CustomDatetime.vue';
-import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
+// import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
 
 import { extractTopLevelErrors } from '@/util.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
@@ -118,8 +120,8 @@ export default {
     CustomField,
     CustomSelect,
     Panel,
-    CustomAlert,
-    AirmassPlot
+    CustomAlert
+    // AirmassPlot
   },
   mixins: [collapseMixin],
   props: {
@@ -196,7 +198,7 @@ export default {
         url: this.observationPortalApiBaseUrl + '/api/airmass/',
         data: JSON.stringify(request),
         contentType: 'application/json',
-        success: (data) => {
+        success: data => {
           this.airmassData = data;
           this.showAirmass = 'airmass_limit' in data;
         }

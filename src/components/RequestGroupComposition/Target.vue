@@ -20,12 +20,10 @@
         <b-col :md="show ? 6 : 12">
           <b-form>
             <custom-field v-model="target.name" label="Name" field="name" :errors="errors.name" @input="update">
-              
               <!-- TODO: Move this over to the client -->
               <!-- <div v-show="lookingUP || lookupFail" slot="extra-help-text">
                 <i v-show="lookingUP" class="fa fa-spinner fa-spin fa-fw" /> {{ lookupText }}
               </div> -->
-            
             </custom-field>
             <custom-select
               v-if="!simpleInterface"

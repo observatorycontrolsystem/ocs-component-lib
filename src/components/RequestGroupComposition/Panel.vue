@@ -10,7 +10,6 @@
                   <i class="align-middle fa-lg mx-2" :class="icon" />
                   <!-- TODO: The warning and success flicker on page load -->
 
-
                   <!-- TODO: This section -->
                   <!-- <i
                     v-show="hasError"
@@ -24,7 +23,6 @@
                     class="fas fa-check fa-lg text-success align-middle"
                     title="Section is complete"
                   /> -->
-
                 </b-col>
                 <b-col class="text-center">
                   <h6>
@@ -112,7 +110,6 @@ export default {
   },
   methods: {
     remove: function() {
-      
       // TODO: Use modal instead
 
       if (confirm('Are you sure you want to remove this item?')) {

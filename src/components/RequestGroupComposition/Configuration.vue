@@ -241,9 +241,8 @@ export default {
   },
   computed: {
     configurationTypeOptions: function() {
-
       // TODO: Get configuration types from instruments endpoint
-      
+
       if (_.get(this.availableInstruments, this.selectedinstrument, {}).type === 'SPECTRA') {
         if (this.selectedinstrument.includes('NRES')) {
           return [
