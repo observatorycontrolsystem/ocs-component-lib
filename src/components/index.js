@@ -2,13 +2,15 @@
 
 import { RequestConfigurationsDetail } from './Configurations';
 import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable, RequestGroupApiDisplay, RequestGroupDraftsTable } from './RequestGroups';
+import { RequestGroupCompositionForm } from './RequestGroupComposition';
 import { ObservationDetail, ObservationsTable } from './Observations';
 import { RequestOverview, RequestWindowsDetail } from './Requests';
-import { AirmassPlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
+import { AirmassPlot, CadencePlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
 import { DataLoader, Pagination } from './Util';
 
 export {
   AirmassPlot,
+  CadencePlot,
   DataLoader,
   ObservationDetail,
   ObservationsTable,
@@ -16,6 +18,7 @@ export {
   Pagination,
   RequestConfigurationsDetail,
   RequestGroupApiDisplay,
+  RequestGroupCompositionForm,
   RequestGroupDraftsTable,
   RequestGroupHeader,
   RequestGroupOverview,
