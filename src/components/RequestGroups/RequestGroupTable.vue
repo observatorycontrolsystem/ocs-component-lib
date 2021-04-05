@@ -37,6 +37,7 @@
                 <template v-slot:label> <i class="fa fa-calendar-check" /> Semester </template>
                 <b-form-select id="input-semester" v-model="semesterSelection" :options="semesterOptions" size="sm" @change="onSemesterChange" />
               </b-form-group>
+              <!-- TODO: Make created_after and created_before datetime fields so that users can specify start/end dates and times. -->
               <b-form-group id="input-group-created-after" label-for="input-created-after" label-class="m-0" class="my-2">
                 <b-form-input id="input-created-after" v-model="createdAfterSelection" type="date" size="sm" />
                 <template v-slot:label>
@@ -237,6 +238,7 @@ export default {
       },
       set(createdAfterDate) {
         let createdAfterDateTime = moment.utc(createdAfterDate, 'YYYY-MM-DD');
+        // set the created_after time to 00:00:00 - the beginning of the day
         createdAfterDateTime.set({ hour: 0, minute: 0, second: 0 });
         this.queryParams.created_after = formatDate(createdAfterDateTime.format(), 'YYYY-MM-DD HH:mm:ss');
       }
@@ -247,6 +249,7 @@ export default {
       },
       set(createdBeforeDate) {
         let createdBeforeDateTime = moment.utc(createdBeforeDate, 'YYYY-MM-DD');
+        // set the created_before time to 23:59:59 so that the query is inclusive for the entire day specified
         createdBeforeDateTime.set({ hour: 23, minute: 59, second: 59 });
         this.queryParams.created_before = formatDate(createdBeforeDateTime.format(), 'YYYY-MM-DD HH:mm:ss');
       }
