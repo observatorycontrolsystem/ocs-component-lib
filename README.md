@@ -21,7 +21,7 @@ Some components in the library depend on [Vue Router](https://router.vuejs.org/)
 
 ### Installation
 ```
-npm install ocs-component-library
+npm install ocs-component-lib
 ```
 
 ### Using the components
