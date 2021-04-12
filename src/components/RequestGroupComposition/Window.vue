@@ -1,6 +1,6 @@
 <template>
   <panel
-    :id="'window' + $parent.$parent.index + index"
+    :id="'window' + position.requestIndex + position.windowIndex"
     icon="fas fa-calendar"
     title="Window"
     :index="index"
@@ -18,20 +18,19 @@
     <b-container class="p-0">
       <b-row>
         <b-col v-show="show" md="6">
-          <slot name="window-help"></slot>
-
-          <!-- TODO: Integrate airmass plot, allow a user to show or hide it
-          <h4 v-show="showAirmass" class="text-center">
-            Visibility
-          </h4>
-          <airmass-plot
-            v-show="showAirmass"
-            :data="airmassData"
-            :site-code-to-color="siteCodeToColor"
-            :site-code-to-name="siteCodeToName"
-            show-zoom-controls
-          />
-          -->
+          <slot name="window-help" :data="{ window: window, position: position }"></slot>
+          <template v-if="showAirmassPlot">
+            <h4 v-show="showAirmass" class="text-center">
+              Visibility
+            </h4>
+            <airmass-plot
+              v-show="showAirmass"
+              :data="airmassData"
+              :site-code-to-color="siteCodeToColor"
+              :site-code-to-name="siteCodeToName"
+              show-zoom-controls
+            />
+          </template>
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
@@ -108,7 +107,7 @@ import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import CustomDatetime from '@/components/RequestGroupComposition/CustomDatetime.vue';
-// import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
+import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
 
 import { extractTopLevelErrors } from '@/util.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
@@ -120,8 +119,8 @@ export default {
     CustomField,
     CustomSelect,
     Panel,
-    CustomAlert
-    // AirmassPlot
+    CustomAlert,
+    AirmassPlot
   },
   mixins: [collapseMixin],
   props: {
@@ -134,6 +133,10 @@ export default {
       required: true
     },
     index: {
+      type: Number,
+      required: true
+    },
+    requestIndex: {
       type: Number,
       required: true
     },
@@ -150,6 +153,9 @@ export default {
     siteCodeToName: {
       type: Object,
       required: true
+    },
+    showAirmassPlot: {
+      type: Boolean
     },
     parentshow: {
       type: Boolean
@@ -169,7 +175,11 @@ export default {
       showAirmass: false,
       cadence: 'none',
       period: 24.0,
-      jitter: 12.0
+      jitter: 12.0,
+      position: {
+        requestIndex: this.requestIndex,
+        windowIndex: this.index
+      }
     };
   },
   computed: {
@@ -195,7 +205,7 @@ export default {
       request['windows'] = [{ start: this.window.start, end: this.window.end }];
       $.ajax({
         type: 'POST',
-        url: this.observationPortalApiBaseUrl + '/api/airmass/',
+        url: `${this.observationPortalApiBaseUrl}/api/airmass/`,
         data: JSON.stringify(request),
         contentType: 'application/json',
         success: data => {

@@ -1,6 +1,6 @@
 <template>
   <panel
-    :id="'configuration' + $parent.$parent.index + index"
+    :id="'configuration' + position.requestIndex + position.configurationIndex"
     :show="show"
     :index="index"
     :errors="errors"
@@ -18,7 +18,7 @@
     <b-container class="p-0">
       <b-row>
         <b-col v-show="show" md="6">
-          <slot name="configuration-help"></slot>
+          <slot name="configuration-help" :data="{ configuration: configuration, position: position }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
@@ -92,10 +92,12 @@
       </b-row>
     </b-container>
     <instrument-config
-      v-for="(instrumentconfig, idx) in configuration.instrument_configs"
+      v-for="(instrumentConfig, idx) in configuration.instrument_configs"
       :key="idx"
       :index="idx"
-      :instrumentconfig="instrumentconfig"
+      :instrument-config="instrumentConfig"
+      :configuration-index="index"
+      :request-index="requestIndex"
       :selectedinstrument="selectedinstrument"
       :parentshow="show"
       :datatype="datatype"
@@ -109,12 +111,14 @@
       @copy="addInstrumentConfiguration(idx)"
       @instrumentconfigupdate="instumentConfigurationUpdated"
     >
-      <template #instrument-config-help>
-        <slot name="instrument-config-help"></slot>
+      <template #instrument-config-help="data">
+        <slot name="instrument-config-help" :data="data.data"></slot>
       </template>
     </instrument-config>
     <target
       :target="configuration.target"
+      :configuration-index="index"
+      :request-index="requestIndex"
       :datatype="datatype"
       :parentshow="show"
       :errors="getFromObject(errors, 'target', {})"
@@ -122,19 +126,27 @@
       :selectedinstrument="selectedinstrument"
       @target-updated="targetUpdated"
     >
-      <template #target-help>
-        <slot name="target-help"></slot>
+      <template #target-help="data">
+        <slot name="target-help" :data="data.data"></slot>
+      </template>
+      <template #target-name-field="data">
+        <slot name="target-name-field" :data="data.data"></slot>
+      </template>
+      <template #target-type-field="data">
+        <slot name="target-type-field" :data="data.data"></slot>
       </template>
     </target>
     <constraints
       v-if="!simpleInterface"
+      :configuration-index="index"
+      :request-index="requestIndex"
       :constraints="configuration.constraints"
       :parentshow="show"
       :errors="getFromObject(errors, 'constraints', {})"
       @constraintsupdate="constraintsUpdated"
     >
-      <template #constraints-help>
-        <slot name="constraints-help"></slot>
+      <template #constraints-help="data">
+        <slot name="constraints-help" :data="data.data"></slot>
       </template>
     </constraints>
   </panel>
@@ -181,6 +193,10 @@ export default {
       required: true
     },
     index: {
+      type: Number,
+      required: true
+    },
+    requestIndex: {
       type: Number,
       required: true
     },
@@ -236,7 +252,11 @@ export default {
           option: 'OPTIONAL',
           config: { mode: 'ON', optional: true }
         }
-      ]
+      ],
+      position: {
+        requestIndex: this.requestIndex,
+        configurationIndex: this.index
+      }
     };
   },
   computed: {
@@ -373,8 +393,8 @@ export default {
     this.setupAcquireAndGuideFieldsForType(this.configuration.type);
   },
   methods: {
-    update: function() {
-      this.$emit('configurationupdated');
+    update: function(data) {
+      this.$emit('configuration-updated', data);
     },
     updateAcquisitionConfigExtraParam: function(value, field) {
       if (value === '') {
@@ -387,16 +407,17 @@ export default {
     configurationFillDuration: function() {
       this.$emit('configurationfillduration', this.index);
     },
-    generateCalibs: function() {
-      this.$emit('generateCalibs', this.index);
-    },
+    // generateCalibs: function() {
+    //   this.$emit('generateCalibs', this.index);
+    // },
     constraintsUpdated: function() {
       console.log('constraintsUpdated');
       this.update();
     },
-    targetUpdated: function() {
-      console.log('targetUpdated');
-      this.update();
+    targetUpdated: function(data) {
+      console.log('targetUpdated', data);
+
+      this.update(data);
     },
     removeInstrumentConfiguration: function(idx) {
       this.configuration.instrument_configs.splice(idx, 1);

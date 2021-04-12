@@ -18,7 +18,7 @@
     <b-container class="p-0">
       <b-row>
         <b-col v-show="show" md="6">
-          <slot name="request-help"></slot>
+          <slot name="request-help" :data="{ request: request, position: position }"></slot>
         </b-col>
 
         <b-col :md="show ? 6 : 12">
@@ -59,6 +59,7 @@
       v-for="(configuration, idx) in request.configurations"
       :key="'configuration' + idx"
       :index="idx"
+      :request-index="index"
       :configuration="configuration"
       :selectedinstrument="instrument_type"
       :datatype="dataType"
@@ -69,19 +70,25 @@
       :simple-interface="simpleInterface"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
-      @configurationupdated="configurationUpdated"
+      @configuration-updated="configurationUpdated"
     >
-      <template #configuration-help>
-        <slot name="configuration-help"></slot>
+      <template #configuration-help="data">
+        <slot name="configuration-help" :data="data.data"></slot>
       </template>
-      <template #instrument-config-help>
-        <slot name="instrument-config-help"></slot>
+      <template #instrument-config-help="data">
+        <slot name="instrument-config-help" :data="data.data"></slot>
       </template>
-      <template #target-help>
-        <slot name="target-help"></slot>
+      <template #target-help="data">
+        <slot name="target-help" :data="data.data"></slot>
       </template>
-      <template #constraints-help>
-        <slot name="constraints-help"></slot>
+      <template #target-name-field="data">
+        <slot name="target-name-field" :data="data.data"></slot>
+      </template>
+      <template #target-type-field="data">
+        <slot name="target-type-field" :data="data.data"></slot>
+      </template>
+      <template #constraints-help="data">
+        <slot name="constraints-help" :data="data.data"></slot>
       </template>
     </configuration>
     <window
@@ -89,20 +96,23 @@
       :key="'window' + idx"
       ref="window"
       :index="idx"
+      :request-index="index"
       :window="window"
       :errors="getFromObject(errors, ['windows', idx], {})"
       :parentshow="show"
+      :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :simple-interface="simpleInterface"
       :observation-type="observationType"
       :site-code-to-color="siteCodeToColor"
       :site-code-to-name="siteCodeToName"
+      :show-airmass-plot="showAirmassPlot"
       @remove="removeWindow(idx)"
       @windowupdate="windowUpdated"
       @cadence="cadence"
       @copy="addWindow(idx)"
     >
-      <template #window-help>
-        <slot name="window-help"></slot>
+      <template #window-help="data">
+        <slot name="window-help" :data="data.data"></slot>
       </template>
     </window>
   </panel>
@@ -141,6 +151,15 @@ export default {
       type: Object,
       required: true
     },
+    observationPortalApiBaseUrl: {
+      type: String,
+      required: true
+    },
+    // Response from the /api/profile/ endpoint
+    profile: {
+      type: Object,
+      required: true
+    },
     index: {
       type: Number,
       required: true
@@ -165,7 +184,7 @@ export default {
       type: Object,
       required: true
     },
-    simpleInterface: {
+    showAirmassPlot: {
       type: Boolean
     },
     parentshow: {
@@ -182,10 +201,16 @@ export default {
       dataType: '',
       dataTypeOptions: [],
       // TODO: Should I move this down to the configuration level? probably...
-      instrument_type: this.request.configurations[0].instrument_type
+      instrument_type: this.request.configurations[0].instrument_type,
+      position: {
+        requestIndex: this.index
+      }
     };
   },
   computed: {
+    simpleInterface: function() {
+      return _.get(this.profile, ['profile', 'simple_interface'], false);
+    },
     availableInstrumentOptions: function() {
       let options = [];
       for (let ai in this.availableInstruments) {
@@ -233,20 +258,21 @@ export default {
     this.updateDataTypeOptions();
   },
   methods: {
-    update: function() {
-      this.$emit('requestupdate');
-      // let that = this;
-      // _.delay(function() {
-      //   that.updateVisibility();
-      // }, 500);
+    update: function(data) {
+      this.$emit('request-updated', data);
+      if (this.showAirmassPlot) {
+        _.delay(() => {
+          this.updateVisibility();
+        }, 500);
+      }
     },
-    // updateVisibility: _.debounce(function() {
-    //   if ('window' in this.$refs) {
-    //     for (var windowIdx in this.$refs.window) {
-    //       this.$refs.window[windowIdx].updateVisibility(this.request);
-    //     }
-    //   }
-    // }, 300),
+    updateVisibility: _.debounce(function() {
+      if ('window' in this.$refs) {
+        for (var windowIdx in this.$refs.window) {
+          this.$refs.window[windowIdx].updateVisibility(this.request);
+        }
+      }
+    }, 300),
     updateDataTypeOptions: function() {
       if (_.isEmpty(this.dataTypeOptions)) {
         let hasImage = false;
@@ -298,48 +324,9 @@ export default {
         this.update();
       }
     },
-    // generateCalibs: function(configuration_id) {
-    //   let request = this.request;
-    //   let calibs = [{}, {}, {}, {}];
-    //   for (let c in calibs) {
-    //     calibs[c] = _.cloneDeep(request.configurations[configuration_id]);
-    //     for (let ic in calibs[c].instrument_configs) {
-    //       calibs[c].instrument_configs[ic].exposure_time = arcDefaultExposureTime(this.instrument_type);
-    //     }
-    //   }
-    //   calibs[0].type = 'LAMP_FLAT';
-    //   calibs[1].type = 'ARC';
-    //   calibs[0].guiding_config.optional = true;
-    //   calibs[1].guiding_config.optional = true;
-    //   calibs[0].guiding_config.mode = 'ON';
-    //   calibs[1].guiding_config.mode = 'ON';
-    //   for (let ic in calibs[0].instrument_configs) {
-    //     calibs[0].instrument_configs[ic].exposure_time = lampFlatDefaultExposureTime(
-    //       calibs[0].instrument_configs[ic].optical_elements.slit,
-    //       this.instrument_type,
-    //       calibs[0].instrument_configs[ic].mode
-    //     );
-    //   }
-    //   request.configurations.unshift(calibs[0], calibs[1]);
-    //   calibs[2].type = 'ARC';
-    //   calibs[3].type = 'LAMP_FLAT';
-    //   calibs[2].guiding_config.optional = true;
-    //   calibs[3].guiding_config.optional = true;
-    //   calibs[2].guiding_config.mode = 'ON';
-    //   calibs[3].guiding_config.mode = 'ON';
-    //   for (let ic in calibs[3].instrument_configs) {
-    //     calibs[3].instrument_configs[ic].exposure_time = lampFlatDefaultExposureTime(
-    //       calibs[3].instrument_configs[ic].optical_elements.slit,
-    //       this.instrument_type,
-    //       calibs[3].instrument_configs[ic].mode
-    //     );
-    //   }
-    //   request.configurations.push(calibs[2], calibs[3]);
-    //   this.update();
-    // },
-    configurationUpdated: function() {
-      console.log('configurationupdated');
-      this.update();
+    configurationUpdated: function(data) {
+      console.log('configuration-updated');
+      this.update(data);
     },
     windowUpdated: function() {
       console.log('windowUpdated');
@@ -366,7 +353,7 @@ export default {
     cadence: function(data) {
       this.$emit('cadence', { id: this.index, request: this.request, cadence: data });
     },
-    getFromObject(obj, path, defaultValue) {
+    getFromObject: function(obj, path, defaultValue) {
       return _.get(obj, path, defaultValue);
     }
   }

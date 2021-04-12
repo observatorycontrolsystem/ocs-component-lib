@@ -2,7 +2,7 @@
   <b-row>
     <b-col>
       <request-group
-        :errors="errors"
+        :errors="requestGroupErrors"
         :duration-data="durationData"
         :request-group="requestGroup"
         :profile="profile"
@@ -12,39 +12,51 @@
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
-        @request-group-updated="requestgroupUpdated"
+        :show-airmass-plot="showAirmassPlot"
+        @request-group-updated="requestGroupUpdated"
       >
         <template #request-group-help="data">
-          <slot name="request-group-help" :data="data"></slot>
+          <slot name="request-group-help" :data="data.data"></slot>
         </template>
-        <template #request-help>
-          <slot name="request-help"></slot>
+        <template #request-help="data">
+          <slot name="request-help" :data="data.data"></slot>
         </template>
-        <template #configuration-help>
-          <slot name="configuration-help"></slot>
+        <template #configuration-help="data">
+          <slot name="configuration-help" :data="data.data"></slot>
         </template>
-        <template #instrument-config-help>
-          <slot name="instrument-config-help"></slot>
+        <template #instrument-config-help="data">
+          <slot name="instrument-config-help" :data="data.data"></slot>
         </template>
-        <template #target-help>
-          <slot name="target-help"></slot>
+        <template #target-help="data">
+          <slot name="target-help" :data="data.data"></slot>
         </template>
-        <template #constraints-help>
-          <slot name="constraints-help"></slot>
+        <template #target-name-field="data">
+          <slot name="target-name-field" :data="data.data"></slot>
         </template>
-        <template #window-help>
-          <slot name="window-help"></slot>
+        <template #target-type-field="data">
+          <slot name="target-type-field" :data="data.data"></slot>
+        </template>
+        <template #constraints-help="data">
+          <slot name="constraints-help" :data="data.data"></slot>
+        </template>
+        <template #window-help="data">
+          <slot name="window-help" :data="data.data"></slot>
         </template>
       </request-group>
     </b-col>
     <b-col cols="auto">
       <request-group-side-nav
         :request-group="requestGroup"
-        :errors="errors"
+        :errors="requestGroupErrors"
         :draft-id="draftId"
         @save-draft="saveDraft($event.draftId)"
-        @submit="submit()"
-        @clear="clear()"
+        @submit="
+          confirm(
+            'The request will take approximately ' + getDurationString() + ' of telescope time. Are you sure you want to submit the request?',
+            submitRequestGroup
+          )
+        "
+        @clear="confirm('Clear the form?', clearRequestGroup)"
       />
     </b-col>
   </b-row>
@@ -55,6 +67,7 @@ import $ from 'jquery';
 
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
+import { confirmMixin } from '@/mixins/confirmMixins.js';
 import { generateDurationString } from '@/util';
 
 export default {
@@ -63,26 +76,19 @@ export default {
     RequestGroup,
     RequestGroupSideNav
   },
+  mixins: [confirmMixin],
   props: {
     observationPortalApiBaseUrl: {
       type: String,
       required: true
     },
-    // Response from the /api/instruments/ endpoint
+    // Object in the form of the response from the /api/instruments/ endpoint
     instruments: {
       type: Object,
       required: true
     },
-    // Response from the /api/profile/ endpoint
+    // Object in the form of the response from the /api/profile/ endpoint
     profile: {
-      type: Object,
-      required: true
-    },
-    siteCodeToColor: {
-      type: Object,
-      required: true
-    },
-    siteCodeToName: {
       type: Object,
       required: true
     },
@@ -157,6 +163,23 @@ export default {
         };
       }
     },
+    siteCodeToColor: {
+      type: Object,
+      required: false,
+      default: () => {
+        return {};
+      }
+    },
+    siteCodeToName: {
+      type: Object,
+      required: false,
+      default: () => {
+        return {};
+      }
+    },
+    showAirmassPlot: {
+      type: Boolean
+    },
     datetimeFormat: {
       type: String,
       default: 'YYYY-MM-DD HH:mm:ss'
@@ -165,8 +188,7 @@ export default {
   data: function() {
     return {
       draftId: -1,
-      isMemberOfActiveProposals: false,
-      errors: {},
+      requestGroupErrors: {},
       durationData: {}
     };
   },
@@ -179,9 +201,6 @@ export default {
     },
     // Has only the instruments that the user's proposals allow
     availableInstruments: function() {
-      // TODO: Filter the instruments for only the ones that are in the profile list of available_instrument_types... there is
-      // a thing to exclude instruments that include "COMMISSIONING" in the instrument type name, but maybe I should
-      // figure out a better way to handle that
       let instruments = {};
       for (let instrumentType of this.availableInstrumentTypes) {
         if (this.instruments[instrumentType]) {
@@ -189,6 +208,14 @@ export default {
         }
       }
       return instruments;
+    }
+  },
+  watch: {
+    requestGroup: {
+      deep: true,
+      handler: function(oldValue, newValue) {
+        console.log('the requestGroup changed', oldValue, newValue);
+      }
     }
   },
   methods: {
@@ -199,32 +226,26 @@ export default {
         data: JSON.stringify(this.requestGroup),
         contentType: 'application/json',
         success: data => {
-          this.errors = data.errors;
+          this.requestGroupErrors = data.errors;
           this.durationData = data.request_durations;
         }
       });
     }, 200),
-    submit: function() {
-      // TODO: Use confirm mixin
-      if (
-        confirm(
-          'The request will take approximately ' +
-            generateDurationString(this.durationData.duration) +
-            ' of telescope time. Are you sure you want to submit the request?'
-        )
-      ) {
-        $.ajax({
-          type: 'POST',
-          url: `${this.observationPortalApiBaseUrl}/api/requestgroups/`,
-          data: JSON.stringify(this.requestGroup),
-          contentType: 'application/json',
-          success: data => {
-            this.$emit('request-group-saved', data.id);
-          }
-        });
-      }
+    getDurationString: function() {
+      return generateDurationString(this.durationData.duration);
     },
-    requestgroupUpdated: function() {
+    submitRequestGroup: function() {
+      $.ajax({
+        type: 'POST',
+        url: `${this.observationPortalApiBaseUrl}/api/requestgroups/`,
+        data: JSON.stringify(this.requestGroup),
+        contentType: 'application/json',
+        success: data => {
+          this.$emit('request-group-saved', data.id);
+        }
+      });
+    },
+    requestGroupUpdated: function() {
       console.log('requestgroup updated');
       this.validate();
     },
@@ -251,19 +272,21 @@ export default {
       })
         .done(data => {
           this.draftId = data.id;
-          this.$emit('save-draft-succeeded', 'Draft id: ' + data.id + ' saved successfully');
+          this.$emit('save-draft-succeeded', data.id);
         })
         .fail(data => {
-          for (let error in data.responseJSON.non_field_errors) {
-            this.$emit('save-draft-failed', data.responseJSON.non_field_errors[error]);
+          if (data.responseJSON.non_field_errors) {
+            for (let error in data.responseJSON.non_field_errors) {
+              this.$emit('save-draft-failed', data.responseJSON.non_field_errors[error]);
+            }
+          } else {
+            // Unexpected error, no message to supply
+            this.$emit('save-draft-failed');
           }
         });
     },
-    clear: function() {
-      // TODO: Replace with confirm mixin
-      if (confirm('Clear the form?')) {
-        window.location.reload();
-      }
+    clearRequestGroup: function() {
+      window.location.reload();
     }
   }
 };

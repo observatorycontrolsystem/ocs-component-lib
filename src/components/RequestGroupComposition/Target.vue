@@ -1,6 +1,6 @@
 <template>
   <panel
-    :id="'target' + $parent.$parent.$parent.index + $parent.index"
+    :id="'target' + position.requestIndex + position.configurationIndex"
     :show="show"
     :errors="errors"
     :canremove="false"
@@ -15,50 +15,45 @@
     <b-container class="p-0">
       <b-row>
         <b-col v-show="show" md="6">
-          <slot name="target-help"></slot>
+          <slot name="target-help" :data="{ target: target, position: position }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
-            <custom-field v-model="target.name" label="Name" field="name" :errors="errors.name" @input="update">
-              <!-- TODO: Move this over to the client -->
-              <!-- <div v-show="lookingUP || lookupFail" slot="extra-help-text">
-                <i v-show="lookingUP" class="fa fa-spinner fa-spin fa-fw" /> {{ lookupText }}
-              </div> -->
-            </custom-field>
-            <custom-select
-              v-if="!simpleInterface"
-              v-model="target.type"
-              label="Type"
-              field="type"
-              :errors="errors.type"
-              :options="targetTypeOptions"
-              @input="update"
-            />
+            <slot name="target-name-field" :data="{ target: target, errors: errors.name, position: position }">
+              <custom-field v-model="target.name" label="Name" field="name" :errors="errors.name" @input="update" />
+            </slot>
+            <slot name="target-type-field" :data="{ target: target, errors: errors.name, position: position }">
+              <custom-select
+                v-if="!simpleInterface"
+                v-model="target.type"
+                label="Type"
+                field="type"
+                :errors="errors.type"
+                :options="targetTypeOptions"
+                @input="update"
+              />
+            </slot>
             <span v-show="target.type === 'ICRS'" class="sidereal">
-              <custom-field
-                v-model="raDisplay"
+              <sexagesimal-custom-field
+                v-model="target.ra"
                 label="Right Ascension"
+                coordinate="ra"
                 field="ra"
                 desc="Decimal degrees or HH:MM:SS.S"
                 :errors="errors.ra"
-                @blur="updateRA"
-              >
-                <div v-if="target.ra" slot="extra-help-text">
-                  {{ raHelpText }}
-                </div>
-              </custom-field>
-              <custom-field
-                v-model="decDisplay"
+                @input="update"
+              />
+
+              <sexagesimal-custom-field
+                v-model="target.dec"
                 label="Declination"
+                coordinate="dec"
                 field="dec"
                 desc="Decimal degrees or DD:MM:SS.S"
                 :errors="errors.dec"
-                @blur="updateDec"
-              >
-                <div v-if="target.dec" slot="extra-help-text">
-                  {{ decHelpText }}
-                </div>
-              </custom-field>
+                @input="update"
+              />
+
               <custom-field
                 v-if="!simpleInterface"
                 v-model="target.proper_motion_ra"
@@ -205,13 +200,14 @@ import _ from 'lodash';
 import Panel from '@/components/RequestGroupComposition/Panel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
+import SexagesimalCustomField from '@/components/RequestGroupComposition/SexagesimalCustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal } from '@/util';
 
 export default {
   components: {
     CustomField,
+    SexagesimalCustomField,
     CustomSelect,
     Panel,
     CustomAlert
@@ -226,6 +222,14 @@ export default {
       validator: function(value) {
         return value === null || typeof value === 'object';
       },
+      required: true
+    },
+    configurationIndex: {
+      type: Number,
+      required: true
+    },
+    requestIndex: {
+      type: Number,
       required: true
     },
     simpleInterface: {
@@ -254,10 +258,6 @@ export default {
       show: true,
       nonSiderealTargetParams: nonSiderealTargetParams,
       siderealTargetParams: siderealTargetParams,
-      raDisplay: this.target.ra,
-      decDisplay: this.target.dec,
-      raHelpText: this.raHelp(this.target.ra),
-      decHelpText: this.decHelp(this.target.dec),
       targetTypeOptions: [
         { value: 'ICRS', text: 'Sidereal' },
         { value: 'ORBITAL_ELEMENTS', text: 'Non-Sidereal' }
@@ -266,7 +266,11 @@ export default {
         { value: 'MPC_MINOR_PLANET', text: 'MPC Minor Planet' },
         { value: 'MPC_COMET', text: 'MPC Comet' },
         { value: 'JPL_MAJOR_PLANET', text: 'JPL Major Planet' }
-      ]
+      ],
+      position: {
+        requestIndex: this.requestIndex,
+        configurationIndex: this.configurationIndex
+      }
     };
   },
   watch: {
@@ -293,30 +297,6 @@ export default {
   methods: {
     update: function() {
       this.$emit('target-updated', {});
-    },
-    updateRA: function() {
-      this.target.ra = sexagesimalRaToDecimal(this.raDisplay);
-      this.raHelpText = this.raHelp(this.raDisplay);
-      this.update();
-    },
-    updateDec: function() {
-      this.target.dec = sexagesimalDecToDecimal(this.decDisplay);
-      this.decHelpText = this.decHelp(this.decDisplay);
-      this.update();
-    },
-    raHelp: function(ra) {
-      if (isNaN(Number(ra))) {
-        return 'Decimal: ' + Number(sexagesimalRaToDecimal(ra));
-      } else {
-        return 'Sexagesimal: ' + decimalRaToSexigesimal(ra).str;
-      }
-    },
-    decHelp: function(dec) {
-      if (isNaN(Number(dec))) {
-        return 'Decimal: ' + Number(sexagesimalDecToDecimal(dec));
-      } else {
-        return 'Sexagesimal: ' + decimalDecToSexigesimal(dec).str;
-      }
     }
   }
 };

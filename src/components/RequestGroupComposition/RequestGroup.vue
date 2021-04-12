@@ -16,7 +16,7 @@
     <b-container class="p-0">
       <b-form-row>
         <b-col v-show="show" md="6">
-          <slot name="request-group-help" :durationData="durationData" :durationDisplay="durationDisplay"></slot>
+          <slot name="request-group-help" :data="{ requestGroup: requestGroup, durationData: durationData }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
@@ -82,34 +82,42 @@
         :request="request"
         :available-instruments="availableInstruments"
         :parentshow="show"
-        :simple-interface="simpleInterface"
+        :profile="profile"
         :observation-type="requestGroup.observation_type"
+        :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :errors="getRequestErrors(idx)"
         :duration-data="getRequestDurationData(idx)"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
+        :show-airmass-plot="showAirmassPlot"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
-        @requestupdate="requestUpdated"
+        @request-updated="requestUpdated"
         @cadence="expandCadence"
       >
-        <template #request-help>
-          <slot name="request-help"></slot>
+        <template #request-help="data">
+          <slot name="request-help" :data="data.data"></slot>
         </template>
-        <template #configuration-help>
-          <slot name="configuration-help"></slot>
+        <template #configuration-help="data">
+          <slot name="configuration-help" :data="data.data"></slot>
         </template>
-        <template #instrument-config-help>
-          <slot name="instrument-config-help"></slot>
+        <template #instrument-config-help="data">
+          <slot name="instrument-config-help" :data="data.data"></slot>
         </template>
-        <template #target-help>
-          <slot name="target-help"></slot>
+        <template #target-help="data">
+          <slot name="target-help" :data="data.data"></slot>
         </template>
-        <template #constraints-help>
-          <slot name="constraints-help"></slot>
+        <template #target-name-field="data">
+          <slot name="target-name-field" :data="data.data"></slot>
         </template>
-        <template #window-help>
-          <slot name="window-help"></slot>
+        <template #target-type-field="data">
+          <slot name="target-type-field" :data="data.data"></slot>
+        </template>
+        <template #constraints-help="data">
+          <slot name="constraints-help" :data="data.data"></slot>
+        </template>
+        <template #window-help="data">
+          <slot name="window-help" :data="data.data"></slot>
         </template>
       </request>
     </div>
@@ -174,12 +182,12 @@ export default {
       type: Object,
       required: true
     },
+    showAirmassPlot: {
+      type: Boolean
+    },
     datetimeFormat: {
       type: String,
       default: 'YYYY-MM-DD HH:mm:ss'
-    },
-    simpleInterface: {
-      type: Boolean
     }
   },
   data: function() {
@@ -207,6 +215,9 @@ export default {
         }
       }
       return _.sortBy(options, 'text');
+    },
+    simpleInterface: function() {
+      return _.get(this.profile, ['profile', 'simple_interface'], false);
     },
     durationDisplay: function() {
       return generateDurationString(this.durationData.duration);
@@ -238,12 +249,12 @@ export default {
     }
   },
   methods: {
-    update: function() {
-      this.$emit('request-group-updated');
+    update: function(data) {
+      this.$emit('request-group-updated', data);
     },
-    requestUpdated: function() {
+    requestUpdated: function(data) {
       console.log('request updated');
-      this.update();
+      this.update(data);
     },
     addRequest: function(idx) {
       let newRequest = _.cloneDeep(this.requestGroup.requests[idx]);

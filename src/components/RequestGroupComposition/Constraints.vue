@@ -1,6 +1,6 @@
 <template>
   <panel
-    :id="'constraints' + $parent.$parent.$parent.index + $parent.index"
+    :id="'constraints' + position.requestIndex + position.configurationIndex"
     :show="show"
     :errors="errors"
     :canremove="false"
@@ -15,7 +15,7 @@
     <b-container class="p-0">
       <b-row>
         <b-col v-show="show" md="6">
-          <slot name="constraints-help"></slot>
+          <slot name="constraints-help" :data="{ constraints: constraints, position: position }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
@@ -60,6 +60,14 @@ export default {
       type: Object,
       required: true
     },
+    configurationIndex: {
+      type: Number,
+      required: true
+    },
+    requestIndex: {
+      type: Number,
+      required: true
+    },
     errors: {
       type: Object,
       required: true
@@ -69,7 +77,13 @@ export default {
     }
   },
   data: function() {
-    return { show: true };
+    return {
+      show: true,
+      position: {
+        requestIndex: this.requestIndex,
+        configurationIndex: this.configurationIndex
+      }
+    };
   },
   methods: {
     update: function() {
