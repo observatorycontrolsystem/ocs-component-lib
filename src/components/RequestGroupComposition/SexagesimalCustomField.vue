@@ -1,5 +1,5 @@
 <template>
-  <custom-field v-model="displayValue" :label="label" :field="field" :desc="desc" :errors="errors" @blur="update">
+  <custom-field v-model="displayValue" :label="label" :field="field" :desc="desc" :errors="errors" @blur="update($event)">
     <div v-if="value" slot="extra-help-text">
       {{ helpText }}
     </div>
@@ -53,7 +53,7 @@ export default {
     return {
       show: this.$parent.show,
       displayValue: this.value,
-      helpText: this.getHelpText()
+      helpText: this.getHelpText(this.value)
     };
   },
   watch: {
@@ -64,12 +64,12 @@ export default {
   },
   methods: {
     update: function() {
-      this.helpText = this.getHelpText(this.displayValue);
       if (this.coordinate === 'ra') {
         this.$emit('input', sexagesimalRaToDecimal(this.displayValue));
       } else {
         this.$emit('input', sexagesimalDecToDecimal(this.displayValue));
       }
+      this.helpText = this.getHelpText(this.displayValue);
     },
     getHelpText: function(coordValue) {
       if (this.coordinate === 'ra') {

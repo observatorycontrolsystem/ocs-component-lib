@@ -13,17 +13,21 @@
     >
       <template slot="label">
         {{ label }}
-        <!-- <sup v-if="desc" v-b-tooltip="tooltipConfig" class="text-primary" :title="desc">
+        <sup v-if="desc" v-b-tooltip="tooltipConfig" class="text-primary" :title="desc">
           ?
-        </sup> -->
+        </sup>
       </template>
-      <b-form-select
-        :id="field + '-select-' + $parent.id"
-        :value="value | toLowerCase(lowerOptions)"
-        :state="validationState"
-        :options="selectOptions"
-        @input="update($event)"
-      />
+      <b-input-group>
+        <b-form-select
+          :id="field + '-select-' + $parent.id"
+          :value="value | toLowerCase(lowerOptions)"
+          :state="validationState"
+          :options="selectOptions"
+          @input="onInput"
+          @change="onChange"
+        />
+        <slot name="inline-input" />
+      </b-input-group>
       <span v-for="error in errors" :key="error" class="errors text-danger">
         {{ error }}
       </span>
@@ -36,9 +40,8 @@
 <script>
 import _ from 'lodash';
 
-// import { tooltipConfig } from '@/utils.js';
-
 export default {
+  name: 'CustomSelect',
   filters: {
     toLowerCase: function(value, lowerOptions) {
       if (lowerOptions && _.isString(value)) {
@@ -82,12 +85,19 @@ export default {
     },
     lowerOptions: {
       type: Boolean
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return {
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          trigger: 'hover'
+        };
+      }
     }
-  },
-  data: function() {
-    return {
-      // tooltipConfig: tooltipConfig
-    };
   },
   computed: {
     hasErrors: function() {
@@ -118,8 +128,11 @@ export default {
     }
   },
   methods: {
-    update: function(value) {
+    onInput: function(value) {
       this.$emit('input', value);
+    },
+    onChange: function(value) {
+      this.$emit('change', value);
     }
   }
 };

@@ -2,7 +2,15 @@
 
 import { RequestConfigurationsDetail } from './Configurations';
 import { RequestGroupHeader, RequestGroupOverview, RequestGroupTable, RequestGroupApiDisplay, RequestGroupDraftsTable } from './RequestGroups';
-import { RequestGroupCompositionForm } from './RequestGroupComposition';
+import {
+  CustomAlert,
+  CustomDatetime,
+  CustomField,
+  CustomModal,
+  CustomSelect,
+  RequestGroupCompositionForm,
+  SexagesimalCustomField
+} from './RequestGroupComposition';
 import { ObservationDetail, ObservationsTable } from './Observations';
 import { RequestOverview, RequestWindowsDetail } from './Requests';
 import { AirmassPlot, CadencePlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
@@ -11,6 +19,11 @@ import { DataLoader, Pagination } from './Util';
 export {
   AirmassPlot,
   CadencePlot,
+  CustomAlert,
+  CustomDatetime,
+  CustomField,
+  CustomModal,
+  CustomSelect,
   DataLoader,
   ObservationDetail,
   ObservationsTable,
@@ -25,5 +38,6 @@ export {
   RequestGroupTable,
   RequestOverview,
   RequestWindowsDetail,
+  SexagesimalCustomField,
   TelescopeStatesPlot
 };

@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     id="general"
     :show="show"
     title="General Information"
@@ -20,11 +20,19 @@
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
-            <custom-field v-model="requestGroup.name" label="Name" field="name" :errors="errors.name" @input="update" />
+            <custom-field
+              v-model="requestGroup.name"
+              field="name"
+              :label="getFromObject(fieldHelp, ['requestGroup', 'name', 'label'], 'Name')"
+              :desc="getFromObject(fieldHelp, ['requestGroup', 'name', 'desc'], '')"
+              :errors="errors.name"
+              @input="update"
+            />
             <custom-select
               v-model="requestGroup.proposal"
-              label="Proposal"
               field="proposal"
+              :label="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'label'], 'Proposal')"
+              :desc="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'desc'], '')"
               :errors="errors.proposal"
               :options="proposalOptions"
               @input="update"
@@ -32,12 +40,9 @@
             <custom-select
               v-if="!simpleInterface"
               v-model="requestGroup.observation_type"
-              label="Mode"
               field="observation_type"
-              desc="Rapid Response (RR) requests bypass normal scheduling and are executed immediately.
-                    Time Critical (TC) requests are given a large fixed priority that will beat any
-                    requests that use default queue scheduling.
-                    These modes are only available if a proposal was granted RR or TC time."
+              :label="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'label'], 'Observation Type')"
+              :desc="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'desc'], '')"
               :errors="errors.observation_type"
               :options="observationTypeOptions"
               @input="update"
@@ -45,9 +50,9 @@
             <custom-field
               v-if="!simpleInterface"
               v-model="requestGroup.ipp_value"
-              label="IPP Factor"
               field="ipp_value"
-              desc="Provide an InterProposal Priority factor for this request. Acceptable values are between 0.5 and 2.0"
+              :label="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'label'], 'IPP Factor')"
+              :desc="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'desc'], '')"
               :errors="errors.ipp_value"
               @input="update"
             />
@@ -59,7 +64,13 @@
       </b-form-row>
     </b-container>
     <div v-for="(request, idx) in requestGroup.requests" :key="'request' + idx">
-      <modal :show="showCadence" header="Generated Cadence" :show-accept="cadenceRequests.length > 0" @close="cancelCadence" @submit="acceptCadence">
+      <custom-modal
+        :show="showCadence"
+        header="Generated Cadence"
+        :show-accept="cadenceRequests.length > 0"
+        @close="cancelCadence"
+        @submit="acceptCadence"
+      >
         <p>
           The blocks below represent the windows of the requests that will be generated if the cadence is accepted. These requests will replace the
           current request.
@@ -76,7 +87,7 @@
             window.
           </strong>
         </p>
-      </modal>
+      </custom-modal>
       <request
         :index="idx"
         :request="request"
@@ -90,10 +101,13 @@
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
+        :instrument-category-to-name="instrumentCategoryToName"
+        :datetime-format="datetimeFormat"
+        :field-help="fieldHelp"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
         @request-updated="requestUpdated"
-        @cadence="expandCadence"
+        @generate-cadence="expandCadence"
       >
         <template #request-help="data">
           <slot name="request-help" :data="data.data"></slot>
@@ -121,30 +135,30 @@
         </template>
       </request>
     </div>
-  </panel>
+  </form-panel>
 </template>
 <script>
 import $ from 'jquery';
 import _ from 'lodash';
 import moment from 'moment';
 
-import Modal from '@/components/RequestGroupComposition/Modal.vue';
+import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import Request from '@/components/RequestGroupComposition/Request.vue';
 import CadencePlot from '@/components/Plots/CadencePlot.vue';
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
-import { generateDurationString } from '@/util';
+import { generateDurationString, getFromObject } from '@/util';
 
 export default {
   name: 'RequestGroup',
   components: {
     Request,
-    Modal,
+    CustomModal,
     CustomField,
     CustomSelect,
-    Panel,
+    FormPanel,
     CustomAlert,
     CadencePlot
   },
@@ -184,6 +198,18 @@ export default {
     },
     showAirmassPlot: {
       type: Boolean
+    },
+    instrumentCategoryToName: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     },
     datetimeFormat: {
       type: String,
@@ -249,6 +275,9 @@ export default {
     }
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
     update: function(data) {
       this.$emit('request-group-updated', data);
     },

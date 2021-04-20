@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     :id="'configuration' + position.requestIndex + position.configurationIndex"
     :show="show"
     :index="index"
@@ -23,40 +23,62 @@
         <b-col :md="show ? 6 : 12">
           <b-form>
             <custom-select
-              v-if="!simpleInterface && datatype != 'SPECTRA' && guideModeOptions.length > 1"
-              v-model="selectedImagerGuidingOption"
-              label="Guiding"
+              v-model="selectedInstrumentCategory"
+              field="instrument_category"
+              :label="getFromObject(fieldHelp, ['configuration', 'instrument_category', 'label'], 'Instrument Category')"
+              :desc="getFromObject(fieldHelp, ['configuration', 'instrument_category', 'desc'], '')"
+              :options="instrumentCategoryOptions"
+              :errors="{}"
+              @change="onInstrumentCategoryChange"
+            />
+            <custom-select
+              v-model="configuration.instrument_type"
+              field="instrument_type"
+              :label="getFromObject(fieldHelp, ['configuration', 'instrument_type', 'label'], 'Instrument')"
+              :desc="getFromObject(fieldHelp, ['configuration', 'instrument_type', 'desc'], '')"
+              :errors="errors.instrument_type"
+              :options="availableInstrumentOptions"
+              @change="onInstrumentTypeChange"
+            />
+            <custom-select
+              v-if="!simpleInterface"
+              v-model="configuration.guiding_config.mode"
               field="mode"
-              desc="Guiding keeps the field stable during long exposures. If set to Optional, then guiding is
-                    attempted but observations are carried out even if guiding fails. If set to On,
-                    observations are aborted if guiding fails."
+              :label="getFromObject(fieldHelp, ['guidingConfig', 'mode', 'label'], 'Guide Mode')"
+              :desc="getFromObject(fieldHelp, ['guidingConfig', 'mode', 'desc'], '')"
               :errors="{}"
               :options="guideModeOptions"
               @input="update"
+            >
+              <b-input-group-append slot="inline-input" is-text>
+                <b-form-checkbox
+                  id="guiding-optional"
+                  v-model="configuration.guiding_config.optional"
+                  name="guiding-optional"
+                  :value="true"
+                  :unchecked-value="false"
+                >
+                  Optional
+                </b-form-checkbox>
+              </b-input-group-append>
+            </custom-select>
+            <custom-select
+              v-if="!simpleInterface"
+              v-model="configuration.type"
+              field="type"
+              :label="getFromObject(fieldHelp, ['configuration', 'type', 'label'], 'Type')"
+              :desc="getFromObject(fieldHelp, ['configuration', 'type', 'desc'], '')"
+              :errors="errors.type"
+              :options="configurationTypeOptions"
+              @input="update"
             />
-            <div v-if="!simpleInterface" class="configurationType">
-              <custom-select
-                v-model="configuration.type"
-                label="Type"
-                field="configuration_type"
-                desc="Normally, all Instrument Configurations are executed once, sequentially. If set to
-                      'Exposure Sequence', 'Spectrum Sequence' or 'NRES Spectrum Sequence', all
-                      Instrument Configurations are repeated in a loop for a specified duration."
-                :errors="errors.type"
-                :options="configurationTypeOptions"
-                @input="update"
-              />
-            </div>
             <div v-if="configuration.type.includes('REPEAT')" class="repeatDuration">
               <custom-field
                 v-model="configuration.repeat_duration"
-                label="Duration"
                 field="repeat_duration"
+                :label="getFromObject(fieldHelp, ['configuration', 'repeat_duration', 'label'], 'Duration')"
+                :desc="getFromObject(fieldHelp, ['configuration', 'repeat_duration', 'desc'], '')"
                 :errors="errors.repeat_duration"
-                desc="Period (in seconds) over which to repeat Instrument Configurations. Clicking the
-                      'Fill' button increases the duration to the longest interval over which the target
-                      is visible in the observing window. This button is disabled until the entire
-                      request has passed validation."
                 @input="update"
               >
                 <b-input-group-append slot="inline-input">
@@ -66,13 +88,12 @@
                 </b-input-group-append>
               </custom-field>
             </div>
-            <div v-if="acquireModeOptions.length > 1 && !simpleInterface && configuration.type !== 'LAMP_FLAT' && configuration.type !== 'ARC'">
+            <div v-if="acquireModeOptions.length > 1 && !simpleInterface && configurationTypesForceAcquisitionOff.indexOf(configuration.type) < 0">
               <custom-select
                 v-model="configuration.acquisition_config.mode"
-                label="Acquire Mode"
-                field="acquire_mode"
-                desc="The method for positioning the slit or pinhole. If Brightest Object is selected, the slit/pinhole is placed
-                      on the brightest object near the target coordinates."
+                field="mode"
+                :label="getFromObject(fieldHelp, ['acquisitionConfig', 'mode', 'label'], 'Acquire Mode')"
+                :desc="getFromObject(fieldHelp, ['acquisitionConfig', 'mode', 'desc'], '')"
                 :errors="{}"
                 :options="acquireModeOptions"
                 @input="update"
@@ -81,9 +102,10 @@
                 v-for="field in requiredAcquireModeFields"
                 :key="field"
                 v-model="configuration.acquisition_config.extra_params[field]"
-                :label="field | formatField"
+                :field="field"
+                :label="getFromObject(fieldHelp, ['acquisitionConfig', field, 'label'], field)"
+                :desc="getFromObject(fieldHelp, ['acquisitionConfig', field, 'desc'], '')"
                 :errors="null"
-                :desc="field | getFieldDescription"
                 @input="updateAcquisitionConfigExtraParam($event, field)"
               />
             </div>
@@ -98,15 +120,16 @@
       :instrument-config="instrumentConfig"
       :configuration-index="index"
       :request-index="requestIndex"
-      :selectedinstrument="selectedinstrument"
+      :selected-instrument="configuration.instrument_type"
       :parentshow="show"
-      :datatype="datatype"
+      :selected-instrument-category="selectedInstrumentCategory"
       :configuration-type="configuration.type"
       :show="show"
       :duration-data="getFromObject(durationData, ['instrument_configs', idx], { duration: 0 })"
       :available-instruments="availableInstruments"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
       :simple-interface="simpleInterface"
+      :field-help="fieldHelp"
       @remove="removeInstrumentConfiguration(idx)"
       @copy="addInstrumentConfiguration(idx)"
       @instrumentconfigupdate="instumentConfigurationUpdated"
@@ -119,11 +142,10 @@
       :target="configuration.target"
       :configuration-index="index"
       :request-index="requestIndex"
-      :datatype="datatype"
       :parentshow="show"
       :errors="getFromObject(errors, 'target', {})"
+      :field-help="fieldHelp"
       :simple-interface="simpleInterface"
-      :selectedinstrument="selectedinstrument"
       @target-updated="targetUpdated"
     >
       <template #target-help="data">
@@ -142,6 +164,7 @@
       :request-index="requestIndex"
       :constraints="configuration.constraints"
       :parentshow="show"
+      :field-help="fieldHelp"
       :errors="getFromObject(errors, 'constraints', {})"
       @constraintsupdate="constraintsUpdated"
     >
@@ -149,12 +172,12 @@
         <slot name="constraints-help" :data="data.data"></slot>
       </template>
     </constraints>
-  </panel>
+  </form-panel>
 </template>
 <script>
 import _ from 'lodash';
 
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
@@ -162,29 +185,18 @@ import InstrumentConfig from '@/components/RequestGroupComposition/InstrumentCon
 import Constraints from '@/components/RequestGroupComposition/Constraints.vue';
 import Target from '@/components/RequestGroupComposition/Target.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { formatField } from '@/util';
+import { getFromObject } from '@/util';
 
 export default {
+  name: 'Configuration',
   components: {
     CustomField,
     CustomSelect,
-    Panel,
+    FormPanel,
     CustomAlert,
     InstrumentConfig,
     Constraints,
     Target
-  },
-  filters: {
-    formatField: function(value) {
-      // TODO
-      // return formatField(value, apiFieldToReadable);
-      return formatField(value);
-    },
-    getFieldDescription: function(value) {
-      // TODO
-      // return getFieldDescription(value);
-      return value;
-    }
   },
   mixins: [collapseMixin],
   props: {
@@ -204,16 +216,8 @@ export default {
       type: Object,
       required: true
     },
-    selectedinstrument: {
-      type: String,
-      required: true
-    },
     availableInstruments: {
       type: Object,
-      required: true
-    },
-    datatype: {
-      type: String,
       required: true
     },
     parentshow: {
@@ -223,8 +227,22 @@ export default {
       type: Object,
       required: true
     },
-    simpleInterface: {
-      type: Boolean
+    // Response from the /api/profile/ endpoint
+    profile: {
+      type: Object,
+      required: true
+    },
+    instrumentCategoryToName: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
   },
   data: function() {
@@ -234,25 +252,8 @@ export default {
         mode: '',
         extra_params: {}
       },
+      selectedInstrumentCategory: this.getInstrumentCategory(),
       selectedImagerGuidingOption: null,
-      defaultGuidingOptional: true,
-      /* The options that a user can choose from for guiding mode set two underlying fields in the
-      configuration's guiding_config - `mode` and `optional`. Guide options ON, OFF, and OPTIONAL will
-      always map to guiding_config fields as follows. */
-      guidingConfigMappings: [
-        {
-          option: 'OFF',
-          config: { mode: 'OFF', optional: false }
-        },
-        {
-          option: 'ON',
-          config: { mode: 'ON', optional: false }
-        },
-        {
-          option: 'OPTIONAL',
-          config: { mode: 'ON', optional: true }
-        }
-      ],
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.index
@@ -260,35 +261,59 @@ export default {
     };
   },
   computed: {
-    configurationTypeOptions: function() {
-      // TODO: Get configuration types from instruments endpoint
-
-      if (_.get(this.availableInstruments, this.selectedinstrument, {}).type === 'SPECTRA') {
-        if (this.selectedinstrument.includes('NRES')) {
-          return [
-            { value: 'NRES_SPECTRUM', text: 'Spectrum' },
-            { value: 'REPEAT_NRES_SPECTRUM', text: 'Spectrum Sequence' }
-          ];
-        } else {
-          return [
-            { value: 'SPECTRUM', text: 'Spectrum' },
-            { value: 'REPEAT_SPECTRUM', text: 'Spectrum Sequence' },
-            { value: 'LAMP_FLAT', text: 'Lamp Flat' },
-            { value: 'ARC', text: 'Arc' }
-          ];
+    simpleInterface: function() {
+      return _.get(this.profile, ['profile', 'simple_interface'], false);
+    },
+    configurationTypesForceAcquisitionOff: function() {
+      let forceOffTypes = new Set();
+      let configurationTypes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'configuration_types'], {});
+      for (let configurationType in configurationTypes) {
+        if (configurationTypes[configurationType].force_acquisition_off) {
+          forceOffTypes.add(configurationTypes[configurationType].code);
         }
-      } else {
-        return [
-          { value: 'EXPOSE', text: 'Exposure' },
-          { value: 'REPEAT_EXPOSE', text: 'Exposure Sequence' }
-        ];
       }
+      return [...forceOffTypes];
+    },
+    instrumentCategoryOptions: function() {
+      let optionsSet = new Set();
+      let optionsArray = [];
+      for (let ai in this.availableInstruments) {
+        optionsSet.add(this.availableInstruments[ai].type);
+      }
+      optionsSet.forEach(value => {
+        if (value in this.instrumentCategoryToName) {
+          optionsArray.push({ value: value, text: this.instrumentCategoryToName[value] });
+        } else {
+          optionsArray.push({ value: value, text: value });
+        }
+      });
+      return _.sortBy(optionsArray, 'text');
+    },
+    availableInstrumentOptions: function() {
+      let options = [];
+      for (let ai in this.availableInstruments) {
+        if (this.availableInstruments[ai].type === this.selectedInstrumentCategory) {
+          options.push({ value: ai, text: this.availableInstruments[ai].name });
+        }
+      }
+      this.update();
+      return _.sortBy(options, 'text');
+    },
+    configurationTypeOptions: function() {
+      let options = [];
+      let configurationTypes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'configuration_types'], {});
+      for (let configurationType in configurationTypes) {
+        if (configurationTypes[configurationType].schedulable) {
+          options.push({ value: configurationTypes[configurationType].code, text: configurationTypes[configurationType].name });
+        }
+      }
+      return _.sortBy(options, 'text');
     },
     acquireModeOptions: function() {
       let options = [];
-      if (this.availableInstruments[this.selectedinstrument]) {
+      if (this.availableInstruments[this.configuration.instrument_type]) {
         let requiredModeFields = [];
-        let modes = this.availableInstruments[this.selectedinstrument].modes.acquisition.modes;
+        let modes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'acquisition', 'modes'], []);
         for (let i in modes) {
           requiredModeFields = [];
           if ('extra_params' in modes[i].validation_schema) {
@@ -303,24 +328,7 @@ export default {
           });
         }
       }
-      return options;
-    },
-    guideModeOptions: function() {
-      let options = [];
-      if (this.selectedinstrument in this.availableInstruments) {
-        let modes = this.availableInstruments[this.selectedinstrument].modes.guiding.modes;
-
-        // TODO: Remove muscat
-
-        if (this.selectedinstrument === '2M0-SCICAM-MUSCAT') {
-          options = this.parseGuideModeOptions(modes, true, ['ON']);
-        } else if (this.datatype === 'SPECTRA') {
-          options = this.parseGuideModeOptions(modes, false, ['OFF']);
-        } else {
-          options = this.parseGuideModeOptions(modes, true, []);
-        }
-      }
-      return options;
+      return _.sortBy(options, 'text');
     },
     requiredAcquireModeFields: function() {
       for (let i in this.acquireModeOptions) {
@@ -329,44 +337,56 @@ export default {
         }
       }
       return [];
+    },
+    guideModeOptions: function() {
+      let options = [];
+      if (this.configuration.instrument_type in this.availableInstruments) {
+        let modes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'guiding', 'modes'], []);
+        for (let mode of modes) {
+          if (mode.schedulable) {
+            options.push({ value: mode.code, text: mode.name });
+          }
+        }
+      }
+      return _.sortBy(options, 'text');
     }
   },
   watch: {
+    instrumentCategoryOptions: function(options) {
+      if (!this.isAvailableOption(this.selectedInstrumentCategory, options)) {
+        this.selectedInstrumentCategory = this.getInstrumentCategory();
+      }
+    },
+    availableInstrumentOptions: function(options) {
+      // Only set the instrument type if it is not already set to something because if the initial value is not in the list of
+      // available instruments, it is preferable to let the form display an error message and let the user update the instrument.
+      // For example if a user is loading in a draft with an old instrument, it is more clear for them to be told that their old
+      // instrument is no longer valid, and to update it.
+      if (this.configuration.instrument_type === '') {
+        this.configuration.instrument_type = _.get(options, [0, 'value'], '');
+      }
+    },
+    configurationTypeOptions: function(options) {
+      if (this.configuration.type === '') {
+        this.configuration.type = _.get(options, [0, 'value'], '');
+      }
+    },
+    guideModeOptions: function(options) {
+      // TODO: Set to default mode or the first one
+      if (!this.isAvailableOption(this.configuration.guiding_config.mode, options)) {
+        this.configuration.guiding_config.mode = _.get(options, [0, 'value'], '');
+      }
+    },
     selectedImagerGuidingOption: function(value) {
       this.setGuidingFields(value);
     },
-    guideModeOptions: function() {
-      // The selected guide mode for spectrographs is already updated elsewhere
-      if (this.datatype !== 'SPECTRA') {
-        let newGuideOption = this.getNewGuideOption(this.selectedImagerGuidingOption);
-        let selectedGuideOptionChanged = this.selectedImagerGuidingOption !== newGuideOption;
-        this.selectedImagerGuidingOption = newGuideOption;
-        if (!selectedGuideOptionChanged) {
-          // If the option did not change, the underlying fields may still have changed. Force an update.
-          this.setGuidingFields(this.selectedImagerGuidingOption);
-        }
-      }
-    },
-    selectedinstrument: function(value) {
-      if (this.configuration.instrument_type !== value) {
-        if (this.datatype === 'SPECTRA') {
-          // Need to set up spectrograph here because the instrument might have changed
-          // from NRES to FLOYDS, which have different aquire modes and configuration types
-          this.setupSpectrograph();
-        }
-        // The selected instrument is set in the request level in the UI, it is actually updated
-        // in the request json here
-        this.configuration.instrument_type = value;
-        this.setupAcquireAndGuideFieldsForType(this.configuration.type);
+    'configuration.instrument_type': function(newInstrumentType, oldInstrumentType) {
+      if (oldInstrumentType !== newInstrumentType) {
+        this.configureAcquisitionConfig(this.configuration.type);
+        this.configureGuidingConfig();
         this.update();
       }
-    },
-    datatype: function(value) {
-      if (value === 'SPECTRA') {
-        this.setupSpectrograph();
-      } else {
-        this.setupImager();
-      }
+      this.$emit('instrument-type-updated', { new: newInstrumentType, old: oldInstrumentType });
     },
     'configuration.acquisition_config.mode': function(newValue, oldValue) {
       if (oldValue !== 'OFF' && newValue !== 'OFF') {
@@ -382,17 +402,76 @@ export default {
       }
     },
     'configuration.type': function(value) {
-      this.setupAcquireAndGuideFieldsForType(value);
+      this.configureAcquisitionConfig(value);
       if (!value.includes('REPEAT')) {
         this.configuration.repeat_duration = undefined;
       }
     }
   },
   created: function() {
-    this.selectedImagerGuidingOption = this.getGuideOptionFromGuidingConfig(this.configuration.guiding_config);
-    this.setupAcquireAndGuideFieldsForType(this.configuration.type);
+    if (this.configuration.acquisition_config.mode === '') {
+      this.configureAcquisitionConfig(this.configuration.type);
+    }
+    if (this.configuration.guiding_config.mode === '') {
+      this.configureGuidingConfig();
+    }
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
+    onInstrumentCategoryChange: function() {
+      this.configuration.instrument_type = _.get(this.availableInstrumentOptions, [0, 'value'], '');
+      this.configuration.type = _.get(this.configurationTypeOptions, [0, 'value'], '');
+      this.update();
+    },
+    onInstrumentTypeChange: function() {
+      this.configuration.type = _.get(this.configurationTypeOptions, [0, 'value'], '');
+      this.update();
+    },
+    getConfigurationTypeToInstrumentCategoriesArray: function() {
+      let result = {};
+      for (let instrument in this.availableInstruments) {
+        let category = this.availableInstruments[instrument].type;
+        for (let configType in this.availableInstruments[instrument].configuration_types) {
+          if (!result[configType]) {
+            result[configType] = new Set();
+          }
+          result[configType].add(category);
+        }
+      }
+      return result;
+    },
+    getInstrumentCategory: function(options) {
+      options = options || [];
+      let category;
+      let configurationTypeToInstrumentCategoriesArray = this.getConfigurationTypeToInstrumentCategoriesArray();
+      if (this.configuration.instrument_type && this.availableInstruments[this.configuration.instrument_type]) {
+        // If an instrument type is set, set to that instrument type's category.
+        category = _.get(this.availableInstruments, [this.configuration.instrument_type, 'type'], '');
+      } else if (
+        this.configuration.type &&
+        configurationTypeToInstrumentCategoriesArray[this.configuration.type] &&
+        configurationTypeToInstrumentCategoriesArray[this.configuration.type].size === 1
+      ) {
+        // If a configuration type is set, check if there's only a single instrument category associated with that
+        // configuration type, and if there is, set that.
+        category = [...configurationTypeToInstrumentCategoriesArray[this.configuration.type]][0];
+      } else {
+        // If the other checks failed, set the first option.
+        category = _.get(options, [0, 'value'], '');
+      }
+      return category;
+    },
+    isAvailableOption: function(selectedValue, availableOptions) {
+      // Return whether the selectedValue is present in the availableOptions, which are options for a select field
+      for (let option of availableOptions) {
+        if (option.value === selectedValue) {
+          return true;
+        }
+      }
+      return false;
+    },
     update: function(data) {
       this.$emit('configuration-updated', data);
     },
@@ -407,16 +486,12 @@ export default {
     configurationFillDuration: function() {
       this.$emit('configurationfillduration', this.index);
     },
-    // generateCalibs: function() {
-    //   this.$emit('generateCalibs', this.index);
-    // },
     constraintsUpdated: function() {
       console.log('constraintsUpdated');
       this.update();
     },
     targetUpdated: function(data) {
       console.log('targetUpdated', data);
-
       this.update(data);
     },
     removeInstrumentConfiguration: function(idx) {
@@ -431,90 +506,6 @@ export default {
     instumentConfigurationUpdated: function() {
       console.log('instrumentconfigUpdated');
       this.update();
-    },
-    getGuidingConfigFromGuideOption: function(guidingOption) {
-      // Return the guiding_config fields that map to the provided guiding option
-      let guidingMode = guidingOption;
-      let guidingOptional = this.defaultGuidingOptional;
-      for (let guidingConfigMapping of this.guidingConfigMappings) {
-        if (guidingConfigMapping.option === guidingOption) {
-          guidingMode = guidingConfigMapping.config.mode;
-          guidingOptional = guidingConfigMapping.config.optional;
-          break;
-        }
-      }
-      return { mode: guidingMode, optional: guidingOptional };
-    },
-    getGuideOptionFromGuidingConfig: function(guidingConfig) {
-      // Return the guiding option from the provided guiding_config
-      let guidingOption = guidingConfig.mode;
-      for (let guidingConfigMapping of this.guidingConfigMappings) {
-        if (guidingConfigMapping.config.mode === guidingConfig.mode && guidingConfigMapping.config.optional === guidingConfig.optional) {
-          guidingOption = guidingConfigMapping.option;
-          break;
-        }
-      }
-      return guidingOption;
-    },
-    parseGuideModeOptions: function(modes, includeOptional, excludeModes) {
-      /* Return the guiding options that will be presented to the user.
-        `modes` - List of the instrument's guiding modes
-        `includeOptional` - Boolean indicating whether to include the "OPTIONAL" guiding option
-        `excludeModes` - List of guiding modes that should be excluded from the guiding options
-      */
-      let guideModeOptions = [];
-      for (let mode of modes) {
-        if (mode.code === 'ON' && includeOptional) {
-          guideModeOptions.push({
-            text: 'Optional',
-            value: 'OPTIONAL'
-          });
-        }
-        if (excludeModes.indexOf(mode.code) < 0) {
-          let guidingConfig = this.getGuidingConfigFromGuideOption(mode.code);
-          guideModeOptions.push({
-            text: guidingConfig.optional ? 'Optional ' + mode.name : mode.name,
-            value: mode.code
-          });
-        }
-      }
-      return guideModeOptions;
-    },
-    guideOptionExistsInCurrentGuideOptions: function(guideOption) {
-      // Return whether the provided guide option value is available in the current list of guideModeOptions.
-      let validOptions = _.filter(this.guideModeOptions, option => {
-        return option.value === guideOption;
-      });
-      return validOptions.length > 0 ? true : false;
-    },
-    getGuideOptionsUsingDefaultGuideMode: function() {
-      // Return a subset of the current guideModeOptions, including only those options that use the default guide mode.
-      let defaultGuideMode = _.get(this.availableInstruments[this.selectedinstrument].modes.guiding, 'default');
-      let guideOptionsWithDefaultMode = [];
-      for (let guideOption of this.guideModeOptions) {
-        let guidingConfig = this.getGuidingConfigFromGuideOption(guideOption.value);
-        if (guidingConfig.mode === defaultGuideMode) {
-          guideOptionsWithDefaultMode.push(guideOption);
-        }
-      }
-      return guideOptionsWithDefaultMode;
-    },
-    getNewGuideOption: function(currentGuideOption) {
-      // Return the value of a new guide option. A new valid guide option should always be found,
-      // but if one is not found, return a reasonable fallback value.
-      const fallbackGuideMode = 'OFF';
-      let newGuideOption = fallbackGuideMode;
-      if (this.guideOptionExistsInCurrentGuideOptions(currentGuideOption)) {
-        newGuideOption = currentGuideOption;
-      } else {
-        let guideOptionsUsingDefaultGuideMode = this.getGuideOptionsUsingDefaultGuideMode();
-        if (guideOptionsUsingDefaultGuideMode.length > 0) {
-          newGuideOption = guideOptionsUsingDefaultGuideMode[0].value;
-        } else {
-          newGuideOption = _.get(this.guideModeOptions, [0, 'value'], fallbackGuideMode);
-        }
-      }
-      return newGuideOption;
     },
     acquisitionModeIsAvailable: function(acquisitionMode, acquisitionExtraParams) {
       // In order for a mode to be available, its code as well as any extra params must match
@@ -541,18 +532,23 @@ export default {
       }
     },
     setAcquireFields: function() {
+      // TODO: Don't keep same acquire mode if instrument type changes - it's an entirely different set of modes. However, if the configuration
+      // type changed, you're still using the same instrument with the same modes and the same default mode, and could very well have
+      // set the mode first, and at this point you def don't want it to change. Check both the first case as well as the history mode.
+
       if (this.acquisitionModeIsAvailable(this.configuration.acquisition_config.mode, this.configuration.acquisition_config.extra_params)) {
         // The mode that is already set works!
         return;
       }
-      if (this.acquireModeOptions.length < 1 || this.simpleInterface) {
-        // This case would happen for i.e. imagers that do not have any acquisition modes. Also
-        // turn off acquisition for the simple interface since that interface only displays imager,
-        // and should not be complicated.
+
+      if (this.acquireModeOptions.length < 1) {
+        // This case can happen for instruments that only have OFF as an acquisition mode, but
+        // that mode is not set in ConfigDB.
         this.turnOffAcquisition();
         return;
       }
-      let defaultMode = this.availableInstruments[this.selectedinstrument].modes.acquisition.default;
+
+      let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'acquisition', 'default'], '');
       if (this.acquisitionModeIsAvailable(this.acquireHistory.mode, this.acquireHistory.extra_params)) {
         this.configuration.acquisition_config.mode = this.acquireHistory.mode;
         this.configuration.acquisition_config.extra_params = this.acquireHistory.extra_params;
@@ -570,48 +566,29 @@ export default {
       }
       this.update();
     },
+    setGuideFields: function() {
+      let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'guiding', 'default'], '');
+      if (defaultMode) {
+        this.configuration.guiding_config.mode = defaultMode;
+      } else {
+        this.configuration.guiding_config.mode = _.get(this.guideModeOptions, [0, 'value'], '');
+      }
+    },
     turnOffAcquisition: function() {
       this.saveAcquireFields();
       this.configuration.acquisition_config.mode = 'OFF';
       this.configuration.acquisition_config.extra_params = {};
       this.update();
     },
-    setGuidingFields: function(guidingOption) {
-      // Set the fields in the configuration's guiding_config based on the user's chosen
-      // guiding option.
-      let guidingConfig = this.getGuidingConfigFromGuideOption(guidingOption);
-      this.configuration.guiding_config.optional = guidingConfig.optional;
-      this.configuration.guiding_config.mode = guidingConfig.mode;
-      this.update();
-    },
-    setupAcquireAndGuideFieldsForType: function(configurationType) {
-      if (configurationType) {
-        if (configurationType.includes('SPECTRUM')) {
-          this.setGuidingFields('ON');
-          this.setAcquireFields();
-        } else if (configurationType == 'LAMP_FLAT' || configurationType == 'ARC') {
-          this.setGuidingFields('OPTIONAL');
-          this.turnOffAcquisition();
-        } else if (configurationType.includes('EXPOSE')) {
-          this.setGuidingFields(this.selectedImagerGuidingOption);
-          this.setAcquireFields();
-        }
-      }
-    },
-    setupImager: function() {
-      this.configuration.type = 'EXPOSE';
-      this.update();
-    },
-    setupSpectrograph: function() {
-      if (this.selectedinstrument.includes('NRES')) {
-        this.configuration.type = 'NRES_SPECTRUM';
+    configureAcquisitionConfig: function(configurationType) {
+      if (this.configurationTypesForceAcquisitionOff.indexOf(configurationType) > -1) {
+        this.turnOffAcquisition();
       } else {
-        this.configuration.type = 'SPECTRUM';
+        this.setAcquireFields();
       }
-      this.update();
     },
-    getFromObject(obj, path, defaultValue) {
-      return _.get(obj, path, defaultValue);
+    configureGuidingConfig: function() {
+      this.setGuideFields();
     }
   }
 };

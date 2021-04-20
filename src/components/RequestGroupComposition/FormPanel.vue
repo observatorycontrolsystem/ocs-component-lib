@@ -9,20 +9,18 @@
                 <b-col class="text-left">
                   <i class="align-middle fa-lg mx-2" :class="icon" />
                   <!-- TODO: The warning and success flicker on page load -->
-
-                  <!-- TODO: This section -->
-                  <!-- <i
+                  <i
                     v-show="hasError"
                     v-b-tooltip="tooltipConfig"
                     class="fas fa-exclamation-triangle fa-lg text-danger align-middle"
                     title="Errors in form"
-                  /> -->
-                  <!-- <i
+                  />
+                  <i
                     v-show="!hasError"
                     v-b-tooltip="tooltipConfig"
                     class="fas fa-check fa-lg text-success align-middle"
                     title="Section is complete"
-                  /> -->
+                  />
                 </b-col>
                 <b-col class="text-center">
                   <h6>
@@ -61,9 +59,8 @@
 <script>
 import _ from 'lodash';
 
-// import { tooltipConfig } from '@/utils.js';
-
 export default {
+  name: 'FormPanel',
   props: {
     id: {
       type: String,
@@ -96,12 +93,19 @@ export default {
     index: {
       type: Number,
       default: 0
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return {
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          trigger: 'hover'
+        };
+      }
     }
-  },
-  data: function() {
-    return {
-      // tooltipConfig: tooltipConfig
-    };
   },
   computed: {
     hasError: function() {
@@ -111,7 +115,6 @@ export default {
   methods: {
     remove: function() {
       // TODO: Use modal instead
-
       if (confirm('Are you sure you want to remove this item?')) {
         this.$emit('remove');
       }

@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     :id="'window' + position.requestIndex + position.windowIndex"
     icon="fas fa-calendar"
     title="Window"
@@ -37,26 +37,28 @@
             <custom-datetime
               v-show="observationType != 'RAPID_RESPONSE'"
               v-model="window.start"
-              label="Start"
               field="start"
-              desc="UT time when the observing window opens"
+              :label="getFromObject(fieldHelp, ['window', 'start', 'label'], 'Start')"
+              :desc="getFromObject(fieldHelp, ['window', 'start', 'desc'], '')"
+              :datetime-format="datetimeFormat"
               :errors="errors.start"
               @input="update"
             />
             <custom-datetime
               v-model="window.end"
-              label="End"
               field="end"
-              desc="UT time when the observing window closes"
+              :label="getFromObject(fieldHelp, ['window', 'end', 'label'], 'End')"
+              :desc="getFromObject(fieldHelp, ['window', 'end', 'desc'], '')"
+              :datetime-format="datetimeFormat"
               :errors="errors.end"
               @input="update"
             />
             <custom-select
               v-if="!simpleInterface"
               v-model="cadence"
-              label="Cadence"
               field="cadence"
-              desc="A cadence will replace your current observing window with a set of windows, one for each cycle of the cadence."
+              :label="getFromObject(fieldHelp, ['window', 'cadence', 'label'], 'Cadence')"
+              :desc="getFromObject(fieldHelp, ['window', 'cadence', 'desc'], '')"
               :options="[
                 { text: 'None', value: 'none' },
                 { text: 'Simple Period', value: 'simple' }
@@ -65,18 +67,18 @@
             <custom-field
               v-show="cadence === 'simple'"
               v-model="period"
-              label="Period"
               field="period"
-              desc="Decimal hours"
+              :label="getFromObject(fieldHelp, ['window', 'period', 'label'], 'Period')"
+              :desc="getFromObject(fieldHelp, ['window', 'period', 'desc'], '')"
               :errors="errors.period"
               @input="update"
             />
             <custom-field
               v-show="cadence === 'simple'"
               v-model="jitter"
-              label="Jitter"
               field="jitter"
-              desc="Acceptable deviation from strict period (before or after) in decimal hours. Must be long enough to contain one observation request, including overheads."
+              :label="getFromObject(fieldHelp, ['window', 'jitter', 'label'], 'Jitter')"
+              :desc="getFromObject(fieldHelp, ['window', 'jitter', 'desc'], '')"
               :errors="errors.jitter"
               @input="update"
             />
@@ -96,20 +98,20 @@
         </b-col>
       </b-row>
     </b-container>
-  </panel>
+  </form-panel>
 </template>
 <script>
 import $ from 'jquery';
 import _ from 'lodash';
 
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import CustomDatetime from '@/components/RequestGroupComposition/CustomDatetime.vue';
 import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
 
-import { extractTopLevelErrors } from '@/util.js';
+import { extractTopLevelErrors, getFromObject } from '@/util.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 
 export default {
@@ -118,7 +120,7 @@ export default {
     CustomDatetime,
     CustomField,
     CustomSelect,
-    Panel,
+    FormPanel,
     CustomAlert,
     AirmassPlot
   },
@@ -163,9 +165,19 @@ export default {
     simpleInterface: {
       type: Boolean
     },
+    datetimeFormat: {
+      type: String,
+      default: 'YYYY-MM-DD HH:mm:ss'
+    },
     observationType: {
       type: String,
       required: true
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
   },
   data: function() {
@@ -188,18 +200,21 @@ export default {
     }
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
     update: function() {
-      this.$emit('windowupdate');
+      this.$emit('window-updated');
     },
     generateCadence: function() {
-      this.$emit('cadence', {
+      this.$emit('generate-cadence', {
         start: this.window.start,
         end: this.window.end,
         period: this.period,
         jitter: this.jitter
       });
     },
-    updateVisibility: function(req) {
+    updateAirmassPlot: function(req) {
       let request = _.cloneDeep(req);
       // Replace the window list with a single window with this start/end
       request['windows'] = [{ start: this.window.start, end: this.window.end }];

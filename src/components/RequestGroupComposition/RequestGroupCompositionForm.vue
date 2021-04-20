@@ -13,6 +13,8 @@
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
+        :instrument-category-to-name="instrumentCategoryToName"
+        :field-help="fieldHelp"
         @request-group-updated="requestGroupUpdated"
       >
         <template #request-group-help="data">
@@ -180,14 +182,32 @@ export default {
     showAirmassPlot: {
       type: Boolean
     },
+    instrumentCategoryToName: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
     datetimeFormat: {
       type: String,
       default: 'YYYY-MM-DD HH:mm:ss'
+    },
+    // If the requestGroup prop that is passed in is associated with a draft, pass the ID in so
+    // the draft can be updated.
+    loadedDraftId: {
+      type: Number,
+      default: -1
     }
   },
   data: function() {
     return {
-      draftId: -1,
+      draftId: this.loadedDraftId,
       requestGroupErrors: {},
       durationData: {}
     };
@@ -216,6 +236,9 @@ export default {
       handler: function(oldValue, newValue) {
         console.log('the requestGroup changed', oldValue, newValue);
       }
+    },
+    loadedDraftId: function(newinitialDraftId) {
+      this.draftId = newinitialDraftId;
     }
   },
   methods: {

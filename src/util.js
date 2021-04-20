@@ -182,13 +182,6 @@ function extractTopLevelErrors(errors) {
   return topLevelErrors;
 }
 
-function julianToModifiedJulian(jd) {
-  if (jd && jd >= 2400000.5) {
-    let precision = (jd + '').split('.')[1].length;
-    return Number((parseFloat(jd) - 2400000.5).toFixed(precision));
-  }
-}
-
 function generateDurationString(durationSeconds) {
   // Generate a string representation of a requestgroup duration
   let duration = moment.duration(durationSeconds, 'seconds');
@@ -203,6 +196,10 @@ function generateDurationString(durationSeconds) {
   return durationString;
 }
 
+function getFromObject(obj, path, defaultValue) {
+  return _.get(obj, path, defaultValue);
+}
+
 export {
   copyObject,
   decimalDecToSexigesimal,
@@ -213,7 +210,7 @@ export {
   formatFloat,
   formatValue,
   generateDurationString,
-  julianToModifiedJulian,
+  getFromObject,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
   stateToBsClass,

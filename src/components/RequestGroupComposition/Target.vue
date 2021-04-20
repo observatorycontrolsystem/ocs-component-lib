@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     :id="'target' + position.requestIndex + position.configurationIndex"
     :show="show"
     :errors="errors"
@@ -26,8 +26,9 @@
               <custom-select
                 v-if="!simpleInterface"
                 v-model="target.type"
-                label="Type"
                 field="type"
+                :label="getFromObject(fieldHelp, ['target', 'type', 'label'], 'Type')"
+                :desc="getFromObject(fieldHelp, ['target', 'type', 'desc'], '')"
                 :errors="errors.type"
                 :options="targetTypeOptions"
                 @input="update"
@@ -36,57 +37,55 @@
             <span v-show="target.type === 'ICRS'" class="sidereal">
               <sexagesimal-custom-field
                 v-model="target.ra"
-                label="Right Ascension"
                 coordinate="ra"
                 field="ra"
-                desc="Decimal degrees or HH:MM:SS.S"
+                :label="getFromObject(fieldHelp, ['target', 'ra', 'label'], 'Right Ascension')"
+                :desc="getFromObject(fieldHelp, ['target', 'ra', 'desc'], '')"
                 :errors="errors.ra"
                 @input="update"
               />
-
               <sexagesimal-custom-field
                 v-model="target.dec"
-                label="Declination"
                 coordinate="dec"
                 field="dec"
-                desc="Decimal degrees or DD:MM:SS.S"
+                :label="getFromObject(fieldHelp, ['target', 'dec', 'label'], 'Declination')"
+                :desc="getFromObject(fieldHelp, ['target', 'dec', 'desc'], '')"
                 :errors="errors.dec"
                 @input="update"
               />
-
               <custom-field
                 v-if="!simpleInterface"
                 v-model="target.proper_motion_ra"
-                label="Proper Motion RA"
                 field="proper_motion_ra"
-                desc="Units are milliarcseconds per year. Max 20000."
+                :label="getFromObject(fieldHelp, ['target', 'proper_motion_ra', 'label'], 'Proper Motion RA')"
+                :desc="getFromObject(fieldHelp, ['target', 'proper_motion_ra', 'desc'], '')"
                 :errors="errors.proper_motion_ra"
                 @input="update"
               />
               <custom-field
                 v-if="!simpleInterface"
                 v-model="target.proper_motion_dec"
-                label="Proper Motion Dec"
                 field="proper_motion_dec"
-                desc="Units are milliarcseconds per year. Max 20000."
+                :label="getFromObject(fieldHelp, ['target', 'proper_motion_dec', 'label'], 'Proper Motion Dec')"
+                :desc="getFromObject(fieldHelp, ['target', 'proper_motion_dec', 'desc'], '')"
                 :errors="errors.proper_motion_dec"
                 @input="update"
               />
               <custom-field
                 v-if="!simpleInterface"
                 v-model="target.epoch"
-                label="Epoch"
                 field="epoch"
-                desc="Julian Years. Max 2100."
+                :label="getFromObject(fieldHelp, ['target', 'epoch', 'label'], 'Epoch')"
+                :desc="getFromObject(fieldHelp, ['target', 'epoch', 'desc'], '')"
                 :errors="errors.epoch"
                 @input="update"
               />
               <custom-field
                 v-if="!simpleInterface"
                 v-model="target.parallax"
-                label="Parallax"
                 field="parallax"
-                desc="+0.45 mas. Max 2000."
+                :label="getFromObject(fieldHelp, ['target', 'parallax', 'label'], 'Parallax')"
+                :desc="getFromObject(fieldHelp, ['target', 'parallax', 'desc'], 'Parallax')"
                 :errors="errors.parallax"
                 @input="update"
               />
@@ -94,50 +93,50 @@
             <span v-show="target.type === 'ORBITAL_ELEMENTS'" class="non-sidereal">
               <custom-select
                 v-model="target.scheme"
-                label="Scheme"
                 field="scheme"
-                desc="The orbital elements scheme to use with this target"
+                :label="getFromObject(fieldHelp, ['target', 'scheme', 'label'], 'Scheme')"
+                :desc="getFromObject(fieldHelp, ['target', 'scheme', 'desc'], '')"
                 :errors="errors.scheme"
                 :options="nonSiderealSchemeOptions"
                 @input="update"
               />
               <custom-field
                 v-model="target.epochofel"
-                label="Epoch of Elements"
                 field="epochofel"
-                desc="The epoch of the orbital elements in MJD. MJD = JD - 2400000.5"
+                :label="getFromObject(fieldHelp, ['target', 'epochofel', 'label'], 'Epoch of Elements')"
+                :desc="getFromObject(fieldHelp, ['target', 'epochofel', 'desc'], '')"
                 :errors="errors.epochofel"
                 @input="update"
               />
               <custom-field
                 v-model="target.orbinc"
-                label="Orbital Inclination"
                 field="orbinc"
+                :label="getFromObject(fieldHelp, ['target', 'orbinc', 'label'], 'Orbital Inclination')"
+                :desc="getFromObject(fieldHelp, ['target', 'orbinc', 'desc'], '')"
                 :errors="errors.orbinc"
-                desc="Angle in Degrees"
                 @input="update"
               />
               <custom-field
                 v-model="target.longascnode"
-                label="Longitude of Ascending Node"
                 field="longascnode"
-                desc="Angle in Degrees"
+                :label="getFromObject(fieldHelp, ['target', 'longascnode', 'label'], 'Longitude of Ascending Node')"
+                :desc="getFromObject(fieldHelp, ['target', 'longascnode', 'desc'], '')"
                 :errors="errors.longascnode"
                 @input="update"
               />
               <custom-field
                 v-model="target.argofperih"
-                label="Argument of Perihelion"
                 field="argofperih"
-                desc="Angle in Degrees"
+                :label="getFromObject(fieldHelp, ['target', 'argofperih', 'label'], 'Argument of Perihelion')"
+                :desc="getFromObject(fieldHelp, ['target', 'argofperih', 'desc'], '')"
                 :errors="errors.argofperih"
                 @input="update"
               />
               <custom-field
                 v-model="target.eccentricity"
-                label="Eccentricity"
                 field="eccentricity"
-                desc="0 to 0.99"
+                :label="getFromObject(fieldHelp, ['target', 'eccentricity', 'label'], 'Eccentricity')"
+                :desc="getFromObject(fieldHelp, ['target', 'eccentricity', 'desc'], '')"
                 :errors="errors.eccentricity"
                 @input="update"
               />
@@ -145,17 +144,17 @@
             <span v-show="target.scheme === 'MPC_MINOR_PLANET' || target.scheme == 'JPL_MAJOR_PLANET'">
               <custom-field
                 v-model="target.meandist"
-                label="Semimajor Axis"
                 field="meandist"
-                desc="Astronomical Units (AU)"
+                :label="getFromObject(fieldHelp, ['target', 'meandist', 'label'], 'Semimajor Axis')"
+                :desc="getFromObject(fieldHelp, ['target', 'meandist', 'desc'], '')"
                 :errors="errors.meandist"
                 @input="update"
               />
               <custom-field
                 v-model="target.meananom"
-                label="Mean Anomaly"
                 field="meananom"
-                desc="Angle in Degrees"
+                :label="getFromObject(fieldHelp, ['target', 'meananom', 'label'], 'Mean Anomaly')"
+                :desc="getFromObject(fieldHelp, ['target', 'meananom', 'desc'], '')"
                 :errors="errors.meananom"
                 @input="update"
               />
@@ -163,9 +162,9 @@
             <span v-show="target.scheme === 'JPL_MAJOR_PLANET'">
               <custom-field
                 v-model="target.dailymot"
-                label="Daily Motion"
                 field="dailymot"
-                desc="Degrees"
+                :label="getFromObject(fieldHelp, ['target', 'dailymot', 'label'], 'Daily Motion')"
+                :desc="getFromObject(fieldHelp, ['target', 'dailymot', 'desc'], '')"
                 :errors="errors.dailymot"
                 @input="update"
               />
@@ -173,17 +172,17 @@
             <span v-show="target.scheme === 'MPC_COMET'">
               <custom-field
                 v-model="target.perihdist"
-                label="Perihelion Distance"
                 field="perihdist"
-                desc="Astronomical Units (AU)"
+                :label="getFromObject(fieldHelp, ['target', 'perihdist', 'label'], 'Perihelion Distance')"
+                :desc="getFromObject(fieldHelp, ['target', 'perihdist', 'desc'], '')"
                 :errors="errors.perihdist"
                 @input="update"
               />
               <custom-field
                 v-model="target.epochofperih"
-                label="Epoch of Perihelion"
                 field="epochofperih"
-                desc="Modified Juian Days"
+                :label="getFromObject(fieldHelp, ['target', 'epochofperih', 'label'], 'Epoch of Perihelion')"
+                :desc="getFromObject(fieldHelp, ['target', 'epochofperih', 'desc'], '')"
                 :errors="errors.epochofperih"
                 @input="update"
               />
@@ -192,24 +191,26 @@
         </b-col>
       </b-row>
     </b-container>
-  </panel>
+  </form-panel>
 </template>
 <script>
 import _ from 'lodash';
 
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import SexagesimalCustomField from '@/components/RequestGroupComposition/SexagesimalCustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
+import { getFromObject } from '@/util';
 
 export default {
+  name: 'Target',
   components: {
     CustomField,
     SexagesimalCustomField,
     CustomSelect,
-    Panel,
+    FormPanel,
     CustomAlert
   },
   mixins: [collapseMixin],
@@ -237,6 +238,12 @@ export default {
     },
     parentshow: {
       type: Boolean
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
   },
   data: function() {
@@ -295,6 +302,9 @@ export default {
     }
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
     update: function() {
       this.$emit('target-updated', {});
     }

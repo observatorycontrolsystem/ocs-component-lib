@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     :id="'request' + index"
     :show="show"
     title="Request"
@@ -20,34 +20,14 @@
         <b-col v-show="show" md="6">
           <slot name="request-help" :data="{ request: request, position: position }"></slot>
         </b-col>
-
         <b-col :md="show ? 6 : 12">
           <b-form>
-            <custom-select
-              v-if="!simpleInterface"
-              v-model="dataType"
-              label="Observation Type"
-              field="observation_type"
-              :options="dataTypeOptions"
-              :errors="{}"
-              @input="update"
-            />
-            <custom-select
-              v-model="instrument_type"
-              label="Instrument"
-              field="instrument_type"
-              :errors="getFromObject(errors, ['configurations', 0, 'instrument_type'], {})"
-              :options="availableInstrumentOptions"
-              @input="update"
-            />
             <custom-field
               v-if="!simpleInterface"
               v-model="request.acceptability_threshold"
-              label="Acceptability Threshold"
               field="acceptability_threshold"
-              desc="The percentage of the observation that must be completed to mark the request as complete
-                    and avert rescheduling. The percentage should be set to the lowest value for which the amount
-                    of data is acceptable to meet the science goal of the request."
+              :label="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
+              :desc="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'desc'], '')"
               :errors="errors.acceptability_threshold"
               @input="update"
             />
@@ -61,16 +41,17 @@
       :index="idx"
       :request-index="index"
       :configuration="configuration"
-      :selectedinstrument="instrument_type"
-      :datatype="dataType"
       :parentshow="show"
       :available-instruments="availableInstruments"
+      :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
-      :simple-interface="simpleInterface"
+      :profile="profile"
+      :field-help="fieldHelp"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
+      @instrument-type-updated="onInstrumentTypeUpdated"
     >
       <template #configuration-help="data">
         <slot name="configuration-help" :data="data.data"></slot>
@@ -106,34 +87,30 @@
       :site-code-to-color="siteCodeToColor"
       :site-code-to-name="siteCodeToName"
       :show-airmass-plot="showAirmassPlot"
+      :datetime-format="datetimeFormat"
+      :field-help="fieldHelp"
       @remove="removeWindow(idx)"
-      @windowupdate="windowUpdated"
-      @cadence="cadence"
+      @window-updated="windowUpdated"
+      @generate-cadence="generateCadence"
       @copy="addWindow(idx)"
     >
       <template #window-help="data">
         <slot name="window-help" :data="data.data"></slot>
       </template>
     </window>
-  </panel>
+  </form-panel>
 </template>
 <script>
 import _ from 'lodash';
 
-// import {
-//   // collapseMixin,
-//   arcDefaultExposureTime,
-//   lampFlatDefaultExposureTime
-// } from '@/utils.js';
-
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
-import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
+import { getFromObject } from '@/util';
 
 export default {
   name: 'Request',
@@ -141,8 +118,7 @@ export default {
     Configuration,
     Window,
     CustomField,
-    CustomSelect,
-    Panel,
+    FormPanel,
     CustomAlert
   },
   mixins: [collapseMixin],
@@ -193,15 +169,27 @@ export default {
     observationType: {
       type: String,
       required: true
+    },
+    datetimeFormat: {
+      type: String,
+      default: 'YYYY-MM-DD HH:mm:ss'
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
+    instrumentCategoryToName: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
   },
   data: function() {
     return {
       show: true,
-      dataType: '',
-      dataTypeOptions: [],
-      // TODO: Should I move this down to the configuration level? probably...
-      instrument_type: this.request.configurations[0].instrument_type,
       position: {
         requestIndex: this.index
       }
@@ -210,102 +198,35 @@ export default {
   computed: {
     simpleInterface: function() {
       return _.get(this.profile, ['profile', 'simple_interface'], false);
-    },
-    availableInstrumentOptions: function() {
-      let options = [];
-      for (let ai in this.availableInstruments) {
-        if (this.availableInstruments[ai].type === this.dataType) {
-          options.push({ value: ai, text: this.availableInstruments[ai].name });
-        }
-      }
-      this.update();
-      return _.sortBy(options, 'text').reverse();
-    },
-    firstAvailableInstrument: function() {
-      if (this.availableInstrumentOptions.length) {
-        return this.availableInstrumentOptions[0].value;
-      } else {
-        return '';
-      }
     }
-  },
-  watch: {
-    dataType: function(value) {
-      if (
-        Object.keys(this.availableInstruments).length &&
-        (!this.instrument_type || this.availableInstruments[this.instrument_type].type !== value)
-      ) {
-        this.instrument_type = this.firstAvailableInstrument;
-        this.update();
-      }
-    },
-    instrument_type: function(newValue, oldValue) {
-      if (newValue) {
-        this.updateAcceptabilityThreshold(newValue, oldValue);
-        this.request.location.telescope_class = this.availableInstruments[newValue].class.toLowerCase();
-        this.update();
-      }
-    },
-    availableInstruments: function() {
-      if (!this.instrument_type) {
-        this.instrument_type = this.firstAvailableInstrument;
-      }
-      this.updateDataTypeOptions();
-    }
-  },
-  created: function() {
-    // Need to call this here for when a request is copied
-    this.updateDataTypeOptions();
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
     update: function(data) {
       this.$emit('request-updated', data);
       if (this.showAirmassPlot) {
         _.delay(() => {
-          this.updateVisibility();
+          this.updateAirmassPlot();
         }, 500);
       }
     },
-    updateVisibility: _.debounce(function() {
+    updateAirmassPlot: _.debounce(function() {
       if ('window' in this.$refs) {
         for (var windowIdx in this.$refs.window) {
-          this.$refs.window[windowIdx].updateVisibility(this.request);
+          this.$refs.window[windowIdx].updateAirmassPlot(this.request);
         }
       }
     }, 300),
-    updateDataTypeOptions: function() {
-      if (_.isEmpty(this.dataTypeOptions)) {
-        let hasImage = false;
-        let hasSpectra = false;
-        for (let itype in this.availableInstruments) {
-          if (this.availableInstruments[itype].type === 'IMAGE') hasImage = true;
-          if (this.availableInstruments[itype].type === 'SPECTRA') hasSpectra = true;
-        }
-        if (hasImage) this.dataTypeOptions.push({ value: 'IMAGE', text: 'Image' });
-        if (hasSpectra) this.dataTypeOptions.push({ value: 'SPECTRA', text: 'Spectrum' });
-        this.setDataType();
-      }
-    },
-    setDataType: function() {
-      if (this.instrument_type) {
-        for (let itype in this.availableInstruments) {
-          if (itype === this.instrument_type) {
-            this.dataType = this.availableInstruments[itype].type;
-            return;
-          }
-        }
-      } else if (this.dataTypeOptions.length > 0) {
-        this.dataType = this.dataTypeOptions[0].value;
-      }
-    },
-    updateAcceptabilityThreshold: function(new_instrument_type, old_instrument_type) {
+    updateAcceptabilityThreshold: function(newInstrumentType, oldInstrumentType) {
       let newDefaultAcceptability = 90;
       let oldDefaultAcceptability = 90;
-      if (new_instrument_type in this.availableInstruments) {
-        newDefaultAcceptability = this.availableInstruments[new_instrument_type].default_acceptability_threshold;
+      if (newInstrumentType in this.availableInstruments) {
+        newDefaultAcceptability = this.availableInstruments[newInstrumentType].default_acceptability_threshold;
       }
-      if (old_instrument_type in this.availableInstruments) {
-        oldDefaultAcceptability = this.availableInstruments[old_instrument_type].default_acceptability_threshold;
+      if (oldInstrumentType in this.availableInstruments) {
+        oldDefaultAcceptability = this.availableInstruments[oldInstrumentType].default_acceptability_threshold;
       }
       let currentAcceptability = this.request.acceptability_threshold;
       if (currentAcceptability === '' || Number(currentAcceptability) === oldDefaultAcceptability) {
@@ -314,6 +235,14 @@ export default {
         // (If they did modify it, it should probably stay at what they set).
         this.request.acceptability_threshold = newDefaultAcceptability;
         this.update();
+      }
+    },
+    onInstrumentTypeUpdated: function(instrumentType) {
+      this.updateAcceptabilityThreshold(instrumentType.new, instrumentType.old);
+      if (this.availableInstruments[instrumentType.new]) {
+        this.request.location.telescope_class = this.availableInstruments[instrumentType.new].class.toLowerCase();
+      } else {
+        this.request.location.telescope_class = '';
       }
     },
     configurationFillDuration: function(configId) {
@@ -350,11 +279,8 @@ export default {
       this.request.configurations.splice(idx, 1);
       this.update();
     },
-    cadence: function(data) {
-      this.$emit('cadence', { id: this.index, request: this.request, cadence: data });
-    },
-    getFromObject: function(obj, path, defaultValue) {
-      return _.get(obj, path, defaultValue);
+    generateCadence: function(data) {
+      this.$emit('generate-cadence', { id: this.index, request: this.request, cadence: data });
     }
   }
 };

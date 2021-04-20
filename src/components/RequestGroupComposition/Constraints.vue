@@ -1,5 +1,5 @@
 <template>
-  <panel
+  <form-panel
     :id="'constraints' + position.requestIndex + position.configurationIndex"
     :show="show"
     :errors="errors"
@@ -21,37 +21,39 @@
           <b-form>
             <custom-field
               v-model="constraints.max_airmass"
-              label="Maximum Airmass"
               field="max_airmass"
+              :label="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
+              :desc="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'desc'], '')"
               :errors="errors.max_airmass"
-              desc="Maximum acceptable airmass at which the observation can be scheduled. A plane-parallel atmosphere is assumed."
               @input="update"
             />
             <custom-field
               v-model="constraints.min_lunar_distance"
-              label="Minimum Lunar Separation"
               field="min_lunar_distance"
+              :label="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
+              :desc="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'desc'], '')"
               :errors="errors.min_lunar_distance"
-              desc="Minimum acceptable angular separation (degrees) between the target and the moon."
               @input="update"
             />
           </b-form>
         </b-col>
       </b-row>
     </b-container>
-  </panel>
+  </form-panel>
 </template>
 <script>
-import Panel from '@/components/RequestGroupComposition/Panel.vue';
+import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
+import { getFromObject } from '@/util';
 
 export default {
+  name: 'Constraints',
   components: {
     CustomField,
-    Panel,
+    FormPanel,
     CustomAlert
   },
   mixins: [collapseMixin],
@@ -74,6 +76,12 @@ export default {
     },
     parentshow: {
       type: Boolean
+    },
+    fieldHelp: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
   },
   data: function() {
@@ -86,6 +94,9 @@ export default {
     };
   },
   methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
+    },
     update: function() {
       this.$emit('constraintsupdate');
     }

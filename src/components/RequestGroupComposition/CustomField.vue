@@ -13,9 +13,9 @@
     >
       <template slot="label">
         {{ label }}
-        <!-- <sup v-if="desc" v-b-tooltip="tooltipConfig" class="text-primary" :title="desc">
+        <sup v-if="desc" v-b-tooltip="tooltipConfig" class="text-primary" :title="desc">
           ?
-        </sup> -->
+        </sup>
       </template>
       <b-input-group>
         <b-form-input
@@ -40,9 +40,8 @@
 <script>
 import _ from 'lodash';
 
-// import { tooltipConfig } from '@/utils.js';
-
 export default {
+  name: 'CustomField',
   props: {
     value: {
       validator: function(value) {
@@ -75,12 +74,19 @@ export default {
     desc: {
       type: String,
       default: ''
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return {
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          trigger: 'hover'
+        };
+      }
     }
-  },
-  data: function() {
-    return {
-      // tooltipConfig: tooltipConfig
-    };
   },
   computed: {
     hasErrors: function() {
