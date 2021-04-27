@@ -113,22 +113,18 @@
         </b-col>
       </b-row>
     </b-container>
-    <instrument-config
+    <instrument-config-panel
       v-for="(instrumentConfig, idx) in configuration.instrument_configs"
       :key="idx"
+      :show="show"
+      :parentshow="show"
       :index="idx"
-      :instrument-config="instrumentConfig"
       :configuration-index="index"
       :request-index="requestIndex"
+      :instrument-config="instrumentConfig"
       :selected-instrument="configuration.instrument_type"
-      :parentshow="show"
-      :selected-instrument-category="selectedInstrumentCategory"
-      :configuration-type="configuration.type"
-      :show="show"
-      :duration-data="getFromObject(durationData, ['instrument_configs', idx], { duration: 0 })"
       :available-instruments="availableInstruments"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
-      :simple-interface="simpleInterface"
       :field-help="fieldHelp"
       @remove="removeInstrumentConfiguration(idx)"
       @copy="addInstrumentConfiguration(idx)"
@@ -137,7 +133,10 @@
       <template #instrument-config-help="data">
         <slot name="instrument-config-help" :data="data.data"></slot>
       </template>
-    </instrument-config>
+      <template #instrument-config-form="data">
+        <slot name="instrument-config-form" :data="data.data"></slot>
+      </template>
+    </instrument-config-panel>
     <target
       :target="configuration.target"
       :configuration-index="index"
@@ -181,7 +180,7 @@ import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
-import InstrumentConfig from '@/components/RequestGroupComposition/InstrumentConfig.vue';
+import InstrumentConfigPanel from '@/components/RequestGroupComposition/InstrumentConfigPanel.vue';
 import Constraints from '@/components/RequestGroupComposition/Constraints.vue';
 import Target from '@/components/RequestGroupComposition/Target.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
@@ -194,7 +193,7 @@ export default {
     CustomSelect,
     FormPanel,
     CustomAlert,
-    InstrumentConfig,
+    InstrumentConfigPanel,
     Constraints,
     Target
   },
@@ -503,8 +502,8 @@ export default {
       this.configuration.instrument_configs.push(newInstrumentConfiguration);
       this.update();
     },
-    instumentConfigurationUpdated: function() {
-      console.log('instrumentconfigUpdated');
+    instumentConfigurationUpdated: function(data) {
+      console.log('instrumentconfigUpdated', data);
       this.update();
     },
     acquisitionModeIsAvailable: function(acquisitionMode, acquisitionExtraParams) {

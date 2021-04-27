@@ -38,6 +38,7 @@
 <script>
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 
 export default {
   name: 'CustomDatetime',
@@ -98,9 +99,6 @@ export default {
   }
 };
 </script>
-<style scoped>
-@import '~vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
-</style>
 <style>
 /*
  * Override the default ctk datetime picker styles to look like other
