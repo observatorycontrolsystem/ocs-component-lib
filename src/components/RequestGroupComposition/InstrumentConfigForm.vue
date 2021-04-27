@@ -61,7 +61,7 @@
 <script>
 import { toRef } from '@vue/composition-api';
 
-import baseInstrumentConfigPanel from '@/composables/baseInstrumentConfigPanel.js';
+import baseInstrumentConfig from '@/composables/baseInstrumentConfig.js';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import { getFromObject } from '@/util';
@@ -113,7 +113,7 @@ export default {
       updateBinning,
       updateOpticalElement,
       updateInstrumentConfigExtraParam
-    } = baseInstrumentConfigPanel(instrumentConfig, availableInstruments, selectedInstrument, context);
+    } = baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument, context);
 
     return {
       // Data

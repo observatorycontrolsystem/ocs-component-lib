@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { ref, computed, watch } from '@vue/composition-api';
 
-export default function baseInstrumentConfigPanel(instrumentConfig, availableInstruments, selectedInstrument) {
+export default function baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument) {
   const opticalElementUpdates = ref(0);
 
   const updateOpticalElement = () => {

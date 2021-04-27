@@ -1,3 +1,3 @@
-import baseInstrumentConfigPanel from './baseInstrumentConfigPanel.js';
+import baseInstrumentConfig from './baseInstrumentConfig.js';
 
-export { baseInstrumentConfigPanel };
+export { baseInstrumentConfig };
