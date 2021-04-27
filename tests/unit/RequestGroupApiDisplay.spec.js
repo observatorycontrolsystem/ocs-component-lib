@@ -89,11 +89,11 @@ const requestgroupFactory = (requestStates = ['PENDING']) => {
   return requestgroupData;
 };
 
-const wrapperFactory = requestgroup => {
+const wrapperFactory = requestGroup => {
   return mount(RequestGroupApiDisplay, {
     localVue,
     propsData: {
-      requestgroup: requestgroup
+      requestGroup: requestGroup
     }
   });
 };
