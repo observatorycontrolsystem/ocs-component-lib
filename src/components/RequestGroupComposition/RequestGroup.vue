@@ -1,9 +1,9 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['requestGroup', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['requestGroup', 'panel', 'hide'], false)"
     id="general"
-    :title="getFromObject(fieldHelp, ['requestGroup', 'panel', 'title'], 'Request Group')"
-    :icon="getFromObject(fieldHelp, ['requestGroup', 'panel', 'icon'], 'fas fa-address-card')"
+    :title="getFromObject(formConfig, ['requestGroup', 'panel', 'title'], 'Request Group')"
+    :icon="getFromObject(formConfig, ['requestGroup', 'panel', 'icon'], 'fas fa-address-card')"
     :tooltip-config="tooltipConfig"
     :canremove="false"
     :cancopy="false"
@@ -25,9 +25,9 @@
             <custom-field
               v-model="requestGroup.name"
               field="name"
-              :label="getFromObject(fieldHelp, ['requestGroup', 'name', 'label'], 'Name')"
-              :desc="getFromObject(fieldHelp, ['requestGroup', 'name', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['requestGroup', 'name', 'hide'], false)"
+              :label="getFromObject(formConfig, ['requestGroup', 'name', 'label'], 'Name')"
+              :desc="getFromObject(formConfig, ['requestGroup', 'name', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['requestGroup', 'name', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.name"
               @input="update"
@@ -35,9 +35,9 @@
             <custom-select
               v-model="requestGroup.proposal"
               field="proposal"
-              :label="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'label'], 'Proposal')"
-              :desc="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'hide'], false)"
+              :label="getFromObject(formConfig, ['requestGroup', 'proposal', 'label'], 'Proposal')"
+              :desc="getFromObject(formConfig, ['requestGroup', 'proposal', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['requestGroup', 'proposal', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.proposal"
               :options="proposalOptions"
@@ -46,9 +46,9 @@
             <custom-select
               v-model="requestGroup.observation_type"
               field="observation_type"
-              :label="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'label'], 'Observation Type')"
-              :desc="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'hide'], false)"
+              :label="getFromObject(formConfig, ['requestGroup', 'observation_type', 'label'], 'Observation Type')"
+              :desc="getFromObject(formConfig, ['requestGroup', 'observation_type', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['requestGroup', 'observation_type', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.observation_type"
               :options="observationTypeOptions"
@@ -57,9 +57,9 @@
             <custom-field
               v-model="requestGroup.ipp_value"
               field="ipp_value"
-              :label="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'label'], 'IPP Factor')"
-              :desc="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'hide'], false)"
+              :label="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'label'], 'IPP Factor')"
+              :desc="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.ipp_value"
               @input="update"
@@ -110,7 +110,7 @@
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
         :datetime-format="datetimeFormat"
-        :field-help="fieldHelp"
+        :form-config="formConfig"
         :tooltip-config="tooltipConfig"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
@@ -216,7 +216,7 @@ export default {
         return {};
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

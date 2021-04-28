@@ -1,10 +1,10 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['request', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['request', 'panel', 'hide'], false)"
     :id="'request' + index"
-    :title="getFromObject(fieldHelp, ['request', 'panel', 'title'], 'Request')"
-    :icon="getFromObject(fieldHelp, ['request', 'panel', 'icon'], 'fab fa-wpexplorer')"
-    :cancopy="getFromObject(fieldHelp, ['request', 'panel', 'canCopy'], true)"
+    :title="getFromObject(formConfig, ['request', 'panel', 'title'], 'Request')"
+    :icon="getFromObject(formConfig, ['request', 'panel', 'icon'], 'fab fa-wpexplorer')"
+    :cancopy="getFromObject(formConfig, ['request', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
     :errors="errors"
     :show="show"
@@ -27,9 +27,9 @@
             <custom-field
               v-model="request.acceptability_threshold"
               field="acceptability_threshold"
-              :label="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
-              :desc="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'hide'], false)"
+              :label="getFromObject(formConfig, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
+              :desc="getFromObject(formConfig, ['request', 'acceptability_threshold', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['request', 'acceptability_threshold', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.acceptability_threshold"
               @input="update"
@@ -49,7 +49,7 @@
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
-      :field-help="fieldHelp"
+      :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
@@ -94,7 +94,7 @@
       :show-airmass-plot="showAirmassPlot"
       :datetime-format="datetimeFormat"
       :tooltip-config="tooltipConfig"
-      :field-help="fieldHelp"
+      :form-config="formConfig"
       @remove="removeWindow(idx)"
       @window-updated="windowUpdated"
       @generate-cadence="generateCadence"
@@ -181,7 +181,7 @@ export default {
         return defaultTooltipConfig;
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

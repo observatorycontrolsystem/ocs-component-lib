@@ -14,7 +14,7 @@
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
-        :field-help="fieldHelp"
+        :form-config="formConfig"
         @request-group-updated="requestGroupUpdated"
       >
         <template #request-group-help="data">
@@ -191,7 +191,7 @@ export default {
         return {};
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

@@ -1,10 +1,10 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['configuration', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['configuration', 'panel', 'hide'], false)"
     :id="'configuration' + position.requestIndex + position.configurationIndex"
-    :title="getFromObject(fieldHelp, ['configuration', 'panel', 'title'], 'Configuration')"
-    :icon="getFromObject(fieldHelp, ['configuration', 'panel', 'icon'], 'fas fa-cogs')"
-    :cancopy="getFromObject(fieldHelp, ['configuration', 'panel', 'canCopy'], true)"
+    :title="getFromObject(formConfig, ['configuration', 'panel', 'title'], 'Configuration')"
+    :icon="getFromObject(formConfig, ['configuration', 'panel', 'icon'], 'fas fa-cogs')"
+    :cancopy="getFromObject(formConfig, ['configuration', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
     :errors="errors"
     :show="show"
@@ -27,9 +27,9 @@
             <custom-select
               v-model="selectedInstrumentCategory"
               field="instrument_category"
-              :label="getFromObject(fieldHelp, ['configuration', 'instrument_category', 'label'], 'Instrument Category')"
-              :desc="getFromObject(fieldHelp, ['configuration', 'instrument_category', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['configuration', 'instrument_category', 'hide'], false)"
+              :label="getFromObject(formConfig, ['configuration', 'instrument_category', 'label'], 'Instrument Category')"
+              :desc="getFromObject(formConfig, ['configuration', 'instrument_category', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'instrument_category', 'hide'], false)"
               :options="instrumentCategoryOptions"
               :tooltip-config="tooltipConfig"
               :errors="{}"
@@ -38,9 +38,9 @@
             <custom-select
               v-model="configuration.instrument_type"
               field="instrument_type"
-              :label="getFromObject(fieldHelp, ['configuration', 'instrument_type', 'label'], 'Instrument')"
-              :desc="getFromObject(fieldHelp, ['configuration', 'instrument_type', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['configuration', 'instrument_type', 'hide'], false)"
+              :label="getFromObject(formConfig, ['configuration', 'instrument_type', 'label'], 'Instrument')"
+              :desc="getFromObject(formConfig, ['configuration', 'instrument_type', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'instrument_type', 'hide'], false)"
               :errors="errors.instrument_type"
               :tooltip-config="tooltipConfig"
               :options="availableInstrumentOptions"
@@ -49,9 +49,9 @@
             <custom-select
               v-model="configuration.guiding_config.mode"
               field="mode"
-              :label="getFromObject(fieldHelp, ['guidingConfig', 'mode', 'label'], 'Guide Mode')"
-              :desc="getFromObject(fieldHelp, ['guidingConfig', 'mode', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['guidingConfig', 'mode', 'hide'], false)"
+              :label="getFromObject(formConfig, ['guidingConfig', 'mode', 'label'], 'Guide Mode')"
+              :desc="getFromObject(formConfig, ['guidingConfig', 'mode', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['guidingConfig', 'mode', 'hide'], false)"
               :errors="{}"
               :tooltip-config="tooltipConfig"
               :options="guideModeOptions"
@@ -72,9 +72,9 @@
             <custom-select
               v-model="configuration.type"
               field="type"
-              :label="getFromObject(fieldHelp, ['configuration', 'type', 'label'], 'Type')"
-              :desc="getFromObject(fieldHelp, ['configuration', 'type', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['configuration', 'type', 'hide'], false)"
+              :label="getFromObject(formConfig, ['configuration', 'type', 'label'], 'Type')"
+              :desc="getFromObject(formConfig, ['configuration', 'type', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'type', 'hide'], false)"
               :errors="errors.type"
               :tooltip-config="tooltipConfig"
               :options="configurationTypeOptions"
@@ -84,9 +84,9 @@
               <custom-field
                 v-model="configuration.repeat_duration"
                 field="repeat_duration"
-                :label="getFromObject(fieldHelp, ['configuration', 'repeat_duration', 'label'], 'Duration')"
-                :desc="getFromObject(fieldHelp, ['configuration', 'repeat_duration', 'desc'], '')"
-                :hide="getFromObject(fieldHelp, ['configuration', 'repeat_duration', 'hide'], false)"
+                :label="getFromObject(formConfig, ['configuration', 'repeat_duration', 'label'], 'Duration')"
+                :desc="getFromObject(formConfig, ['configuration', 'repeat_duration', 'desc'], '')"
+                :hide="getFromObject(formConfig, ['configuration', 'repeat_duration', 'hide'], false)"
                 :tooltip-config="tooltipConfig"
                 :errors="errors.repeat_duration"
                 @input="update"
@@ -102,9 +102,9 @@
               v-if="acquireModeOptions.length > 1 && configurationTypesForceAcquisitionOff.indexOf(configuration.type) < 0"
               v-model="configuration.acquisition_config.mode"
               field="mode"
-              :label="getFromObject(fieldHelp, ['acquisitionConfig', 'mode', 'label'], 'Acquire Mode')"
-              :desc="getFromObject(fieldHelp, ['acquisitionConfig', 'mode', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['acquisitionConfig', 'mode', 'hide'], false)"
+              :label="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'label'], 'Acquire Mode')"
+              :desc="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="{}"
               :options="acquireModeOptions"
@@ -115,9 +115,9 @@
               :key="field"
               v-model="configuration.acquisition_config.extra_params[field]"
               :field="field"
-              :label="getFromObject(fieldHelp, ['acquisitionConfig', field, 'label'], field)"
-              :desc="getFromObject(fieldHelp, ['acquisitionConfig', field, 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['acquisitionConfig', field, 'hide'], false)"
+              :label="getFromObject(formConfig, ['acquisitionConfig', field, 'label'], field)"
+              :desc="getFromObject(formConfig, ['acquisitionConfig', field, 'desc'], '')"
+              :hide="getFromObject(formConfig, ['acquisitionConfig', field, 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
               @input="updateAcquisitionConfigExtraParam($event, field)"
@@ -138,7 +138,7 @@
       :selected-instrument="configuration.instrument_type"
       :available-instruments="availableInstruments"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
-      :field-help="fieldHelp"
+      :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       @remove="removeInstrumentConfiguration(idx)"
       @copy="addInstrumentConfiguration(idx)"
@@ -157,7 +157,7 @@
       :request-index="requestIndex"
       :parentshow="show"
       :errors="getFromObject(errors, 'target', {})"
-      :field-help="fieldHelp"
+      :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       @target-updated="targetUpdated"
     >
@@ -176,7 +176,7 @@
       :request-index="requestIndex"
       :constraints="configuration.constraints"
       :parentshow="show"
-      :field-help="fieldHelp"
+      :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       :errors="getFromObject(errors, 'constraints', {})"
       @constraintsupdate="constraintsUpdated"
@@ -252,7 +252,7 @@ export default {
         return defaultTooltipConfig;
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

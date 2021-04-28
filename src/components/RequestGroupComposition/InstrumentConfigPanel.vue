@@ -1,10 +1,10 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['instrumentConfig', 'panel', 'hide'], false)"
     :id="'instrument-config' + position.requestIndex + position.configurationIndex + position.instrumentConfigIndex"
-    :title="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'title'], 'Instrument Configuration')"
-    :icon="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'icon'], 'fas fa-camera-retro')"
-    :cancopy="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'canCopy'], true)"
+    :title="getFromObject(formConfig, ['instrumentConfig', 'panel', 'title'], 'Instrument Configuration')"
+    :icon="getFromObject(formConfig, ['instrumentConfig', 'panel', 'icon'], 'fas fa-camera-retro')"
+    :cancopy="getFromObject(formConfig, ['instrumentConfig', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
     :errors="errors"
     :show="show"
@@ -31,7 +31,7 @@
               :available-instruments="availableInstruments"
               :errors="errors"
               :tooltip-config="tooltipConfig"
-              :field-help="fieldHelp"
+              :form-config="formConfig"
             />
           </slot>
         </b-col>
@@ -92,7 +92,7 @@ export default {
         return defaultTooltipConfig;
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

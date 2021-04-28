@@ -3,9 +3,9 @@
     <custom-field
       v-model="instrumentConfig.exposure_count"
       field="exposure_count"
-      :label="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'label'], 'Exposure Count')"
-      :desc="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'desc'], '')"
-      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'hide'], false)"
+      :label="getFromObject(formConfig, ['instrumentConfig', 'exposure_count', 'label'], 'Exposure Count')"
+      :desc="getFromObject(formConfig, ['instrumentConfig', 'exposure_count', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['instrumentConfig', 'exposure_count', 'hide'], false)"
       type="number"
       :tooltip-config="tooltipConfig"
       :errors="errors.exposure_count"
@@ -13,9 +13,9 @@
     <custom-field
       v-model="instrumentConfig.exposure_time"
       field="exposure_time"
-      :label="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'label'], 'Exposure Time')"
-      :desc="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'desc'], '')"
-      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'hide'], false)"
+      :label="getFromObject(formConfig, ['instrumentConfig', 'exposure_time', 'label'], 'Exposure Time')"
+      :desc="getFromObject(formConfig, ['instrumentConfig', 'exposure_time', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['instrumentConfig', 'exposure_time', 'hide'], false)"
       :tooltip-config="tooltipConfig"
       :errors="errors.exposure_time"
     />
@@ -23,9 +23,9 @@
       v-if="readoutModeOptions.length > 1"
       v-model="instrumentConfig.mode"
       field="readout_mode"
-      :label="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'label'], 'Readout Mode')"
-      :desc="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'desc'], '')"
-      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'hide'], false)"
+      :label="getFromObject(formConfig, ['instrumentConfig', 'readout_mode', 'label'], 'Readout Mode')"
+      :desc="getFromObject(formConfig, ['instrumentConfig', 'readout_mode', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['instrumentConfig', 'readout_mode', 'hide'], false)"
       :options="readoutModeOptions"
       :tooltip-config="tooltipConfig"
       :errors="errors.mode"
@@ -34,9 +34,9 @@
       <custom-select
         v-model="instrumentConfig.optical_elements[opticalElementGroup.type]"
         :field="opticalElementGroup.type"
-        :label="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'label'], opticalElementGroup.label)"
-        :desc="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'desc'], '')"
-        :hide="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'hide'], false)"
+        :label="getFromObject(formConfig, ['instrumentConfig', opticalElementGroup.type, 'label'], opticalElementGroup.label)"
+        :desc="getFromObject(formConfig, ['instrumentConfig', opticalElementGroup.type, 'desc'], '')"
+        :hide="getFromObject(formConfig, ['instrumentConfig', opticalElementGroup.type, 'hide'], false)"
         :options="opticalElementGroup.options"
         lower-options
         :tooltip-config="tooltipConfig"
@@ -48,9 +48,9 @@
       <custom-select
         v-model="instrumentConfig.rotator_mode"
         field="rotator_mode"
-        :label="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'label'], 'Rotator Mode')"
-        :desc="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'desc'], '')"
-        :hide="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'hide'], false)"
+        :label="getFromObject(formConfig, ['instrumentConfig', 'rotator_mode', 'label'], 'Rotator Mode')"
+        :desc="getFromObject(formConfig, ['instrumentConfig', 'rotator_mode', 'desc'], '')"
+        :hide="getFromObject(formConfig, ['instrumentConfig', 'rotator_mode', 'hide'], false)"
         :tooltip-config="tooltipConfig"
         :errors="errors.rotator_mode"
         :options="rotatorModeOptions"
@@ -60,9 +60,9 @@
         v-for="field in requiredRotatorModeFields"
         :key="field"
         v-model="instrumentConfig.extra_params[field]"
-        :label="getFromObject(fieldHelp, ['instrumentConfig', field, 'label'], field)"
-        :desc="getFromObject(fieldHelp, ['instrumentConfig', field, 'desc'], '')"
-        :hide="getFromObject(fieldHelp, ['instrumentConfig', field, 'desc'], false)"
+        :label="getFromObject(formConfig, ['instrumentConfig', field, 'label'], field)"
+        :desc="getFromObject(formConfig, ['instrumentConfig', field, 'desc'], '')"
+        :hide="getFromObject(formConfig, ['instrumentConfig', field, 'desc'], false)"
         :tooltip-config="tooltipConfig"
         :errors="null"
         @input="updateInstrumentConfigExtraParam($event, field)"
@@ -110,7 +110,7 @@ export default {
         return defaultTooltipConfig;
       }
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

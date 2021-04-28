@@ -1,10 +1,10 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['window', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['window', 'panel', 'hide'], false)"
     :id="'window' + position.requestIndex + position.windowIndex"
-    :title="getFromObject(fieldHelp, ['window', 'panel', 'title'], 'Window')"
-    :icon="getFromObject(fieldHelp, ['window', 'panel', 'icon'], 'fas fa-calendar')"
-    :cancopy="getFromObject(fieldHelp, ['window', 'panel', 'canCopy'], true)"
+    :title="getFromObject(formConfig, ['window', 'panel', 'title'], 'Window')"
+    :icon="getFromObject(formConfig, ['window', 'panel', 'icon'], 'fas fa-calendar')"
+    :cancopy="getFromObject(formConfig, ['window', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
     :errors="errors"
     :show="show"
@@ -40,9 +40,9 @@
               v-show="observationType != 'RAPID_RESPONSE'"
               v-model="window.start"
               field="start"
-              :label="getFromObject(fieldHelp, ['window', 'start', 'label'], 'Start')"
-              :desc="getFromObject(fieldHelp, ['window', 'start', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['window', 'start', 'hide'], false)"
+              :label="getFromObject(formConfig, ['window', 'start', 'label'], 'Start')"
+              :desc="getFromObject(formConfig, ['window', 'start', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['window', 'start', 'hide'], false)"
               :datetime-format="datetimeFormat"
               :tooltip-config="tooltipConfig"
               :errors="errors.start"
@@ -51,9 +51,9 @@
             <custom-datetime
               v-model="window.end"
               field="end"
-              :label="getFromObject(fieldHelp, ['window', 'end', 'label'], 'End')"
-              :desc="getFromObject(fieldHelp, ['window', 'end', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['window', 'end', 'hide'], false)"
+              :label="getFromObject(formConfig, ['window', 'end', 'label'], 'End')"
+              :desc="getFromObject(formConfig, ['window', 'end', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['window', 'end', 'hide'], false)"
               :datetime-format="datetimeFormat"
               :tooltip-config="tooltipConfig"
               :errors="errors.end"
@@ -62,9 +62,9 @@
             <custom-select
               v-model="cadence"
               field="cadence"
-              :label="getFromObject(fieldHelp, ['window', 'cadence', 'label'], 'Cadence')"
-              :desc="getFromObject(fieldHelp, ['window', 'cadence', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['window', 'cadence', 'hide'], false)"
+              :label="getFromObject(formConfig, ['window', 'cadence', 'label'], 'Cadence')"
+              :desc="getFromObject(formConfig, ['window', 'cadence', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['window', 'cadence', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :options="[
                 { text: 'None', value: 'none' },
@@ -75,9 +75,9 @@
               v-show="cadence === 'simple'"
               v-model="period"
               field="period"
-              :label="getFromObject(fieldHelp, ['window', 'period', 'label'], 'Period')"
-              :desc="getFromObject(fieldHelp, ['window', 'period', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['window', 'period', 'hide'], false)"
+              :label="getFromObject(formConfig, ['window', 'period', 'label'], 'Period')"
+              :desc="getFromObject(formConfig, ['window', 'period', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['window', 'period', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.period"
               @input="update"
@@ -86,9 +86,9 @@
               v-show="cadence === 'simple'"
               v-model="jitter"
               field="jitter"
-              :label="getFromObject(fieldHelp, ['window', 'jitter', 'label'], 'Jitter')"
-              :desc="getFromObject(fieldHelp, ['window', 'jitter', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['window', 'jitter', 'hide'], false)"
+              :label="getFromObject(formConfig, ['window', 'jitter', 'label'], 'Jitter')"
+              :desc="getFromObject(formConfig, ['window', 'jitter', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['window', 'jitter', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.jitter"
               @input="update"
@@ -187,7 +187,7 @@ export default {
       type: String,
       required: true
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};

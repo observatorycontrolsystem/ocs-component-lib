@@ -1,9 +1,9 @@
 <template>
   <form-panel
-    v-if="!getFromObject(fieldHelp, ['constraints', 'panel', 'hide'], false)"
+    v-if="!getFromObject(formConfig, ['constraints', 'panel', 'hide'], false)"
     :id="'constraints' + position.requestIndex + position.configurationIndex"
-    :title="getFromObject(fieldHelp, ['constraints', 'panel', 'title'], 'Constraints')"
-    :icon="getFromObject(fieldHelp, ['constraints', 'panel', 'icon'], 'fas fa-lock')"
+    :title="getFromObject(formConfig, ['constraints', 'panel', 'title'], 'Constraints')"
+    :icon="getFromObject(formConfig, ['constraints', 'panel', 'icon'], 'fas fa-lock')"
     :cancopy="false"
     :canremove="false"
     :errors="errors"
@@ -24,9 +24,9 @@
             <custom-field
               v-model="constraints.max_airmass"
               field="max_airmass"
-              :label="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
-              :desc="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'hide'], false)"
+              :label="getFromObject(formConfig, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
+              :desc="getFromObject(formConfig, ['constraints', 'max_airmass', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['constraints', 'max_airmass', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.max_airmass"
               @input="update"
@@ -34,9 +34,9 @@
             <custom-field
               v-model="constraints.min_lunar_distance"
               field="min_lunar_distance"
-              :label="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
-              :desc="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'desc'], '')"
-              :hide="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'hide'], false)"
+              :label="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
+              :desc="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="errors.min_lunar_distance"
               @input="update"
@@ -89,7 +89,7 @@ export default {
     parentshow: {
       type: Boolean
     },
-    fieldHelp: {
+    formConfig: {
       type: Object,
       default: () => {
         return {};
