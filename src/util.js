@@ -1,6 +1,16 @@
 import _ from 'lodash';
 import moment from 'moment';
 
+const defaultTooltipConfig = {
+  delay: {
+    show: 500,
+    hide: 100
+  },
+  trigger: 'hover'
+};
+
+const defaultDatetimeFormat = 'YYYY-MM-DD HH:mm:ss';
+
 function zPadFloat(num) {
   return num.toLocaleString(undefined, { minimumIntegerDigits: 2, maximumFractionDigits: 4 });
 }
@@ -204,6 +214,8 @@ export {
   copyObject,
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
+  defaultDatetimeFormat,
+  defaultTooltipConfig,
   extractTopLevelErrors,
   formatDate,
   formatField,

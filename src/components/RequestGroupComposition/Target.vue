@@ -1,12 +1,14 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['target', 'panel', 'hide'], false)"
     :id="'target' + position.requestIndex + position.configurationIndex"
+    :title="getFromObject(fieldHelp, ['target', 'panel', 'title'], 'Target')"
+    :icon="getFromObject(fieldHelp, ['target', 'panel', 'icon'], 'fas fa-crosshairs')"
+    :cancopy="false"
+    :canremove="false"
     :show="show"
     :errors="errors"
-    :canremove="false"
-    :cancopy="false"
-    icon="fas fa-crosshairs"
-    title="Target"
+    :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
@@ -24,12 +26,13 @@
             </slot>
             <slot name="target-type-field" :data="{ target: target, errors: errors.name, position: position }">
               <custom-select
-                v-if="!simpleInterface"
                 v-model="target.type"
                 field="type"
                 :label="getFromObject(fieldHelp, ['target', 'type', 'label'], 'Type')"
                 :desc="getFromObject(fieldHelp, ['target', 'type', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'type', 'hide'], false)"
                 :errors="errors.type"
+                :tooltip-config="tooltipConfig"
                 :options="targetTypeOptions"
                 @input="update"
               />
@@ -41,6 +44,8 @@
                 field="ra"
                 :label="getFromObject(fieldHelp, ['target', 'ra', 'label'], 'Right Ascension')"
                 :desc="getFromObject(fieldHelp, ['target', 'ra', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'ra', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.ra"
                 @input="update"
               />
@@ -50,42 +55,48 @@
                 field="dec"
                 :label="getFromObject(fieldHelp, ['target', 'dec', 'label'], 'Declination')"
                 :desc="getFromObject(fieldHelp, ['target', 'dec', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'dec', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.dec"
                 @input="update"
               />
               <custom-field
-                v-if="!simpleInterface"
                 v-model="target.proper_motion_ra"
                 field="proper_motion_ra"
                 :label="getFromObject(fieldHelp, ['target', 'proper_motion_ra', 'label'], 'Proper Motion RA')"
                 :desc="getFromObject(fieldHelp, ['target', 'proper_motion_ra', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'proper_motion_ra', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.proper_motion_ra"
                 @input="update"
               />
               <custom-field
-                v-if="!simpleInterface"
                 v-model="target.proper_motion_dec"
                 field="proper_motion_dec"
                 :label="getFromObject(fieldHelp, ['target', 'proper_motion_dec', 'label'], 'Proper Motion Dec')"
                 :desc="getFromObject(fieldHelp, ['target', 'proper_motion_dec', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'proper_motion_dec', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.proper_motion_dec"
                 @input="update"
               />
               <custom-field
-                v-if="!simpleInterface"
                 v-model="target.epoch"
                 field="epoch"
                 :label="getFromObject(fieldHelp, ['target', 'epoch', 'label'], 'Epoch')"
                 :desc="getFromObject(fieldHelp, ['target', 'epoch', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'epoch', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.epoch"
                 @input="update"
               />
               <custom-field
-                v-if="!simpleInterface"
                 v-model="target.parallax"
                 field="parallax"
                 :label="getFromObject(fieldHelp, ['target', 'parallax', 'label'], 'Parallax')"
-                :desc="getFromObject(fieldHelp, ['target', 'parallax', 'desc'], 'Parallax')"
+                :desc="getFromObject(fieldHelp, ['target', 'parallax', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'parallax', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.parallax"
                 @input="update"
               />
@@ -96,6 +107,8 @@
                 field="scheme"
                 :label="getFromObject(fieldHelp, ['target', 'scheme', 'label'], 'Scheme')"
                 :desc="getFromObject(fieldHelp, ['target', 'scheme', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'scheme', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.scheme"
                 :options="nonSiderealSchemeOptions"
                 @input="update"
@@ -105,6 +118,8 @@
                 field="epochofel"
                 :label="getFromObject(fieldHelp, ['target', 'epochofel', 'label'], 'Epoch of Elements')"
                 :desc="getFromObject(fieldHelp, ['target', 'epochofel', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'epochofel', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.epochofel"
                 @input="update"
               />
@@ -113,6 +128,8 @@
                 field="orbinc"
                 :label="getFromObject(fieldHelp, ['target', 'orbinc', 'label'], 'Orbital Inclination')"
                 :desc="getFromObject(fieldHelp, ['target', 'orbinc', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'orbinc', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.orbinc"
                 @input="update"
               />
@@ -121,6 +138,8 @@
                 field="longascnode"
                 :label="getFromObject(fieldHelp, ['target', 'longascnode', 'label'], 'Longitude of Ascending Node')"
                 :desc="getFromObject(fieldHelp, ['target', 'longascnode', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'longascnode', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.longascnode"
                 @input="update"
               />
@@ -129,6 +148,8 @@
                 field="argofperih"
                 :label="getFromObject(fieldHelp, ['target', 'argofperih', 'label'], 'Argument of Perihelion')"
                 :desc="getFromObject(fieldHelp, ['target', 'argofperih', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'argofperih', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.argofperih"
                 @input="update"
               />
@@ -137,6 +158,8 @@
                 field="eccentricity"
                 :label="getFromObject(fieldHelp, ['target', 'eccentricity', 'label'], 'Eccentricity')"
                 :desc="getFromObject(fieldHelp, ['target', 'eccentricity', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'eccentricity', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.eccentricity"
                 @input="update"
               />
@@ -147,6 +170,8 @@
                 field="meandist"
                 :label="getFromObject(fieldHelp, ['target', 'meandist', 'label'], 'Semimajor Axis')"
                 :desc="getFromObject(fieldHelp, ['target', 'meandist', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'meandist', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.meandist"
                 @input="update"
               />
@@ -155,6 +180,8 @@
                 field="meananom"
                 :label="getFromObject(fieldHelp, ['target', 'meananom', 'label'], 'Mean Anomaly')"
                 :desc="getFromObject(fieldHelp, ['target', 'meananom', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'meananom', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.meananom"
                 @input="update"
               />
@@ -165,6 +192,8 @@
                 field="dailymot"
                 :label="getFromObject(fieldHelp, ['target', 'dailymot', 'label'], 'Daily Motion')"
                 :desc="getFromObject(fieldHelp, ['target', 'dailymot', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'dailymot', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.dailymot"
                 @input="update"
               />
@@ -175,6 +204,8 @@
                 field="perihdist"
                 :label="getFromObject(fieldHelp, ['target', 'perihdist', 'label'], 'Perihelion Distance')"
                 :desc="getFromObject(fieldHelp, ['target', 'perihdist', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'perihdist', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.perihdist"
                 @input="update"
               />
@@ -183,6 +214,8 @@
                 field="epochofperih"
                 :label="getFromObject(fieldHelp, ['target', 'epochofperih', 'label'], 'Epoch of Perihelion')"
                 :desc="getFromObject(fieldHelp, ['target', 'epochofperih', 'desc'], '')"
+                :hide="getFromObject(fieldHelp, ['target', 'epochofperih', 'hide'], false)"
+                :tooltip-config="tooltipConfig"
                 :errors="errors.epochofperih"
                 @input="update"
               />
@@ -202,7 +235,7 @@ import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import SexagesimalCustomField from '@/components/RequestGroupComposition/SexagesimalCustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject } from '@/util';
+import { getFromObject, defaultTooltipConfig } from '@/util';
 
 export default {
   name: 'Target',
@@ -233,11 +266,14 @@ export default {
       type: Number,
       required: true
     },
-    simpleInterface: {
-      type: Boolean
-    },
     parentshow: {
       type: Boolean
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     fieldHelp: {
       type: Object,

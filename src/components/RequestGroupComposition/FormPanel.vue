@@ -59,6 +59,8 @@
 <script>
 import _ from 'lodash';
 
+import { defaultTooltipConfig } from '@/util';
+
 export default {
   name: 'FormPanel',
   props: {
@@ -97,13 +99,7 @@ export default {
     tooltipConfig: {
       type: Object,
       default: () => {
-        return {
-          delay: {
-            show: 500,
-            hide: 100
-          },
-          trigger: 'hover'
-        };
+        return defaultTooltipConfig;
       }
     }
   },

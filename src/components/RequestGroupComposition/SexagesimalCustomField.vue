@@ -1,5 +1,14 @@
 <template>
-  <custom-field v-model="displayValue" :label="label" :field="field" :desc="desc" :errors="errors" @blur="update($event)">
+  <custom-field
+    v-model="displayValue"
+    :label="label"
+    :field="field"
+    :desc="desc"
+    :hide="hide"
+    :errors="errors"
+    :tooltip-config="tooltipConfig"
+    @blur="update($event)"
+  >
     <div v-if="value" slot="extra-help-text">
       {{ helpText }}
     </div>
@@ -7,7 +16,7 @@
 </template>
 <script>
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
-import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal } from '@/util';
+import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal, defaultTooltipConfig } from '@/util';
 
 export default {
   name: 'SexagesimalCustomField',
@@ -32,6 +41,9 @@ export default {
       type: String,
       required: true
     },
+    hide: {
+      type: Boolean
+    },
     label: {
       type: String,
       required: true
@@ -39,6 +51,12 @@ export default {
     desc: {
       type: String,
       default: ''
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     errors: {
       validator: function(value) {

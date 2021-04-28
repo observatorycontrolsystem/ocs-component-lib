@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span v-if="!hide">
     <b-form-group
       v-show="$parent.show"
       :id="field + '-datetimegroup-' + $parent.id"
@@ -40,6 +40,8 @@ import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 
+import { defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
+
 export default {
   name: 'CustomDatetime',
   components: {
@@ -56,13 +58,16 @@ export default {
     },
     datetimeFormat: {
       type: String,
-      default: 'YYYY-MM-DD HH:mm:ss'
+      default: defaultDatetimeFormat
     },
     field: {
       type: String,
       default: function() {
         return _.kebabCase(this.label);
       }
+    },
+    hide: {
+      type: Boolean
     },
     errors: {
       validator: function(value) {
@@ -77,13 +82,7 @@ export default {
     tooltipConfig: {
       type: Object,
       default: () => {
-        return {
-          delay: {
-            show: 500,
-            hide: 100
-          },
-          trigger: 'hover'
-        };
+        return defaultTooltipConfig;
       }
     }
   },

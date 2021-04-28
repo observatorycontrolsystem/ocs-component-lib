@@ -1,12 +1,14 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['constraints', 'panel', 'hide'], false)"
     :id="'constraints' + position.requestIndex + position.configurationIndex"
-    :show="show"
-    :errors="errors"
-    :canremove="false"
+    :title="getFromObject(fieldHelp, ['constraints', 'panel', 'title'], 'Constraints')"
+    :icon="getFromObject(fieldHelp, ['constraints', 'panel', 'icon'], 'fas fa-lock')"
     :cancopy="false"
-    icon="fas fa-lock"
-    title="Constraints"
+    :canremove="false"
+    :errors="errors"
+    :show="show"
+    :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
@@ -24,6 +26,8 @@
               field="max_airmass"
               :label="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
               :desc="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['constraints', 'max_airmass', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.max_airmass"
               @input="update"
             />
@@ -32,6 +36,8 @@
               field="min_lunar_distance"
               :label="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
               :desc="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['constraints', 'min_lunar_distance', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.min_lunar_distance"
               @input="update"
             />
@@ -47,7 +53,7 @@ import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject } from '@/util';
+import { getFromObject, defaultTooltipConfig } from '@/util';
 
 export default {
   name: 'Constraints',
@@ -73,6 +79,12 @@ export default {
     errors: {
       type: Object,
       required: true
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     parentshow: {
       type: Boolean

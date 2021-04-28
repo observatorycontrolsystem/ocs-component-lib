@@ -1,13 +1,15 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'hide'], false)"
     :id="'instrument-config' + position.requestIndex + position.configurationIndex + position.instrumentConfigIndex"
-    :show="show"
-    title="Instrument Configuration"
-    icon="fas fa-camera-retro"
-    :index="index"
-    :errors="errors"
+    :title="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'title'], 'Instrument Configuration')"
+    :icon="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'icon'], 'fas fa-camera-retro')"
+    :cancopy="getFromObject(fieldHelp, ['instrumentConfig', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
-    :cancopy="true"
+    :errors="errors"
+    :show="show"
+    :index="index"
+    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @copy="$emit('copy')"
     @show="show = $event"
@@ -28,6 +30,7 @@
               :selected-instrument="selectedInstrument"
               :available-instruments="availableInstruments"
               :errors="errors"
+              :tooltip-config="tooltipConfig"
               :field-help="fieldHelp"
             />
           </slot>
@@ -40,7 +43,7 @@
 import InstrumentConfigForm from '@//components/RequestGroupComposition/InstrumentConfigForm.vue';
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
-import { extractTopLevelErrors } from '@/util';
+import { extractTopLevelErrors, getFromObject, defaultTooltipConfig } from '@/util';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 
 export default {
@@ -83,6 +86,12 @@ export default {
     show: {
       type: Boolean
     },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
+    },
     fieldHelp: {
       type: Object,
       default: () => {
@@ -110,6 +119,11 @@ export default {
       handler: function() {
         this.$emit('instrumentconfigupdate', { position: this.position });
       }
+    }
+  },
+  methods: {
+    getFromObject(obj, path, defaultValue) {
+      return getFromObject(obj, path, defaultValue);
     }
   }
 };

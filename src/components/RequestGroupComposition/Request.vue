@@ -1,13 +1,15 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['request', 'panel', 'hide'], false)"
     :id="'request' + index"
-    :show="show"
-    title="Request"
-    icon="fab fa-wpexplorer"
-    :index="index"
-    :errors="errors"
+    :title="getFromObject(fieldHelp, ['request', 'panel', 'title'], 'Request')"
+    :icon="getFromObject(fieldHelp, ['request', 'panel', 'icon'], 'fab fa-wpexplorer')"
+    :cancopy="getFromObject(fieldHelp, ['request', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
-    :cancopy="true"
+    :errors="errors"
+    :show="show"
+    :index="index"
+    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @show="show = $event"
     @copy="$emit('copy')"
@@ -23,11 +25,12 @@
         <b-col :md="show ? 6 : 12">
           <b-form>
             <custom-field
-              v-if="!simpleInterface"
               v-model="request.acceptability_threshold"
               field="acceptability_threshold"
               :label="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
               :desc="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['request', 'acceptability_threshold', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.acceptability_threshold"
               @input="update"
             />
@@ -46,8 +49,8 @@
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
-      :profile="profile"
       :field-help="fieldHelp"
+      :tooltip-config="tooltipConfig"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -85,12 +88,12 @@
       :errors="getFromObject(errors, ['windows', idx], {})"
       :parentshow="show"
       :observation-portal-api-base-url="observationPortalApiBaseUrl"
-      :simple-interface="simpleInterface"
       :observation-type="observationType"
       :site-code-to-color="siteCodeToColor"
       :site-code-to-name="siteCodeToName"
       :show-airmass-plot="showAirmassPlot"
       :datetime-format="datetimeFormat"
+      :tooltip-config="tooltipConfig"
       :field-help="fieldHelp"
       @remove="removeWindow(idx)"
       @window-updated="windowUpdated"
@@ -113,7 +116,7 @@ import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject } from '@/util';
+import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
 
 export default {
   name: 'Request',
@@ -132,11 +135,6 @@ export default {
     },
     observationPortalApiBaseUrl: {
       type: String,
-      required: true
-    },
-    // Response from the /api/profile/ endpoint
-    profile: {
-      type: Object,
       required: true
     },
     index: {
@@ -175,7 +173,13 @@ export default {
     },
     datetimeFormat: {
       type: String,
-      default: 'YYYY-MM-DD HH:mm:ss'
+      default: defaultDatetimeFormat
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     fieldHelp: {
       type: Object,
@@ -197,11 +201,6 @@ export default {
         requestIndex: this.index
       }
     };
-  },
-  computed: {
-    simpleInterface: function() {
-      return _.get(this.profile, ['profile', 'simple_interface'], false);
-    }
   },
   methods: {
     getFromObject(obj, path, defaultValue) {

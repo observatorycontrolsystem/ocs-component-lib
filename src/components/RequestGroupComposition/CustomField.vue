@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span v-if="!hide">
     <span class="text-right font-italic extra-help-text">
       <slot name="extra-help-text" />
     </span>
@@ -40,6 +40,8 @@
 <script>
 import _ from 'lodash';
 
+import { defaultTooltipConfig } from '@/util';
+
 export default {
   name: 'CustomField',
   props: {
@@ -52,6 +54,9 @@ export default {
     label: {
       type: String,
       required: true
+    },
+    hide: {
+      type: Boolean
     },
     field: {
       type: String,
@@ -78,13 +83,7 @@ export default {
     tooltipConfig: {
       type: Object,
       default: () => {
-        return {
-          delay: {
-            show: 500,
-            hide: 100
-          },
-          trigger: 'hover'
-        };
+        return defaultTooltipConfig;
       }
     }
   },

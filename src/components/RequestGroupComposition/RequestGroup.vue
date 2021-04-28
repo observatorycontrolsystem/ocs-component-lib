@@ -1,13 +1,15 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['requestGroup', 'panel', 'hide'], false)"
     id="general"
-    :show="show"
-    title="General Information"
-    icon="fas fa-address-card"
-    :index="0"
-    :errors="errors"
+    :title="getFromObject(fieldHelp, ['requestGroup', 'panel', 'title'], 'Request Group')"
+    :icon="getFromObject(fieldHelp, ['requestGroup', 'panel', 'icon'], 'fas fa-address-card')"
+    :tooltip-config="tooltipConfig"
     :canremove="false"
     :cancopy="false"
+    :errors="errors"
+    :show="show"
+    :index="0"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
@@ -25,6 +27,8 @@
               field="name"
               :label="getFromObject(fieldHelp, ['requestGroup', 'name', 'label'], 'Name')"
               :desc="getFromObject(fieldHelp, ['requestGroup', 'name', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['requestGroup', 'name', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.name"
               @input="update"
             />
@@ -33,26 +37,30 @@
               field="proposal"
               :label="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'label'], 'Proposal')"
               :desc="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['requestGroup', 'proposal', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.proposal"
               :options="proposalOptions"
               @input="update"
             />
             <custom-select
-              v-if="!simpleInterface"
               v-model="requestGroup.observation_type"
               field="observation_type"
               :label="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'label'], 'Observation Type')"
               :desc="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['requestGroup', 'observation_type', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.observation_type"
               :options="observationTypeOptions"
               @input="update"
             />
             <custom-field
-              v-if="!simpleInterface"
               v-model="requestGroup.ipp_value"
               field="ipp_value"
               :label="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'label'], 'IPP Factor')"
               :desc="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['requestGroup', 'ipp_value', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.ipp_value"
               @input="update"
             />
@@ -93,7 +101,6 @@
         :request="request"
         :available-instruments="availableInstruments"
         :parentshow="show"
-        :profile="profile"
         :observation-type="requestGroup.observation_type"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :errors="getRequestErrors(idx)"
@@ -104,6 +111,7 @@
         :instrument-category-to-name="instrumentCategoryToName"
         :datetime-format="datetimeFormat"
         :field-help="fieldHelp"
+        :tooltip-config="tooltipConfig"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
         @request-updated="requestUpdated"
@@ -152,7 +160,7 @@ import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
-import { generateDurationString, getFromObject } from '@/util';
+import { generateDurationString, getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
 
 export default {
   name: 'RequestGroup',
@@ -216,7 +224,13 @@ export default {
     },
     datetimeFormat: {
       type: String,
-      default: 'YYYY-MM-DD HH:mm:ss'
+      default: defaultDatetimeFormat
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     }
   },
   data: function() {
@@ -244,9 +258,6 @@ export default {
         }
       }
       return _.sortBy(options, 'text');
-    },
-    simpleInterface: function() {
-      return _.get(this.profile, ['profile', 'simple_interface'], false);
     },
     durationDisplay: function() {
       return generateDurationString(this.durationData.duration);

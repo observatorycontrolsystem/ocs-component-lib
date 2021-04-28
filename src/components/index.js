@@ -8,6 +8,7 @@ import {
   CustomField,
   CustomModal,
   CustomSelect,
+  FormPanel,
   RequestGroupCompositionForm,
   SexagesimalCustomField
 } from './RequestGroupComposition';
@@ -25,6 +26,7 @@ export {
   CustomModal,
   CustomSelect,
   DataLoader,
+  FormPanel,
   ObservationDetail,
   ObservationsTable,
   ObservationHistoryPlot,

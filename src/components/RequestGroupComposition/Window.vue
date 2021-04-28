@@ -1,13 +1,15 @@
 <template>
   <form-panel
+    v-if="!getFromObject(fieldHelp, ['window', 'panel', 'hide'], false)"
     :id="'window' + position.requestIndex + position.windowIndex"
-    icon="fas fa-calendar"
-    title="Window"
-    :index="index"
-    :errors="errors"
+    :title="getFromObject(fieldHelp, ['window', 'panel', 'title'], 'Window')"
+    :icon="getFromObject(fieldHelp, ['window', 'panel', 'icon'], 'fas fa-calendar')"
+    :cancopy="getFromObject(fieldHelp, ['window', 'panel', 'canCopy'], true)"
     :canremove="index > 0"
-    :cancopy="true"
+    :errors="errors"
     :show="show"
+    :index="index"
+    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @copy="$emit('copy')"
     @show="show = $event"
@@ -40,7 +42,9 @@
               field="start"
               :label="getFromObject(fieldHelp, ['window', 'start', 'label'], 'Start')"
               :desc="getFromObject(fieldHelp, ['window', 'start', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['window', 'start', 'hide'], false)"
               :datetime-format="datetimeFormat"
+              :tooltip-config="tooltipConfig"
               :errors="errors.start"
               @input="update"
             />
@@ -49,16 +53,19 @@
               field="end"
               :label="getFromObject(fieldHelp, ['window', 'end', 'label'], 'End')"
               :desc="getFromObject(fieldHelp, ['window', 'end', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['window', 'end', 'hide'], false)"
               :datetime-format="datetimeFormat"
+              :tooltip-config="tooltipConfig"
               :errors="errors.end"
               @input="update"
             />
             <custom-select
-              v-if="!simpleInterface"
               v-model="cadence"
               field="cadence"
               :label="getFromObject(fieldHelp, ['window', 'cadence', 'label'], 'Cadence')"
               :desc="getFromObject(fieldHelp, ['window', 'cadence', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['window', 'cadence', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :options="[
                 { text: 'None', value: 'none' },
                 { text: 'Simple Period', value: 'simple' }
@@ -70,6 +77,8 @@
               field="period"
               :label="getFromObject(fieldHelp, ['window', 'period', 'label'], 'Period')"
               :desc="getFromObject(fieldHelp, ['window', 'period', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['window', 'period', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.period"
               @input="update"
             />
@@ -79,6 +88,8 @@
               field="jitter"
               :label="getFromObject(fieldHelp, ['window', 'jitter', 'label'], 'Jitter')"
               :desc="getFromObject(fieldHelp, ['window', 'jitter', 'desc'], '')"
+              :hide="getFromObject(fieldHelp, ['window', 'jitter', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
               :errors="errors.jitter"
               @input="update"
             />
@@ -111,7 +122,7 @@ import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue'
 import CustomDatetime from '@/components/RequestGroupComposition/CustomDatetime.vue';
 import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
 
-import { extractTopLevelErrors, getFromObject } from '@/util.js';
+import { extractTopLevelErrors, getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 
 export default {
@@ -162,12 +173,15 @@ export default {
     parentshow: {
       type: Boolean
     },
-    simpleInterface: {
-      type: Boolean
-    },
     datetimeFormat: {
       type: String,
-      default: 'YYYY-MM-DD HH:mm:ss'
+      default: defaultDatetimeFormat
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     observationType: {
       type: String,

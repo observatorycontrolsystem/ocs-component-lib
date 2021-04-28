@@ -7,8 +7,8 @@
         :request-group="requestGroup"
         :profile="profile"
         :datetime-format="datetimeFormat"
+        :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
-        :simple-interface="simpleInterface"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -73,7 +73,7 @@ import $ from 'jquery';
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
 import { confirmMixin } from '@/mixins/confirmMixins.js';
-import { generateDurationString } from '@/util';
+import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
 
 export default {
   name: 'RequestGroupCompositionForm',
@@ -199,7 +199,13 @@ export default {
     },
     datetimeFormat: {
       type: String,
-      default: 'YYYY-MM-DD HH:mm:ss'
+      default: defaultDatetimeFormat
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     // If the requestGroup prop that is passed in is associated with a draft, pass the ID in so
     // the draft can be updated.
@@ -216,9 +222,6 @@ export default {
     };
   },
   computed: {
-    simpleInterface: function() {
-      return _.get(this.profile, ['profile', 'simple_interface'], false);
-    },
     availableInstrumentTypes: function() {
       return _.get(this.profile, 'available_instrument_types', []);
     },

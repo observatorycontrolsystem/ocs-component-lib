@@ -5,7 +5,9 @@
       field="exposure_count"
       :label="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'label'], 'Exposure Count')"
       :desc="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'desc'], '')"
+      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_count', 'hide'], false)"
       type="number"
+      :tooltip-config="tooltipConfig"
       :errors="errors.exposure_count"
     />
     <custom-field
@@ -13,6 +15,8 @@
       field="exposure_time"
       :label="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'label'], 'Exposure Time')"
       :desc="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'desc'], '')"
+      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'exposure_time', 'hide'], false)"
+      :tooltip-config="tooltipConfig"
       :errors="errors.exposure_time"
     />
     <custom-select
@@ -21,7 +25,9 @@
       field="readout_mode"
       :label="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'label'], 'Readout Mode')"
       :desc="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'desc'], '')"
+      :hide="getFromObject(fieldHelp, ['instrumentConfig', 'readout_mode', 'hide'], false)"
       :options="readoutModeOptions"
+      :tooltip-config="tooltipConfig"
       :errors="errors.mode"
     />
     <div v-for="opticalElementGroup in availableOpticalElementGroups" :key="opticalElementGroup.type">
@@ -30,8 +36,10 @@
         :field="opticalElementGroup.type"
         :label="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'label'], opticalElementGroup.label)"
         :desc="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'desc'], '')"
+        :hide="getFromObject(fieldHelp, ['instrumentConfig', opticalElementGroup.type, 'hide'], false)"
         :options="opticalElementGroup.options"
         lower-options
+        :tooltip-config="tooltipConfig"
         :errors="{}"
         @input="updateOpticalElement"
       />
@@ -42,6 +50,8 @@
         field="rotator_mode"
         :label="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'label'], 'Rotator Mode')"
         :desc="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'desc'], '')"
+        :hide="getFromObject(fieldHelp, ['instrumentConfig', 'rotator_mode', 'hide'], false)"
+        :tooltip-config="tooltipConfig"
         :errors="errors.rotator_mode"
         :options="rotatorModeOptions"
       />
@@ -52,6 +62,8 @@
         v-model="instrumentConfig.extra_params[field]"
         :label="getFromObject(fieldHelp, ['instrumentConfig', field, 'label'], field)"
         :desc="getFromObject(fieldHelp, ['instrumentConfig', field, 'desc'], '')"
+        :hide="getFromObject(fieldHelp, ['instrumentConfig', field, 'desc'], false)"
+        :tooltip-config="tooltipConfig"
         :errors="null"
         @input="updateInstrumentConfigExtraParam($event, field)"
       />
@@ -64,7 +76,7 @@ import { toRef } from '@vue/composition-api';
 import baseInstrumentConfig from '@/composables/baseInstrumentConfig.js';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
-import { getFromObject } from '@/util';
+import { getFromObject, defaultTooltipConfig } from '@/util';
 
 export default {
   name: 'InstrumentConfigForm',
@@ -91,6 +103,12 @@ export default {
     },
     show: {
       type: Boolean
+    },
+    tooltipConfig: {
+      type: Object,
+      default: () => {
+        return defaultTooltipConfig;
+      }
     },
     fieldHelp: {
       type: Object,
