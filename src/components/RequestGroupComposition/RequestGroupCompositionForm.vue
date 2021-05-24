@@ -253,11 +253,10 @@ export default {
         type: 'POST',
         url: `${this.observationPortalApiBaseUrl}/api/requestgroups/validate/`,
         data: JSON.stringify(this.requestGroup),
-        contentType: 'application/json',
-        success: data => {
-          this.requestGroupErrors = data.errors;
-          this.durationData = data.request_durations;
-        }
+        contentType: 'application/json'
+      }).done(data => {
+        this.requestGroupErrors = data.errors;
+        this.durationData = data.request_durations;
       });
     }, 200),
     getDurationString: function() {
