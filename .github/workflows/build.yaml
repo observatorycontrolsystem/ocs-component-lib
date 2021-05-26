@@ -27,7 +27,10 @@ jobs:
     - name: Build library
       run: npm run build
     - name: Run tests
-      run: npm run test:unit
+      run: |
+        npm install --no-save @vue/composition-api
+        npm run test:unit
+        npm prune @vue/composition-api
 
   build_and_publish_package:
     # Only run this job if the run_tests job has succeeded, and if

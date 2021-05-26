@@ -100,8 +100,14 @@ npm run build
 ```
 
 ### Run unit tests
+The tests require `@vue/composition-api` to be installed. For some reason, having that library set as a devDependency in
+`package.json` breaks local development when a local copy of library is installed in a local app that is using it. As a
+workaround, install and then prune `@vue/composition-api` before and after running tests.
+
 ```
+npm install --no-save @vue/composition-api
 npm run test:unit
+npm prune @vue/composition-api
 ```
 
 ### Lint files
