@@ -59,7 +59,7 @@
             >
               <b-input-group-append slot="inline-input" is-text>
                 <b-form-checkbox
-                  id="guiding-optional"
+                  :id="'guiding-optional-' + position.requestIndex + '-' + position.configurationIndex"
                   v-model="configuration.guiding_config.optional"
                   name="guiding-optional"
                   :value="true"
