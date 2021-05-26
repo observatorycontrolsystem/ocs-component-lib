@@ -237,12 +237,6 @@ export default {
     }
   },
   watch: {
-    requestGroup: {
-      deep: true,
-      handler: function(oldValue, newValue) {
-        console.log('the requestGroup changed', oldValue, newValue);
-      }
-    },
     loadedDraftId: function(newinitialDraftId) {
       this.draftId = newinitialDraftId;
     }
