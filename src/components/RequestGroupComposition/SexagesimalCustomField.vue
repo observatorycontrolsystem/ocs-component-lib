@@ -31,6 +31,7 @@ export default {
         return ['ra', 'dec'].indexOf(value) > -1;
       }
     },
+    // Decimal value of the coordinate
     value: {
       validator: function(value) {
         return value === null || value === undefined || typeof value === 'string' || typeof value === 'number';
@@ -76,8 +77,20 @@ export default {
   },
   watch: {
     value: function(value) {
-      this.displayValue = value;
-      this.update();
+      // `value` will always be in decimal, but `displayValue` can be either in decimal or sexigesimal. Try to convert `displayValue` to
+      // decimal, and compare that to `value` to decide whether they are the same or not - only update the `displayValue` if they are
+      // different.
+      let displayValueAsDecimal;
+      if (this.coordinate === 'ra') {
+        displayValueAsDecimal = sexagesimalRaToDecimal(this.displayValue);
+      } else {
+        displayValueAsDecimal = sexagesimalDecToDecimal(this.displayValue);
+      }
+
+      if (value !== displayValueAsDecimal) {
+        this.displayValue = value;
+        this.update();
+      }
     }
   },
   methods: {
