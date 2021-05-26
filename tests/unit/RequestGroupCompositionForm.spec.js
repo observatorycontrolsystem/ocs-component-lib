@@ -7,6 +7,7 @@ import VueCompositionAPI from '@vue/composition-api';
 
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
+import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import { RequestGroupCompositionForm } from '@/components/RequestGroupComposition';
 
 // Mock out remote network calls
@@ -752,4 +753,42 @@ describe('RequestGroupCompositionForm.vue', () => {
     expect(sideNavSubmitButton.length).toBe(1);
     expect(sideNavSubmitButton.at(0).attributes().disabled).toBe('disabled');
   });
+
+  it('two configuration panels are rendered when there are 2 configurations', async () => {
+    let testRequestGroup = {
+      observation_type: 'NORMAL',
+      requests: [{
+        configurations: [
+          {
+            type: '',
+            instrument_type: '',
+            instrument_configs: [],
+            guiding_config: {
+              optional: true,
+              mode: 'default'
+            },
+            acquisition_config: {},
+            target: {},
+            constraints: {}
+          },
+          {
+            type: '',
+            instrument_type: '',
+            instrument_configs: [],
+            guiding_config: {
+              optional: true,
+              mode: 'default'
+            },
+            acquisition_config: {},
+            target: {},
+            constraints: {}
+          }
+        ]
+      }]
+    }
+    const wrapper = wrapperFactory('http://localhost', instrumentsData, profileData, testRequestGroup);
+    const configurations = wrapper.findAllComponents(Configuration);
+    expect(configurations).toHaveLength(2);
+  });
+
 });
