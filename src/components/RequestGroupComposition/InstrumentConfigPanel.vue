@@ -23,7 +23,11 @@
           <slot name="instrument-config-help" :data="{ instrumentConfig: instrumentConfig, position: position }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
-          <slot name="instrument-config-form" :data="{ instrumentConfig: instrumentConfig, errors: errors, show: show, position: position }">
+          <slot
+            name="instrument-config-form"
+            :update="update"
+            :data="{ instrumentConfig: instrumentConfig, errors: errors, show: show, position: position }"
+          >
             <instrument-config-form
               :show="show"
               :instrument-config="instrumentConfig"
@@ -32,6 +36,7 @@
               :errors="errors"
               :tooltip-config="tooltipConfig"
               :form-config="formConfig"
+              @instrument-config-update="update"
             />
           </slot>
         </b-col>
@@ -113,15 +118,10 @@ export default {
       return extractTopLevelErrors(this.errors);
     }
   },
-  watch: {
-    instrumentConfig: {
-      deep: true,
-      handler: function() {
-        this.$emit('instrumentconfigupdate', { position: this.position });
-      }
-    }
-  },
   methods: {
+    update: function() {
+      this.$emit('instrumentconfigupdate', { position: this.position });
+    },
     getFromObject(obj, path, defaultValue) {
       return getFromObject(obj, path, defaultValue);
     }

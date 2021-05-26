@@ -1,13 +1,18 @@
 import _ from 'lodash';
 import { ref, computed, watch } from '@vue/composition-api';
 
-export default function baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument) {
+export default function baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument, context) {
   const opticalElementUpdates = ref(0);
+
+  const update = () => {
+    context.emit('instrument-config-update');
+  };
 
   const updateOpticalElement = () => {
     // The optical element fields are not reactive as they change/ are deleted/ don't exist on start.
     // Increment this reactive variable to watch for changed to the optical elements
     opticalElementUpdates.value += 1;
+    update();
   };
 
   const updateInstrumentConfigExtraParam = (value, field) => {
@@ -16,6 +21,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
       // for required extra params only check if the field exists
       instrumentConfig.value.extra_params[field] = undefined;
     }
+    update();
   };
 
   const updateBinning = () => {
@@ -23,6 +29,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
       if (instrumentConfig.value.mode === readoutModeOptions.value[mode].value) {
         instrumentConfig.value.bin_x = readoutModeOptions.value[mode].binning;
         instrumentConfig.value.bin_y = readoutModeOptions.value[mode].binning;
+        update();
       }
     }
   };
@@ -118,6 +125,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     if (hasModes('readout')) {
       instrumentConfig.value.mode = availableInstruments.value[selectedInstrument.value].modes.readout.default;
       updateBinning();
+      update();
     }
   });
 
@@ -127,6 +135,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     } else {
       instrumentConfig.value.rotator_mode = '';
     }
+    update();
   });
 
   watch(requiredRotatorModeFields, (newValue, oldValue) => {
@@ -138,6 +147,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     for (let idx in newValue) {
       instrumentConfig.value.extra_params[newValue[idx]] = defaultRequiredFieldValue;
     }
+    update();
   });
 
   watch(availableOpticalElementGroups, value => {
@@ -161,6 +171,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     requiredRotatorModeFields,
     availableOpticalElementGroups,
     // Methods
+    update,
     updateBinning,
     updateOpticalElement,
     updateInstrumentConfigExtraParam

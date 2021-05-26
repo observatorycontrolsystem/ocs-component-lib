@@ -9,6 +9,7 @@
       type="number"
       :tooltip-config="tooltipConfig"
       :errors="errors.exposure_count"
+      @input="update"
     />
     <custom-field
       v-model="instrumentConfig.exposure_time"
@@ -18,6 +19,7 @@
       :hide="getFromObject(formConfig, ['instrumentConfig', 'exposure_time', 'hide'], false)"
       :tooltip-config="tooltipConfig"
       :errors="errors.exposure_time"
+      @input="update"
     />
     <custom-select
       v-if="readoutModeOptions.length > 1"
@@ -29,6 +31,7 @@
       :options="readoutModeOptions"
       :tooltip-config="tooltipConfig"
       :errors="errors.mode"
+      @input="update"
     />
     <div v-for="opticalElementGroup in availableOpticalElementGroups" :key="opticalElementGroup.type">
       <custom-select
@@ -54,6 +57,7 @@
         :tooltip-config="tooltipConfig"
         :errors="errors.rotator_mode"
         :options="rotatorModeOptions"
+        @input="update"
       />
       <!-- TODO: Validate required field values -->
       <custom-field
@@ -128,6 +132,7 @@ export default {
       rotatorModeOptions,
       requiredRotatorModeFields,
       availableOpticalElementGroups,
+      update,
       updateBinning,
       updateOpticalElement,
       updateInstrumentConfigExtraParam
@@ -141,6 +146,7 @@ export default {
       requiredRotatorModeFields,
       availableOpticalElementGroups,
       // Methods
+      update,
       updateBinning,
       updateOpticalElement,
       updateInstrumentConfigExtraParam

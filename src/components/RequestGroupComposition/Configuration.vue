@@ -148,7 +148,7 @@
         <slot name="instrument-config-help" :data="data.data"></slot>
       </template>
       <template #instrument-config-form="data">
-        <slot name="instrument-config-form" :data="data.data"></slot>
+        <slot name="instrument-config-form" :data="data.data" :update="data.update"></slot>
       </template>
     </instrument-config-panel>
     <target
@@ -365,7 +365,7 @@ export default {
   watch: {
     instrumentCategoryOptions: function(options) {
       if (!this.isAvailableOption(this.selectedInstrumentCategory, options)) {
-        this.selectedInstrumentCategory = this.getInstrumentCategory();
+        this.selectedInstrumentCategory = this.getInstrumentCategory(options);
       }
     },
     availableInstrumentOptions: function(options) {

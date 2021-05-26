@@ -30,7 +30,7 @@
           <slot name="instrument-config-help" :data="data.data"></slot>
         </template>
         <template #instrument-config-form="data">
-          <slot name="instrument-config-form" :data="data.data"></slot>
+          <slot name="instrument-config-form" :data="data.data" :update="data.update"></slot>
         </template>
         <template #target-help="data">
           <slot name="target-help" :data="data.data"></slot>
