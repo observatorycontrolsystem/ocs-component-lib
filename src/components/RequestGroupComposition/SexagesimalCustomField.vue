@@ -45,6 +45,10 @@ export default {
     hide: {
       type: Boolean
     },
+    // Whether to collaspe field to just display the value.
+    collapse: {
+      type: Boolean
+    },
     label: {
       type: String,
       required: true
@@ -70,10 +74,14 @@ export default {
   },
   data: function() {
     return {
-      show: this.$parent.show,
       displayValue: this.value,
       helpText: this.getHelpText(this.value)
     };
+  },
+  computed: {
+    show: function() {
+      return !this.collapse;
+    }
   },
   watch: {
     value: function(value) {

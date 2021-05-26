@@ -46,6 +46,7 @@
                 :desc="getFromObject(formConfig, ['target', 'ra', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'ra', 'hide'], false)"
                 :tooltip-config="tooltipConfig"
+                :collapse="!show"
                 :errors="errors.ra"
                 @input="update"
               />
@@ -57,6 +58,7 @@
                 :desc="getFromObject(formConfig, ['target', 'dec', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'dec', 'hide'], false)"
                 :tooltip-config="tooltipConfig"
+                :collapse="!show"
                 :errors="errors.dec"
                 @input="update"
               />
