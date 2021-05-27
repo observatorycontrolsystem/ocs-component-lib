@@ -21,22 +21,20 @@
         </b-col>
         <b-col :md="show ? 6 : 12">
           <b-form>
-            <slot name="target-name-field" :data="{ target: target, errors: errors.name, position: position }">
+            <slot name="target-name-field" :update="update" :data="{ target: target, errors: errors.name, position: position }">
               <custom-field v-model="target.name" label="Name" field="name" :errors="errors.name" @input="update" />
             </slot>
-            <slot name="target-type-field" :data="{ target: target, errors: errors.name, position: position }">
-              <custom-select
-                v-model="target.type"
-                field="type"
-                :label="getFromObject(formConfig, ['target', 'type', 'label'], 'Type')"
-                :desc="getFromObject(formConfig, ['target', 'type', 'desc'], '')"
-                :hide="getFromObject(formConfig, ['target', 'type', 'hide'], false)"
-                :errors="errors.type"
-                :tooltip-config="tooltipConfig"
-                :options="targetTypeOptions"
-                @input="update"
-              />
-            </slot>
+            <custom-select
+              v-model="target.type"
+              field="type"
+              :label="getFromObject(formConfig, ['target', 'type', 'label'], 'Type')"
+              :desc="getFromObject(formConfig, ['target', 'type', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['target', 'type', 'hide'], false)"
+              :errors="errors.type"
+              :tooltip-config="tooltipConfig"
+              :options="targetTypeOptions"
+              @input="update"
+            />
             <span v-show="target.type === 'ICRS'" class="sidereal">
               <sexagesimal-custom-field
                 v-model="target.ra"

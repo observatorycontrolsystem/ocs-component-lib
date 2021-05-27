@@ -64,6 +64,7 @@
                   name="guiding-optional"
                   :value="true"
                   :unchecked-value="false"
+                  @input="update"
                 >
                   Optional
                 </b-form-checkbox>
@@ -165,10 +166,7 @@
         <slot name="target-help" :data="data.data"></slot>
       </template>
       <template #target-name-field="data">
-        <slot name="target-name-field" :data="data.data"></slot>
-      </template>
-      <template #target-type-field="data">
-        <slot name="target-type-field" :data="data.data"></slot>
+        <slot name="target-name-field" :data="data.data" :update="data.update"></slot>
       </template>
     </target>
     <constraints
@@ -495,7 +493,7 @@ export default {
       this.update();
     },
     configurationFillDuration: function() {
-      this.$emit('configurationfillduration', this.index);
+      this.$emit('configuration-fill-duration', this.index);
     },
     constraintsUpdated: function() {
       console.log('constraintsUpdated');

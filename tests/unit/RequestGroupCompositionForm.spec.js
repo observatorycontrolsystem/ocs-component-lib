@@ -757,38 +757,39 @@ describe('RequestGroupCompositionForm.vue', () => {
   it('two configuration panels are rendered when there are 2 configurations', async () => {
     let testRequestGroup = {
       observation_type: 'NORMAL',
-      requests: [{
-        configurations: [
-          {
-            type: '',
-            instrument_type: '',
-            instrument_configs: [],
-            guiding_config: {
-              optional: true,
-              mode: 'default'
+      requests: [
+        {
+          configurations: [
+            {
+              type: '',
+              instrument_type: '',
+              instrument_configs: [],
+              guiding_config: {
+                optional: true,
+                mode: 'default'
+              },
+              acquisition_config: {},
+              target: {},
+              constraints: {}
             },
-            acquisition_config: {},
-            target: {},
-            constraints: {}
-          },
-          {
-            type: '',
-            instrument_type: '',
-            instrument_configs: [],
-            guiding_config: {
-              optional: true,
-              mode: 'default'
-            },
-            acquisition_config: {},
-            target: {},
-            constraints: {}
-          }
-        ]
-      }]
-    }
+            {
+              type: '',
+              instrument_type: '',
+              instrument_configs: [],
+              guiding_config: {
+                optional: true,
+                mode: 'default'
+              },
+              acquisition_config: {},
+              target: {},
+              constraints: {}
+            }
+          ]
+        }
+      ]
+    };
     const wrapper = wrapperFactory('http://localhost', instrumentsData, profileData, testRequestGroup);
     const configurations = wrapper.findAllComponents(Configuration);
     expect(configurations).toHaveLength(2);
   });
-
 });

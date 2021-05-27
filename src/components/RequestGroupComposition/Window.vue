@@ -37,7 +37,7 @@
         <b-col :md="show ? 6 : 12">
           <b-form>
             <custom-datetime
-              v-show="observationType != 'RAPID_RESPONSE'"
+              v-if="observationType !== 'RAPID_RESPONSE'"
               v-model="window.start"
               field="start"
               :label="getFromObject(formConfig, ['window', 'start', 'label'], 'Start')"

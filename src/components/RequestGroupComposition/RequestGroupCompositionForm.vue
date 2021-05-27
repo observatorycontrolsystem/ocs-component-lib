@@ -36,10 +36,7 @@
           <slot name="target-help" :data="data.data"></slot>
         </template>
         <template #target-name-field="data">
-          <slot name="target-name-field" :data="data.data"></slot>
-        </template>
-        <template #target-type-field="data">
-          <slot name="target-type-field" :data="data.data"></slot>
+          <slot name="target-name-field" :data="data.data" :update="data.update"></slot>
         </template>
         <template #constraints-help="data">
           <slot name="constraints-help" :data="data.data"></slot>
