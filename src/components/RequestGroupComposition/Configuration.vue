@@ -260,12 +260,7 @@ export default {
   data: function() {
     return {
       show: true,
-      acquireHistory: {
-        mode: '',
-        extra_params: {}
-      },
       selectedInstrumentCategory: this.getInstrumentCategory(),
-      selectedImagerGuidingOption: null,
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.index
@@ -323,6 +318,7 @@ export default {
       if (this.availableInstruments[this.configuration.instrument_type]) {
         let requiredModeFields = [];
         let modes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'acquisition', 'modes'], []);
+        let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'acquisition', 'default'], '');
         for (let i in modes) {
           requiredModeFields = [];
           if ('extra_params' in modes[i].validation_schema) {
@@ -333,7 +329,8 @@ export default {
           options.push({
             value: modes[i].code,
             text: modes[i].name,
-            requiredFields: requiredModeFields
+            requiredFields: requiredModeFields,
+            default: modes[i].code === defaultMode
           });
         }
       }
@@ -341,7 +338,7 @@ export default {
     },
     requiredAcquireModeFields: function() {
       for (let i in this.acquireModeOptions) {
-        if (this.acquireModeOptions[i].value == this.configuration.acquisition_config.mode) {
+        if (this.acquireModeOptions[i].value === this.configuration.acquisition_config.mode) {
           return this.acquireModeOptions[i].requiredFields;
         }
       }
@@ -351,9 +348,14 @@ export default {
       let options = [];
       if (this.configuration.instrument_type in this.availableInstruments) {
         let modes = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'guiding', 'modes'], []);
+        let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'guiding', 'default'], '');
         for (let mode of modes) {
           if (mode.schedulable) {
-            options.push({ value: mode.code, text: mode.name });
+            options.push({
+              value: mode.code,
+              text: mode.name,
+              default: mode.code === defaultMode
+            });
           }
         }
       }
@@ -381,17 +383,23 @@ export default {
       }
     },
     guideModeOptions: function(options) {
-      // TODO: Set to default mode or the first one
-      if (!this.isAvailableOption(this.configuration.guiding_config.mode, options)) {
+      // Set to default mode if there is one, otherwise leave the mode set as it is if it is a valid
+      // mode, or set it to the first option
+      let defaultOptionMode;
+      for (let option of options) {
+        if (option.default) {
+          defaultOptionMode = option.value;
+        }
+      }
+      if (defaultOptionMode) {
+        this.configuration.guiding_config.mode = defaultOptionMode;
+      } else if (!this.isAvailableOption(this.configuration.guiding_config.mode, options)) {
         this.configuration.guiding_config.mode = _.get(options, [0, 'value'], '');
       }
     },
-    selectedImagerGuidingOption: function(value) {
-      this.setGuidingFields(value);
-    },
     'configuration.instrument_type': function(newInstrumentType, oldInstrumentType) {
       if (oldInstrumentType !== newInstrumentType) {
-        this.configureAcquisitionConfig(this.configuration.type);
+        this.configureAcquisitionConfig({ changed: false, newValue: this.configuration.type, oldValue: this.configuration.type });
         this.configureGuidingConfig();
         this.update();
       }
@@ -399,27 +407,20 @@ export default {
     },
     'configuration.acquisition_config.mode': function(newValue, oldValue) {
       if (oldValue !== 'OFF' && newValue !== 'OFF') {
-        let oldExtraParams = this.configuration.acquisition_config.extra_params;
-        if (newValue === this.acquireHistory.mode) {
-          this.configuration.acquisition_config.extra_params = this.acquireHistory.extra_params;
-        } else {
-          this.configuration.acquisition_config.extra_params = {};
-        }
-        this.acquireHistory.mode = oldValue;
-        this.acquireHistory.extra_params = oldExtraParams;
+        this.configuration.acquisition_config.extra_params = {};
         this.update();
       }
     },
-    'configuration.type': function(value) {
-      this.configureAcquisitionConfig(value);
-      if (!value.includes('REPEAT')) {
+    'configuration.type': function(newValue, oldValue) {
+      this.configureAcquisitionConfig({ changed: true, newValue: newValue, oldValue: oldValue });
+      if (!newValue.includes('REPEAT')) {
         this.configuration.repeat_duration = undefined;
       }
     }
   },
   created: function() {
     if (this.configuration.acquisition_config.mode === '') {
-      this.configureAcquisitionConfig(this.configuration.type);
+      this.configureAcquisitionConfig({ changed: false, newValue: this.configuration.type, oldValue: this.configuration.type });
     }
     if (this.configuration.guiding_config.mode === '') {
       this.configureGuidingConfig();
@@ -534,43 +535,14 @@ export default {
       }
       return false;
     },
-    saveAcquireFields: function() {
-      if (this.configuration.acquisition_config.mode !== 'OFF') {
-        this.acquireHistory.mode = this.configuration.acquisition_config.mode;
-        this.acquireHistory.extra_params = this.configuration.acquisition_config.extra_params;
-      }
-    },
     setAcquireFields: function() {
-      // TODO: Don't keep same acquire mode if instrument type changes - it's an entirely different set of modes. However, if the configuration
-      // type changed, you're still using the same instrument with the same modes and the same default mode, and could very well have
-      // set the mode first, and at this point you def don't want it to change. Check both the first case as well as the history mode.
-
-      if (this.acquisitionModeIsAvailable(this.configuration.acquisition_config.mode, this.configuration.acquisition_config.extra_params)) {
-        // The mode that is already set works!
-        return;
-      }
-
-      if (this.acquireModeOptions.length < 1) {
-        // This case can happen for instruments that only have OFF as an acquisition mode, but
-        // that mode is not set in ConfigDB.
-        this.turnOffAcquisition();
-        return;
-      }
-
       let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'acquisition', 'default'], '');
-      if (this.acquisitionModeIsAvailable(this.acquireHistory.mode, this.acquireHistory.extra_params)) {
-        this.configuration.acquisition_config.mode = this.acquireHistory.mode;
-        this.configuration.acquisition_config.extra_params = this.acquireHistory.extra_params;
-      } else if (defaultMode) {
+      if (defaultMode) {
         this.configuration.acquisition_config.mode = defaultMode;
-        if (defaultMode === this.acquireHistory.mode) {
-          this.configuration.acquisition_config.extra_params = this.acquireHistory.extra_params;
-        } else {
-          this.configuration.acquisition_config.extra_params = {};
-        }
-      } else if (this.acquireModeOptions.length > 0) {
-        this.saveAcquireFields();
-        this.configuration.acquisition_config.mode = this.acquireModeOptions[0].value;
+        this.configuration.acquisition_config.extra_params = {};
+      } else if (!this.acquisitionModeIsAvailable(this.configuration.acquisition_config.mode, this.configuration.acquisition_config.extra_params)) {
+        // The mode that is already set does not work, set to the first available option
+        this.configuration.acquisition_config.mode = _.get(this.acquireModeOptions, [0, 'value'], '');
         this.configuration.acquisition_config.extra_params = {};
       }
       this.update();
@@ -579,19 +551,33 @@ export default {
       let defaultMode = _.get(this.availableInstruments, [this.configuration.instrument_type, 'modes', 'guiding', 'default'], '');
       if (defaultMode) {
         this.configuration.guiding_config.mode = defaultMode;
-      } else {
+      } else if (!this.isAvailableOption(this.configuration.guiding_config.mode, this.guideModeOptions)) {
+        // The mode that is set does not work, set it to the first available option
         this.configuration.guiding_config.mode = _.get(this.guideModeOptions, [0, 'value'], '');
       }
+      this.update();
     },
     turnOffAcquisition: function() {
-      this.saveAcquireFields();
       this.configuration.acquisition_config.mode = 'OFF';
       this.configuration.acquisition_config.extra_params = {};
       this.update();
     },
     configureAcquisitionConfig: function(configurationType) {
-      if (this.configurationTypesForceAcquisitionOff.indexOf(configurationType) > -1) {
+      configurationType = configurationType || { changed: false, newValue: '', oldValue: '' };
+      let oldConfigurationTypeIsForceOff = this.configurationTypesForceAcquisitionOff.indexOf(configurationType.oldValue) > -1;
+      let newConfigurationTypeIsForceOff = this.configurationTypesForceAcquisitionOff.indexOf(configurationType.newValue) > -1;
+
+      if (this.acquireModeOptions.length < 1) {
+        // This case can happen for instruments that only have OFF as an acquisition mode, but
+        // that mode is not set in ConfigDB.
         this.turnOffAcquisition();
+      } else if (newConfigurationTypeIsForceOff) {
+        this.turnOffAcquisition();
+      } else if (configurationType.changed && !oldConfigurationTypeIsForceOff) {
+        // The configuration type changed from something that was not force off, so leave the
+        // acquisition settings as is. If the configuration type had changed from a type that was
+        // force acquisition off, then the acquire fields would need to be reset, which happens in the else block.
+        return;
       } else {
         this.setAcquireFields();
       }
