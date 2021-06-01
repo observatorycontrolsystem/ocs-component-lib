@@ -95,6 +95,11 @@ export default {
       type: Object,
       required: true
     },
+    // The initial RequestGroup data. The basic structure of a RequestGroup should be included in the
+    // object, including at least one request with one configuration, location, and window, and with the
+    // observation_type set. Each configuration should have at least one instrument_config, and also a section for
+    // target, guiding_config, acquisition_config, and constraints. The individual fields do not need to be all filled
+    // out, but the sections should be there.
     requestGroup: {
       type: Object,
       default: () => {
@@ -166,6 +171,7 @@ export default {
         };
       }
     },
+    // Object mapping site code to a color
     siteCodeToColor: {
       type: Object,
       required: false,
@@ -173,6 +179,7 @@ export default {
         return {};
       }
     },
+    // Object mapping site code to a human readable site name
     siteCodeToName: {
       type: Object,
       required: false,
@@ -180,25 +187,58 @@ export default {
         return {};
       }
     },
+    // Optionally show an airmass plot on the window panel of the form when the RequestGroup is valid
     showAirmassPlot: {
       type: Boolean
     },
+    // Object mapping instrument category code to human readable name.
     instrumentCategoryToName: {
       type: Object,
       default: () => {
         return {};
       }
     },
+    // Object containing configuration for form panels and form fields. Top level fields are keys
+    // referencing a panel, and map to an object that can contain a `panel` key to configure panel
+    // level information, and keys for each field that show up in that panel to configure that field.
+    // The structure is as follows:
+    // {
+    //   requestGroup: {
+    //     panel: {
+    //       title: 'Override RequestGroup panel title'
+    //     },
+    //     observation_type: {
+    //       label: 'Override observation_type field label',
+    //       desc: 'Description of observatio type that will show up in the tooltip'
+    //     },
+    //     ipp_value: {
+    //       hide: true // Hide this field on the form
+    //     }
+    //   },
+    //   request: {
+    //     acceptability_threshold: {
+    //       desc: 'Acceptability threshold description'
+    //     }
+    //   },
+    //   configuration: {
+    //     instrument_category: {
+    //       hide: simpleInterface,
+    //       label: 'Observation Type'
+    //     }
+    //   }
+    // }
     formConfig: {
       type: Object,
       default: () => {
         return {};
       }
     },
+    // Format of datetimes displayed on the form
     datetimeFormat: {
       type: String,
       default: defaultDatetimeFormat
     },
+    // Tooltip configuration object https://bootstrap-vue.org/docs/directives/tooltip
     tooltipConfig: {
       type: Object,
       default: () => {
