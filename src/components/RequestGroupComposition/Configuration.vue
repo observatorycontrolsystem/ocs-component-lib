@@ -566,7 +566,6 @@ export default {
       configurationType = configurationType || { changed: false, newValue: '', oldValue: '' };
       let oldConfigurationTypeIsForceOff = this.configurationTypesForceAcquisitionOff.indexOf(configurationType.oldValue) > -1;
       let newConfigurationTypeIsForceOff = this.configurationTypesForceAcquisitionOff.indexOf(configurationType.newValue) > -1;
-
       if (this.acquireModeOptions.length < 1) {
         // This case can happen for instruments that only have OFF as an acquisition mode, but
         // that mode is not set in ConfigDB.

@@ -133,7 +133,6 @@ export default {
       requiredRotatorModeFields,
       availableOpticalElementGroups,
       update,
-      updateBinning,
       updateOpticalElement,
       updateInstrumentConfigExtraParam
     } = baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument, context);
@@ -147,7 +146,6 @@ export default {
       availableOpticalElementGroups,
       // Methods
       update,
-      updateBinning,
       updateOpticalElement,
       updateInstrumentConfigExtraParam
     };

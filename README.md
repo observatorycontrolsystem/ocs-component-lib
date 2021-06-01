@@ -6,7 +6,7 @@ Vue component library and utilities for an astronomical observatory control syst
 ## Usage
 
 ### Dependencies
-This library depends on a few external libraries. The following are installed as peer dependencies when you install the library:
+This library depends on a few external libraries. The following are peer dependencies of the library:
 
 - [BootstrapVue](https://bootstrap-vue.org/)
 - [Bootstrap](https://getbootstrap.com/)
@@ -14,6 +14,8 @@ This library depends on a few external libraries. The following are installed as
 - [Lodash](https://lodash.com/)
 - [Momentjs](https://momentjs.com/)
 - [Visjs](https://visjs.org/)
+- [vue-ctk-date-time-picker](https://github.com/chronotruck/vue-ctk-date-time-picker)
+- [@vue/composition-api](https://github.com/vuejs/composition-api)
 
 [Font Awesome 5](https://fontawesome.com/) is used for icon support. It must be included in your application.
 
@@ -37,6 +39,15 @@ import { OCSComponentLib } from 'ocs-component-lib';
 
 Vue.use(BootstrapVue);
 Vue.use(OCSComponentLib);
+```
+
+If you are using a component from the library that uses the composition API, like the RequestGroupCompositionForm, add
+the following to your entrypoint as well:
+
+```
+import VueCompositionAPI from '@vue/composition-api';
+
+Vue.use(VueCompositionAPI);
 ```
 
 ### Using the utilities
