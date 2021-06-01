@@ -1,6 +1,6 @@
 <template>
   <b-row>
-    <b-col>
+    <b-col class="m-0 p-0">
       <request-group
         :errors="requestGroupErrors"
         :duration-data="durationData"
@@ -46,8 +46,9 @@
         </template>
       </request-group>
     </b-col>
-    <b-col cols="auto">
+    <b-col cols="auto" class="m-0 p-0">
       <request-group-side-nav
+        class="pr-0"
         :request-group="requestGroup"
         :errors="requestGroupErrors"
         :draft-id="draftId"
