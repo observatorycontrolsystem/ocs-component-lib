@@ -24,16 +24,6 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     update();
   };
 
-  const updateBinning = () => {
-    for (let mode in readoutModeOptions.value) {
-      if (instrumentConfig.value.mode === readoutModeOptions.value[mode].value) {
-        instrumentConfig.value.bin_x = readoutModeOptions.value[mode].binning;
-        instrumentConfig.value.bin_y = readoutModeOptions.value[mode].binning;
-        update();
-      }
-    }
-  };
-
   const hasModes = modeType => {
     return modeType in _.get(availableInstruments.value, [selectedInstrument.value, 'modes'], {});
   };
@@ -44,8 +34,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
       for (let rm in availableInstruments.value[selectedInstrument.value].modes.readout.modes) {
         readoutModes.push({
           text: availableInstruments.value[selectedInstrument.value].modes.readout.modes[rm].name,
-          value: availableInstruments.value[selectedInstrument.value].modes.readout.modes[rm].code,
-          binning: availableInstruments.value[selectedInstrument.value].modes.readout.modes[rm].validation_schema.bin_x.default
+          value: availableInstruments.value[selectedInstrument.value].modes.readout.modes[rm].code
         });
       }
     }
@@ -113,18 +102,10 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     }
   });
 
-  watch(
-    () => instrumentConfig.value.mode,
-    () => {
-      updateBinning();
-    }
-  );
-
   watch(readoutModeOptions, () => {
     // TODO: implement history
     if (hasModes('readout')) {
       instrumentConfig.value.mode = availableInstruments.value[selectedInstrument.value].modes.readout.default;
-      updateBinning();
       update();
     }
   });
@@ -172,7 +153,6 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     availableOpticalElementGroups,
     // Methods
     update,
-    updateBinning,
     updateOpticalElement,
     updateInstrumentConfigExtraParam
   };
