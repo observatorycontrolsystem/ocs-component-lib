@@ -99,7 +99,7 @@ export default {
           let current_time = last_time;
           plotSites.add({
             id: i,
-            content: this.siteCodeToName[site],
+            content: _.get(this.siteCodeToName, [site], site),
             options: {
               drawPoints: {
                 enabled: true,
@@ -120,7 +120,7 @@ export default {
               i++;
               plotSites.add({
                 id: i,
-                content: this.siteCodeToName[site],
+                content: _.get(this.siteCodeToName, [site], site),
                 options: {
                   drawPoints: {
                     enabled: true,
@@ -142,7 +142,7 @@ export default {
                 label: {
                   content:
                     'Site: ' +
-                    this.siteCodeToName[site] +
+                    _.get(this.siteCodeToName, [site], site) +
                     '<br>Time: ' +
                     airmass_times[p].replace('T', ' ') +
                     '<br>Airmass: ' +

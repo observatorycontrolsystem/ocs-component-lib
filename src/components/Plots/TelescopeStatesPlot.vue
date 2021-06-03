@@ -156,7 +156,7 @@ export default {
           used_telescopes[site]++;
           plotSites.add({
             id: g,
-            content: this.siteCodeToName[site] + ' ' + used_telescopes[site],
+            content: _.get(this.siteCodeToName, [site], site) + ' ' + used_telescopes[site],
             title: sorted_telescopes[telescope],
             style: 'color: ' + this.siteCodeToColor[sorted_telescopes[telescope].split('.')[0]] + ';' + 'width: 130px;'
           });
