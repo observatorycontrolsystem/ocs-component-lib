@@ -139,8 +139,6 @@ const observationFactory = (state, id) => {
               mode: 'default',
               exposure_time: 100.0,
               exposure_count: 2,
-              bin_x: 1,
-              bin_y: 1,
               rotator_mode: '',
               extra_params: {},
               rois: []

@@ -333,18 +333,7 @@ const instrumentsData = {
             overhead: 57.0,
             code: 'default',
             schedulable: true,
-            validation_schema: {
-              bin_x: {
-                type: 'integer',
-                allowed: [1],
-                default: 1
-              },
-              bin_y: {
-                type: 'integer',
-                allowed: [1],
-                default: 1
-              }
-            }
+            validation_schema: {}
           }
         ],
         default: 'default'

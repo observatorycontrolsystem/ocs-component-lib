@@ -58,8 +58,6 @@ const requestFactory = (state = 'PENDING') => {
         instrument_type: 'instrument_a',
         instrument_configs: [
           {
-            bin_x: 1,
-            bin_y: 1,
             exposure_count: 1,
             exposure_time: '60',
             mode: 'default',

@@ -118,8 +118,6 @@ export default {
                   instrument_type: '',
                   instrument_configs: [
                     {
-                      bin_x: '',
-                      bin_y: '',
                       exposure_count: 1,
                       exposure_time: '',
                       mode: '',
@@ -171,7 +169,7 @@ export default {
         };
       }
     },
-    // Object mapping site code to a color
+    // Object mapping site code to a color, used in the airmass plot
     siteCodeToColor: {
       type: Object,
       required: false,
@@ -179,7 +177,7 @@ export default {
         return {};
       }
     },
-    // Object mapping site code to a human readable site name
+    // Object mapping site code to a human readable site name, used in the airmass plot
     siteCodeToName: {
       type: Object,
       required: false,
