@@ -50,6 +50,27 @@ import VueCompositionAPI from '@vue/composition-api';
 Vue.use(VueCompositionAPI);
 ```
 
+This lib uses jquery for AJAX requests. You must configure your project to send credentials along with your AJAX requests in order
+for logged in users to be able to send requests that require authentication. One option for how to do this is to place the following
+in your entrypoint. Without this you may not see the data that you expect, or you may see unexpected authentication errors.
+
+```
+// `observationPortalApi` is set to the base Observation Portal API URL and `csrfSafeMethod` returns whether
+// the request method is an HTTP safe method
+$(document).ajaxSend(function(event, xhr, settings) {
+  if (settings.url.startsWith(observationPortalApi)) {
+    if (!HTTPSafeMethod(settings.type)) {
+      var csrftoken = getCookie('csrftoken');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    }
+    settings.xhrFields = {
+      withCredentials: true
+    };
+  }
+});
+
+```
+
 ### Using the utilities
 To use the utilities provided by the library, import them and call a function. For example, to
 use the `decimalDecToSexigesimal(...)` function:
@@ -111,14 +132,14 @@ npm run build
 ```
 
 ### Run unit tests
-The tests require `@vue/composition-api` to be installed. For some reason, having that library set as a devDependency in
-`package.json` breaks local development when a local copy of library is installed in a local app that is using it. As a
-workaround, install and then prune `@vue/composition-api` before and after running tests.
+The tests require `@vue/composition-api` and `jquery` to be installed. For some reason, having those libraries set as devDependencies in
+`package.json` breaks local development when a local copy of the library is installed in a local app that is using it. As a
+workaround, install and then prune `@vue/composition-api` and `jquery` before and after running tests.
 
 ```
-npm install --no-save @vue/composition-api
+npm install --no-save @vue/composition-api jquery
 npm run test:unit
-npm prune @vue/composition-api
+npm prune @vue/composition-api jquery
 ```
 
 ### Lint files

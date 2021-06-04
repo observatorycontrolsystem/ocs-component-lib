@@ -169,7 +169,7 @@ export default {
         };
       }
     },
-    // Object mapping site code to a color, used in the airmass plot
+    // Object mapping site code to CSS color, used in the airmass plot. Set for consistent colors in plot.
     siteCodeToColor: {
       type: Object,
       required: false,

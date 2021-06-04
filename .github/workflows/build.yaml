@@ -31,6 +31,7 @@ jobs:
         npm install --no-save @vue/composition-api
         npm run test:unit
         npm prune @vue/composition-api
+        npm prune --production
 
   build_and_publish_package:
     # Only run this job if the run_tests job has succeeded, and if
@@ -48,6 +49,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci
     - run: npm run build
+    - run: npm prune --production
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
