@@ -254,11 +254,9 @@ export default {
       }
     },
     configurationUpdated: function(data) {
-      console.log('configuration-updated');
       this.update(data);
     },
     windowUpdated: function() {
-      console.log('windowUpdated');
       this.update();
     },
     addWindow: function(idx) {
