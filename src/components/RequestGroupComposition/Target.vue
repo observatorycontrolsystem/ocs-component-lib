@@ -4,14 +4,14 @@
     :id="'target' + position.requestIndex + position.configurationIndex"
     :title="getFromObject(formConfig, ['target', 'panel', 'title'], 'Target')"
     :icon="getFromObject(formConfig, ['target', 'panel', 'icon'], 'fas fa-crosshairs')"
-    :cancopy="false"
-    :canremove="false"
+    :can-copy="false"
+    :can-remove="false"
     :show="show"
     :errors="errors"
     :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
-    <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -266,7 +266,7 @@ export default {
       type: Number,
       required: true
     },
-    parentshow: {
+    parentShow: {
       type: Boolean
     },
     tooltipConfig: {

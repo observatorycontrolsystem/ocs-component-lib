@@ -5,14 +5,14 @@
     :title="getFromObject(formConfig, ['requestGroup', 'panel', 'title'], 'Request Group')"
     :icon="getFromObject(formConfig, ['requestGroup', 'panel', 'icon'], 'fas fa-address-card')"
     :tooltip-config="tooltipConfig"
-    :canremove="false"
-    :cancopy="false"
+    :can-remove="false"
+    :can-copy="false"
     :errors="errors"
     :show="show"
     :index="0"
     @show="show = $event"
   >
-    <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -100,7 +100,7 @@
         :index="idx"
         :request="request"
         :available-instruments="availableInstruments"
-        :parentshow="show"
+        :parent-show="show"
         :observation-type="requestGroup.observation_type"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :errors="getRequestErrors(idx)"
@@ -213,6 +213,16 @@ export default {
         return {};
       }
     },
+    observationTypeOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { value: 'NORMAL', text: 'Queue scheduled (default)' },
+          { value: 'TIME_CRITICAL', text: 'Time Critical' },
+          { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
+        ];
+      }
+    },
     formConfig: {
       type: Object,
       default: () => {
@@ -235,12 +245,7 @@ export default {
       show: true,
       showCadence: false,
       cadenceRequests: [],
-      cadenceRequestId: -1,
-      observationTypeOptions: [
-        { value: 'NORMAL', text: 'Queue scheduled (default)' },
-        { value: 'TIME_CRITICAL', text: 'Time Critical' },
-        { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
-      ]
+      cadenceRequestId: -1
     };
   },
   computed: {
@@ -293,7 +298,6 @@ export default {
       this.$emit('request-group-updated', data);
     },
     requestUpdated: function(data) {
-      console.log('request updated');
       this.update(data);
     },
     addRequest: function(idx) {

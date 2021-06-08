@@ -95,6 +95,44 @@ export default {
 }
 ```
 
+## Using the composable functions
+To use the composable functions provided by the library, import them and use them in your component. Note that to use these, you must have installed the [@vue/composition-api](https://github.com/vuejs/composition-api) into your project. For example,
+to use the `baseInstrumentConfig` composition function:
+
+```
+import { OCSComposable } from 'ocs-component-lib';
+
+export default {
+  name: 'MyInstrumentConfigForm',
+  setup: function(props, context) {
+    const instrumentConfig = toRef(props, 'instrumentConfig');
+    const availableInstruments = toRef(props, 'availableInstruments');
+    const selectedInstrument = toRef(props, 'selectedInstrument');
+    const {
+      opticalElementUpdates,
+      readoutModeOptions,
+      rotatorModeOptions,
+      requiredRotatorModeFields,
+      availableOpticalElementGroups,
+      update,
+      updateOpticalElement,
+      updateInstrumentConfigExtraParam
+    } = OCSComposable.baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument, context);
+
+    return {
+      opticalElementUpdates,
+      readoutModeOptions,
+      rotatorModeOptions,
+      requiredRotatorModeFields,
+      availableOpticalElementGroups,
+      update,
+      updateOpticalElement,
+      updateInstrumentConfigExtraParam
+    };
+  }
+}
+```
+
 ### Browser
 The library is also available from a CDN by including the script in the head section of your HTML file. Remember to include the other dependencies as well.
 

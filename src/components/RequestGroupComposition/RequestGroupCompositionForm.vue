@@ -9,6 +9,7 @@
         :datetime-format="datetimeFormat"
         :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
+        :observation-type-options="observationTypeOptions"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -197,6 +198,17 @@ export default {
         return {};
       }
     },
+    // Set the available observation type options.
+    observationTypeOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { value: 'NORMAL', text: 'Queue scheduled (default)' },
+          { value: 'TIME_CRITICAL', text: 'Time Critical' },
+          { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
+        ];
+      }
+    },
     // Object containing configuration for form panels and form fields. Top level fields are keys
     // referencing a panel, and map to an object that can contain a `panel` key to configure panel
     // level information, and keys for each field that show up in that panel to configure that field.
@@ -305,7 +317,6 @@ export default {
       });
     },
     requestGroupUpdated: function() {
-      console.log('requestgroup updated');
       this.validate();
     },
     saveDraft: function(id) {

@@ -4,8 +4,8 @@
     :id="'configuration' + position.requestIndex + position.configurationIndex"
     :title="getFromObject(formConfig, ['configuration', 'panel', 'title'], 'Configuration')"
     :icon="getFromObject(formConfig, ['configuration', 'panel', 'icon'], 'fas fa-cogs')"
-    :cancopy="getFromObject(formConfig, ['configuration', 'panel', 'canCopy'], true)"
-    :canremove="index > 0"
+    :can-copy="getFromObject(formConfig, ['configuration', 'panel', 'canCopy'], true)"
+    :can-remove="index > 0"
     :errors="errors"
     :show="show"
     :index="index"
@@ -14,7 +14,7 @@
     @copy="$emit('copy')"
     @show="show = $event"
   >
-    <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -225,7 +225,7 @@
       v-for="(instrumentConfig, idx) in configuration.instrument_configs"
       :key="idx"
       :show="show"
-      :parentshow="show"
+      :parent-show="show"
       :index="idx"
       :configuration-index="index"
       :request-index="requestIndex"
@@ -250,7 +250,7 @@
       :target="configuration.target"
       :configuration-index="index"
       :request-index="requestIndex"
-      :parentshow="show"
+      :parent-show="show"
       :errors="getFromObject(errors, 'target', {})"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
@@ -267,7 +267,7 @@
       :configuration-index="index"
       :request-index="requestIndex"
       :constraints="configuration.constraints"
-      :parentshow="show"
+      :parent-show="show"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       :errors="getFromObject(errors, 'constraints', {})"
@@ -336,7 +336,7 @@ export default {
       type: String,
       required: true
     },
-    parentshow: {
+    parentShow: {
       type: Boolean
     },
     durationData: {
@@ -637,11 +637,9 @@ export default {
       this.$emit('configuration-fill-duration', this.index);
     },
     constraintsUpdated: function() {
-      console.log('constraintsUpdated');
       this.update();
     },
     targetUpdated: function(data) {
-      console.log('targetUpdated', data);
       this.update(data);
     },
     removeInstrumentConfiguration: function(idx) {
@@ -653,8 +651,7 @@ export default {
       this.configuration.instrument_configs.push(newInstrumentConfiguration);
       this.update();
     },
-    instumentConfigurationUpdated: function(data) {
-      console.log('instrumentconfigUpdated', data);
+    instumentConfigurationUpdated: function() {
       this.update();
     },
     acquisitionModeIsAvailable: function(acquisitionMode, acquisitionExtraParams) {

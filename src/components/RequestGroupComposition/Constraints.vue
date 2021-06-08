@@ -4,14 +4,14 @@
     :id="'constraints' + position.requestIndex + position.configurationIndex"
     :title="getFromObject(formConfig, ['constraints', 'panel', 'title'], 'Constraints')"
     :icon="getFromObject(formConfig, ['constraints', 'panel', 'icon'], 'fas fa-lock')"
-    :cancopy="false"
-    :canremove="false"
+    :can-copy="false"
+    :can-remove="false"
     :errors="errors"
     :show="show"
     :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
-    <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -86,7 +86,7 @@ export default {
         return defaultTooltipConfig;
       }
     },
-    parentshow: {
+    parentShow: {
       type: Boolean
     },
     formConfig: {
