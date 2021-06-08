@@ -45,6 +45,7 @@
       :request-index="index"
       :configuration="configuration"
       :parentshow="show"
+      :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :available-instruments="availableInstruments"
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"

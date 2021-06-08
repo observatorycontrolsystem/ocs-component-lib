@@ -123,7 +123,8 @@ export default {
                       mode: '',
                       rotator_mode: '',
                       extra_params: {
-                        defocus: 0
+                        offset_ra: 0,
+                        offset_dec: 0
                       },
                       optical_elements: {}
                     }

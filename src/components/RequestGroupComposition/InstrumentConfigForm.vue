@@ -71,6 +71,24 @@
         :errors="null"
         @input="updateInstrumentConfigExtraParam($event, field)"
       />
+      <custom-field
+        v-model="offsetRa"
+        field="offset_ra"
+        :label="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'label'], 'Offset RA')"
+        :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'desc'], '')"
+        :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'hide'])"
+        :errors="null"
+        @input="update"
+      />
+      <custom-field
+        v-model="offsetDec"
+        field="offset_dec"
+        :label="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'label'], 'Offset Dec')"
+        :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'desc'], '')"
+        :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'hide'])"
+        :errors="null"
+        @input="update"
+      />
     </div>
   </b-form>
 </template>
@@ -127,6 +145,8 @@ export default {
     const selectedInstrument = toRef(props, 'selectedInstrument');
 
     const {
+      offsetRA,
+      offsetDec,
       opticalElementUpdates,
       readoutModeOptions,
       rotatorModeOptions,
@@ -139,6 +159,8 @@ export default {
 
     return {
       // Data
+      offsetRA,
+      offsetDec,
       opticalElementUpdates,
       readoutModeOptions,
       rotatorModeOptions,
