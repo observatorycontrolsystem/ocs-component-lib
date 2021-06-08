@@ -41,7 +41,14 @@
                   <b-button v-show="cancopy" v-b-tooltip="tooltipConfig" size="sm" class="mx-1" variant="success" title="Copy" @click="copy">
                     <i class="fa fa-copy fa-fw" />
                   </b-button>
-                  <b-button v-show="canremove" v-b-tooltip="tooltipConfig" variant="danger" title="Remove" size="sm" @click="remove">
+                  <b-button
+                    v-show="canremove"
+                    v-b-tooltip="tooltipConfig"
+                    variant="danger"
+                    title="Remove"
+                    size="sm"
+                    @click="confirm('Are you sure you want to remove this item?', remove)"
+                  >
                     <i class="fa fa-trash fa-fw" />
                   </b-button>
                 </b-col>
@@ -60,9 +67,11 @@
 import _ from 'lodash';
 
 import { defaultTooltipConfig } from '@/util';
+import { confirmMixin } from '@/mixins/confirmMixins';
 
 export default {
   name: 'FormPanel',
+  mixins: [confirmMixin],
   props: {
     id: {
       type: String,
@@ -110,10 +119,7 @@ export default {
   },
   methods: {
     remove: function() {
-      // TODO: Use modal instead
-      if (confirm('Are you sure you want to remove this item?')) {
-        this.$emit('remove');
-      }
+      this.$emit('remove');
     },
     copy: function() {
       this.$emit('copy');
