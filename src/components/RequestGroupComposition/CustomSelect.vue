@@ -88,6 +88,7 @@ export default {
       type: String,
       default: ''
     },
+    // Setting this to `true` will ensure that all string options that are passed in are lowercased
     lowerOptions: {
       type: Boolean
     },
