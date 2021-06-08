@@ -191,7 +191,7 @@
               label=""
               label-for="cadence-button"
             >
-            <!-- TODO: Do not let user click button if fields aren't filled out -->
+              <!-- TODO: Do not let user click button if fields aren't filled out -->
               <b-button id="cadence-button" block variant="outline-primary" @click="generateDitherPattern">
                 Generate Dither {{ dither.showDitherModal }}
               </b-button>
@@ -212,9 +212,7 @@
                 <template #data-load-error>
                   {{ dither.status.errorResponse }}
                 </template>
-                <dither-pattern-plot
-                  :offsets="ditherPatternOffsets"
-                ></dither-pattern-plot>
+                <dither-pattern-plot :offsets="ditherPatternOffsets"></dither-pattern-plot>
               </data-loader>
             </custom-modal>
           </b-form>
@@ -492,12 +490,12 @@ export default {
     },
     ditherPatternOffsets: function() {
       let offsets = [];
-      console.log(this.dither.expandedInstrumentConfigs)
+      console.log(this.dither.expandedInstrumentConfigs);
       for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
         offsets.push({
           offset_ra: instrumentConfig.extra_params.offset_ra,
           offset_dec: instrumentConfig.extra_params.offset_dec
-        })
+        });
       }
       return offsets;
     }
@@ -729,7 +727,7 @@ export default {
           num_points: this.dither.parameters.numPoints,
           point_spacing: this.dither.parameters.pointSpacing,
           orientation: this.dither.parameters.orientation
-        }
+        };
       } else if (this.dither.pattern === 'BOX') {
         return {
           pattern: this.dither.pattern,
@@ -738,7 +736,7 @@ export default {
           line_spacing: this.dither.parameters.lineSpacing,
           orientation: this.dither.parameters.orientation,
           sides_angle: this.dither.parameters.sidesAngle
-        }
+        };
       } else if (this.dither.pattern === 'GRID') {
         return {
           pattern: this.dither.pattern,
@@ -747,7 +745,7 @@ export default {
           point_spacing: this.dither.parameters.pointSpacing,
           line_spacing: this.dither.parameters.lineSpacing,
           orientation: this.dither.parameters.orientation
-        }
+        };
       } else {
         return {};
       }
@@ -762,16 +760,19 @@ export default {
         method: 'POST',
         url: `${this.observationPortalApiBaseUrl}/api/configurations/dither/`,
         data: JSON.stringify(this.getDitherParameters()),
-        contentType: 'application/json',
-      }).done(response => {
-        // TODO: If there is nothing expanded in here, then set the data not found flag
-        this.dither.expandedInstrumentConfigs = response.instrument_configs;
-      }).fail(response => {
-        this.dither.status.errorResponse = response.responseJSON;
-        this.dither.status.error = true;
-      }).always(() => {
-        this.dither.status.loaded = true;
+        contentType: 'application/json'
       })
+        .done(response => {
+          // TODO: If there is nothing expanded in here, then set the data not found flag
+          this.dither.expandedInstrumentConfigs = response.instrument_configs;
+        })
+        .fail(response => {
+          this.dither.status.errorResponse = response.responseJSON;
+          this.dither.status.error = true;
+        })
+        .always(() => {
+          this.dither.status.loaded = true;
+        });
     },
     cancelDitherPattern: function() {
       console.log('cancelling dither pattern');
@@ -779,7 +780,7 @@ export default {
       this.dither.expandedInstrumentConfigs = [];
     },
     acceptDitherPattern: function() {
-      // TODO: Implement expanding instrument configs 
+      // TODO: Implement expanding instrument configs
       console.log('accepting dither pattern');
       this.dither.showDitherModal = false;
       this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;

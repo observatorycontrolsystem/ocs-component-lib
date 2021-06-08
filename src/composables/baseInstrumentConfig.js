@@ -3,8 +3,8 @@ import { ref, computed, watch, onMounted } from '@vue/composition-api';
 
 export default function baseInstrumentConfig(instrumentConfig, availableInstruments, selectedInstrument, context) {
   const opticalElementUpdates = ref(0);
-  const offsetRA = ref(0)
-  const offsetDec = ref(0)
+  const offsetRA = ref(0);
+  const offsetDec = ref(0);
 
   const update = () => {
     context.emit('instrument-config-update');
@@ -147,15 +147,15 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
   });
 
   watch(offsetRA, value => {
-    console.log('in offsetRA watcher', instrumentConfig.value)
+    console.log('in offsetRA watcher', instrumentConfig.value);
     instrumentConfig.value.extra_params.offset_ra = value || undefined;
     update();
-  })
+  });
 
   watch(offsetDec, value => {
     instrumentConfig.value.extra_params.offset_dec = value || undefined;
     update();
-  })
+  });
 
   onMounted(() => {
     // If an instrument config is loaded in that has any extra_params set, update the corresponding params
@@ -166,7 +166,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     if (instrumentConfig.value.extra_params.offset_dec) {
       offsetDec.value = instrumentConfig.value.extra_params.offset_dec;
     }
-  })
+  });
 
   return {
     // Data
