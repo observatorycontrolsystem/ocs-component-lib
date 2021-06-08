@@ -1,6 +1,6 @@
 export var collapseMixin = {
   watch: {
-    parentshow: function(value) {
+    parentShow: function(value) {
       this.show = value;
     }
   }

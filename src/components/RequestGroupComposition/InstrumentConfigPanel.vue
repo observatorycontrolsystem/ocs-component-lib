@@ -4,8 +4,8 @@
     :id="'instrument-config' + position.requestIndex + position.configurationIndex + position.instrumentConfigIndex"
     :title="getFromObject(formConfig, ['instrumentConfig', 'panel', 'title'], 'Instrument Configuration')"
     :icon="getFromObject(formConfig, ['instrumentConfig', 'panel', 'icon'], 'fas fa-camera-retro')"
-    :cancopy="getFromObject(formConfig, ['instrumentConfig', 'panel', 'canCopy'], true)"
-    :canremove="index > 0"
+    :can-copy="getFromObject(formConfig, ['instrumentConfig', 'panel', 'canCopy'], true)"
+    :can-remove="index > 0"
     :errors="errors"
     :show="show"
     :index="index"
@@ -14,7 +14,7 @@
     @copy="$emit('copy')"
     @show="show = $event"
   >
-    <custom-alert v-for="error in topLevelErrors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in topLevelErrors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">

@@ -4,8 +4,8 @@
     :id="'window' + position.requestIndex + position.windowIndex"
     :title="getFromObject(formConfig, ['window', 'panel', 'title'], 'Window')"
     :icon="getFromObject(formConfig, ['window', 'panel', 'icon'], 'fas fa-calendar')"
-    :cancopy="getFromObject(formConfig, ['window', 'panel', 'canCopy'], true)"
-    :canremove="index > 0"
+    :can-copy="getFromObject(formConfig, ['window', 'panel', 'canCopy'], true)"
+    :can-remove="index > 0"
     :errors="errors"
     :show="show"
     :index="index"
@@ -14,7 +14,7 @@
     @copy="$emit('copy')"
     @show="show = $event"
   >
-    <custom-alert v-for="error in topLevelErrors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in topLevelErrors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -170,7 +170,7 @@ export default {
     showAirmassPlot: {
       type: Boolean
     },
-    parentshow: {
+    parentShow: {
       type: Boolean
     },
     datetimeFormat: {
@@ -196,7 +196,7 @@ export default {
   },
   data: function() {
     return {
-      show: this.parentshow,
+      show: this.parentShow,
       airmassData: {},
       showAirmass: false,
       cadence: 'none',

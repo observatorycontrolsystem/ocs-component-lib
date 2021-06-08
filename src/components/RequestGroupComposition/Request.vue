@@ -4,8 +4,8 @@
     :id="'request' + index"
     :title="getFromObject(formConfig, ['request', 'panel', 'title'], 'Request')"
     :icon="getFromObject(formConfig, ['request', 'panel', 'icon'], 'fab fa-wpexplorer')"
-    :cancopy="getFromObject(formConfig, ['request', 'panel', 'canCopy'], true)"
-    :canremove="index > 0"
+    :can-copy="getFromObject(formConfig, ['request', 'panel', 'canCopy'], true)"
+    :can-remove="index > 0"
     :errors="errors"
     :show="show"
     :index="index"
@@ -14,7 +14,7 @@
     @show="show = $event"
     @copy="$emit('copy')"
   >
-    <custom-alert v-for="error in errors.non_field_errors" :key="error" alertclass="danger" :dismissible="false">
+    <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
       {{ error }}
     </custom-alert>
     <b-container class="p-0">
@@ -44,7 +44,7 @@
       :index="idx"
       :request-index="index"
       :configuration="configuration"
-      :parentshow="show"
+      :parent-show="show"
       :available-instruments="availableInstruments"
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
@@ -84,7 +84,7 @@
       :request-index="index"
       :window="window"
       :errors="getFromObject(errors, ['windows', idx], {})"
-      :parentshow="show"
+      :parent-show="show"
       :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :observation-type="observationType"
       :site-code-to-color="siteCodeToColor"
@@ -162,7 +162,7 @@ export default {
     showAirmassPlot: {
       type: Boolean
     },
-    parentshow: {
+    parentShow: {
       type: Boolean
     },
     observationType: {

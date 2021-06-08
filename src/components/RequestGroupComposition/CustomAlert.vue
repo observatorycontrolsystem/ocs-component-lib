@@ -1,8 +1,8 @@
 <template>
-  <b-alert v-if="dismissible" dismissible :variant="alertclass" :show="alertDuration">
+  <b-alert v-if="dismissible" dismissible :variant="alertClass" :show="alertDuration">
     <slot />
   </b-alert>
-  <b-alert v-else show :variant="alertclass">
+  <b-alert v-else show :variant="alertClass">
     <slot />
   </b-alert>
 </template>
@@ -10,7 +10,7 @@
 export default {
   name: 'CustomAlert',
   props: {
-    alertclass: {
+    alertClass: {
       type: String,
       default: 'primary'
     },
