@@ -213,6 +213,16 @@ export default {
         return {};
       }
     },
+    observationTypeOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { value: 'NORMAL', text: 'Queue scheduled (default)' },
+          { value: 'TIME_CRITICAL', text: 'Time Critical' },
+          { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
+        ];
+      }
+    },
     formConfig: {
       type: Object,
       default: () => {
@@ -235,12 +245,7 @@ export default {
       show: true,
       showCadence: false,
       cadenceRequests: [],
-      cadenceRequestId: -1,
-      observationTypeOptions: [
-        { value: 'NORMAL', text: 'Queue scheduled (default)' },
-        { value: 'TIME_CRITICAL', text: 'Time Critical' },
-        { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
-      ]
+      cadenceRequestId: -1
     };
   },
   computed: {

@@ -511,7 +511,7 @@ export default {
       this.configuration.instrument_configs.push(newInstrumentConfiguration);
       this.update();
     },
-    instumentConfigurationUpdated: function(data) {
+    instumentConfigurationUpdated: function() {
       this.update();
     },
     acquisitionModeIsAvailable: function(acquisitionMode, acquisitionExtraParams) {

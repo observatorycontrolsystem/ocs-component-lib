@@ -9,6 +9,7 @@
         :datetime-format="datetimeFormat"
         :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
+        :observation-type-options="observationTypeOptions"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -194,6 +195,17 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    // Set the available observation type options.
+    observationTypeOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { value: 'NORMAL', text: 'Queue scheduled (default)' },
+          { value: 'TIME_CRITICAL', text: 'Time Critical' },
+          { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
+        ];
       }
     },
     // Object containing configuration for form panels and form fields. Top level fields are keys
