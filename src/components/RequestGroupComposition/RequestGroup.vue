@@ -293,7 +293,6 @@ export default {
       this.$emit('request-group-updated', data);
     },
     requestUpdated: function(data) {
-      console.log('request updated');
       this.update(data);
     },
     addRequest: function(idx) {

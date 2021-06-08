@@ -304,7 +304,6 @@ export default {
       });
     },
     requestGroupUpdated: function() {
-      console.log('requestgroup updated');
       this.validate();
     },
     saveDraft: function(id) {

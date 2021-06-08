@@ -497,11 +497,9 @@ export default {
       this.$emit('configuration-fill-duration', this.index);
     },
     constraintsUpdated: function() {
-      console.log('constraintsUpdated');
       this.update();
     },
     targetUpdated: function(data) {
-      console.log('targetUpdated', data);
       this.update(data);
     },
     removeInstrumentConfiguration: function(idx) {
@@ -514,7 +512,6 @@ export default {
       this.update();
     },
     instumentConfigurationUpdated: function(data) {
-      console.log('instrumentconfigUpdated', data);
       this.update();
     },
     acquisitionModeIsAvailable: function(acquisitionMode, acquisitionExtraParams) {
