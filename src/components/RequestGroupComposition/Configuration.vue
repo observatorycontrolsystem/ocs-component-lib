@@ -123,6 +123,7 @@
               :errors="null"
               @input="updateAcquisitionConfigExtraParam($event, field)"
             />
+            <!-- TODO: Only display dither options if target is ICRS -->
             <custom-select
               v-model="dither.pattern"
               :options="dither.options"
@@ -142,7 +143,7 @@
               :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
-            ></custom-field>
+            />
             <custom-field
               v-if="dither.pattern === 'LINE' || dither.pattern === 'GRID'"
               v-model="dither.parameters.numPoints"
@@ -152,7 +153,7 @@
               :hide="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
-            ></custom-field>
+            />
             <custom-field
               v-if="dither.pattern === 'LINE' || dither.pattern === 'GRID' || dither.pattern === 'BOX'"
               v-model="dither.parameters.pointSpacing"
@@ -162,7 +163,7 @@
               :hide="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
-            ></custom-field>
+            />
             <custom-field
               v-if="dither.pattern === 'LINE' || dither.pattern === 'GRID' || dither.pattern === 'BOX'"
               v-model="dither.parameters.orientation"
@@ -172,7 +173,7 @@
               :hide="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
-            ></custom-field>
+            />
             <custom-field
               v-if="dither.pattern === 'BOX'"
               v-model="dither.parameters.sidesAngle"
@@ -182,18 +183,18 @@
               :hide="getFromObject(formConfig, ['configuration', 'ditherSidesAngle', 'hide'], false)"
               :tooltip-config="tooltipConfig"
               :errors="null"
-            ></custom-field>
+            />
             <b-form-group
               v-show="dither.pattern !== 'NONE' && show"
               label-size="sm"
               label-align-sm="right"
               label-cols-sm="4"
               label=""
-              label-for="cadence-button"
+              label-for="dither-button"
             >
               <!-- TODO: Do not let user click button if fields aren't filled out -->
-              <b-button id="cadence-button" block variant="outline-primary" @click="generateDitherPattern">
-                Generate Dither {{ dither.showDitherModal }}
+              <b-button id="dither-button" block variant="outline-primary" @click="generateDitherPattern">
+                Generate Dither
               </b-button>
             </b-form-group>
             <custom-modal
@@ -212,7 +213,20 @@
                 <template #data-load-error>
                   {{ dither.status.errorResponse }}
                 </template>
-                <dither-pattern-plot :offsets="ditherPatternOffsets"></dither-pattern-plot>
+                <b-row>
+                  <b-col>
+                    <!-- TODO: Write help text that is actually helpful -->
+                    <div>Help text</div>
+                  </b-col>
+                  <b-col>
+                    <dither-pattern-plot
+                      :offsets="ditherPatternOffsets"
+                      plot-id="dither-plot"
+                      :center-ra="configuration.target.ra"
+                      :center-dec="configuration.target.dec"
+                    ></dither-pattern-plot>
+                  </b-col>
+                </b-row>
               </data-loader>
             </custom-modal>
           </b-form>
@@ -751,7 +765,6 @@ export default {
       }
     },
     generateDitherPattern: function() {
-      console.log('generating dither pattern', this.dither);
       this.dither.showDitherModal = true;
       this.dither.status.loaded = false;
       this.dither.status.error = false;
@@ -775,16 +788,18 @@ export default {
         });
     },
     cancelDitherPattern: function() {
-      console.log('cancelling dither pattern');
       this.dither.showDitherModal = false;
       this.dither.expandedInstrumentConfigs = [];
     },
     acceptDitherPattern: function() {
-      // TODO: Implement expanding instrument configs
-      console.log('accepting dither pattern');
       this.dither.showDitherModal = false;
-      this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;
-      this.dither.expandedInstrumentConfigs = [];
+      // Clear out instrument configs before setting them again to allow any existing instrument
+      // configs to re-render so that the mounted hook is entered.
+      this.configuration.instrument_configs = [];
+      this.$nextTick(() => {
+        this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;
+        this.dither.expandedInstrumentConfigs = [];
+      });
     }
   }
 };

@@ -147,7 +147,6 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
   });
 
   watch(offsetRA, value => {
-    console.log('in offsetRA watcher', instrumentConfig.value);
     instrumentConfig.value.extra_params.offset_ra = value || undefined;
     update();
   });
@@ -161,7 +160,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     // If an instrument config is loaded in that has any extra_params set, update the corresponding params
     // here since extra_params is not reactive and cannot be watched
     if (instrumentConfig.value.extra_params.offset_ra) {
-      offsetRA.value = instrumentConfig.extra_params.offset_ra;
+      offsetRA.value = instrumentConfig.value.extra_params.offset_ra;
     }
     if (instrumentConfig.value.extra_params.offset_dec) {
       offsetDec.value = instrumentConfig.value.extra_params.offset_dec;
