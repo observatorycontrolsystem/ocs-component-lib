@@ -29,8 +29,6 @@ const configurationsData = [
         },
         mode: 'default',
         exposure_count: 1,
-        bin_x: 1,
-        bin_y: 1,
         rotator_mode: '',
         extra_params: {
           defocus: 0.0
@@ -43,8 +41,6 @@ const configurationsData = [
         },
         mode: 'default',
         exposure_count: 1,
-        bin_x: 1,
-        bin_y: 1,
         rotator_mode: '',
         extra_params: {
           defocus: 0.0
@@ -57,8 +53,6 @@ const configurationsData = [
         },
         mode: 'default',
         exposure_count: 1,
-        bin_x: 1,
-        bin_y: 1,
         rotator_mode: '',
         extra_params: {
           defocus: 0.0
@@ -71,8 +65,6 @@ const configurationsData = [
         },
         mode: 'default',
         exposure_count: 1,
-        bin_x: 1,
-        bin_y: 1,
         rotator_mode: '',
         extra_params: {
           defocus: 0.0

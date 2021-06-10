@@ -1,6 +1,16 @@
 import _ from 'lodash';
 import moment from 'moment';
 
+const defaultTooltipConfig = {
+  delay: {
+    show: 500,
+    hide: 100
+  },
+  trigger: 'hover'
+};
+
+const defaultDatetimeFormat = 'YYYY-MM-DD HH:mm:ss';
+
 function zPadFloat(num) {
   return num.toLocaleString(undefined, { minimumIntegerDigits: 2, maximumFractionDigits: 4 });
 }
@@ -168,14 +178,51 @@ function copyObject(source) {
   return copy;
 }
 
+function extractTopLevelErrors(errors) {
+  let topLevelErrors = [];
+  if (_.isString(errors)) {
+    // The error will be a string if a validate_xxx method of the parent serializer
+    // returned an error, for example the validate_instrument_configs method on the
+    // ConfigurationSerializer. These should be displayed at the top of a section.
+    topLevelErrors = _.concat(topLevelErrors, [errors]);
+  }
+  if (errors.non_field_errors) {
+    topLevelErrors = _.concat(topLevelErrors, errors.non_field_errors);
+  }
+  return topLevelErrors;
+}
+
+function generateDurationString(durationSeconds) {
+  // Generate a string representation of a requestgroup duration
+  let duration = moment.duration(durationSeconds, 'seconds');
+  let durationString = '';
+  if (duration.days() > 0) {
+    durationString = duration.days() + ' days ' + durationString;
+  }
+  if (duration.hours() > 0) {
+    durationString += duration.hours() + ' hrs ' + durationString;
+  }
+  durationString += duration.minutes() + ' min ' + duration.seconds() + ' sec';
+  return durationString;
+}
+
+function getFromObject(obj, path, defaultValue) {
+  return _.get(obj, path, defaultValue);
+}
+
 export {
   copyObject,
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
+  defaultDatetimeFormat,
+  defaultTooltipConfig,
+  extractTopLevelErrors,
   formatDate,
   formatField,
   formatFloat,
   formatValue,
+  generateDurationString,
+  getFromObject,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
   stateToBsClass,

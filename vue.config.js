@@ -33,6 +33,24 @@ module.exports = {
           commonjs2: 'vis/dist/vis.css',
           amd: 'vis/dist/vis.css',
           root: 'vis/dist/vis.css'
+        },
+        'vue-ctk-date-time-picker': {
+          commonjs: 'vue-ctk-date-time-picker',
+          commonjs2: 'vue-ctk-date-time-picker',
+          amd: 'vue-ctk-date-time-picker',
+          root: 'vue-ctk-date-time-picker'
+        },
+        'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css': {
+          commonjs: 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css',
+          commonjs2: 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css',
+          amd: 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css',
+          root: 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
+        },
+        '@vue/composition-api': {
+          commonjs: '@vue/composition-api',
+          commonjs2: '@vue/composition-api',
+          amd: '@vue/composition-api',
+          root: '@vue/composition-api'
         }
       });
     }
