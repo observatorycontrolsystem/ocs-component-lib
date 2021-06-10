@@ -504,7 +504,6 @@ export default {
     },
     ditherPatternOffsets: function() {
       let offsets = [];
-      console.log(this.dither.expandedInstrumentConfigs);
       for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
         offsets.push({
           offset_ra: instrumentConfig.extra_params.offset_ra,

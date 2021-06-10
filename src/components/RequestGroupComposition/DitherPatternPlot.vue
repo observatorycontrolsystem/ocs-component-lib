@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div :id="plotId" style="width:400px; height:400px;"></div>
+    <div v-show="!aladin" style="width:400px; height:400px;" class="text-center">
+      <i class="fa fa-spin fa-spinner" />
+    </div>
+    <div v-show="aladin" :id="plotId" style="width:400px; height:400px;"></div>
   </div>
 </template>
 <script>
@@ -47,6 +50,19 @@ export default {
       aladin: undefined
     };
   },
+  computed: {
+    offsetCoordinates: function() {
+      let coords = [];
+      let ra = this.centerRa;
+      let dec = this.centerDec;
+      for (let offset of this.offsets){
+        ra += offset['offset_ra'] / 3600;
+        dec += offset['offset_dec'] / 3600;
+        coords.push([ra, dec]);
+      }
+      return coords;
+    }
+  },
   mounted: function() {
     $.getScript('https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js', () => {
       // `A` is a global variable made available in the component after the script loads
@@ -56,6 +72,11 @@ export default {
         fov: this.fieldOfView,
         target: `${this.centerRa} ${this.centerDec}`
       });
+      // eslint-disable-next-line
+      let overlay = A.graphicOverlay({ color: 'cyan', lineWidth: 1 });
+      this.aladin.addOverlay(overlay);
+      // eslint-disable-next-line
+      overlay.add(A.circle(this.centerRa, this.centerDec, 0.2))
     });
   }
 };
