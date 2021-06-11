@@ -1,5 +1,6 @@
 <template>
   <b-modal ref="my-modal" size="xl" :title="header">
+    <!-- Clicking the X at the top left breaks the abillity to open this modal again -->
     <slot />
     <div slot="modal-footer">
       <b-button v-show="showCancel" variant="secondary" class="float-right m-1" @click="close">

@@ -213,20 +213,20 @@
                 <template #data-load-error>
                   {{ dither.status.errorResponse }}
                 </template>
-                <b-row>
-                  <b-col>
-                    <!-- TODO: Write help text that is actually helpful -->
-                    <div>Help text</div>
-                  </b-col>
-                  <b-col>
-                    <dither-pattern-plot
-                      :offsets="ditherPatternOffsets"
-                      plot-id="dither-plot"
-                      :center-ra="configuration.target.ra"
-                      :center-dec="configuration.target.dec"
-                    ></dither-pattern-plot>
-                  </b-col>
-                </b-row>
+                <dither-pattern-plot
+                  plot-id="dither-plot"
+                  :offsets="ditherPatternOffsets"
+                  :center-ra="configuration.target.ra"
+                  :center-dec="configuration.target.dec"
+                  show-help
+                >
+                  <template #help>
+                    <p>
+                      <!-- TODO: Write something more useful -->
+                      Plot help text here
+                    </p>
+                  </template>
+                </dither-pattern-plot>
               </data-loader>
             </custom-modal>
           </b-form>
@@ -506,8 +506,8 @@ export default {
       let offsets = [];
       for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
         offsets.push({
-          offset_ra: instrumentConfig.extra_params.offset_ra,
-          offset_dec: instrumentConfig.extra_params.offset_dec
+          ra: instrumentConfig.extra_params.offset_ra,
+          dec: instrumentConfig.extra_params.offset_dec
         });
       }
       return offsets;
@@ -767,6 +767,7 @@ export default {
       this.dither.showDitherModal = true;
       this.dither.status.loaded = false;
       this.dither.status.error = false;
+      this.dither.status.notFound = false;
       this.dither.status.errorResponse = {};
       $.ajax({
         method: 'POST',
@@ -775,8 +776,11 @@ export default {
         contentType: 'application/json'
       })
         .done(response => {
-          // TODO: If there is nothing expanded in here, then set the data not found flag
-          this.dither.expandedInstrumentConfigs = response.instrument_configs;
+          if (response.instrument_configs.length < 1) {
+            this.dither.status.notFound = true;
+          } else {
+            this.dither.expandedInstrumentConfigs = response.instrument_configs;
+          }
         })
         .fail(response => {
           this.dither.status.errorResponse = response.responseJSON;
