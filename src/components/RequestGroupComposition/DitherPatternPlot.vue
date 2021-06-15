@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- TODO: Make this nice for small screens -->
     <b-row>
       <b-col>
         <slot name="help"></slot>
@@ -7,11 +8,11 @@
     </b-row>
     <b-row>
       <b-col>
-        <aladin-plot :plot-id="aladinZoomedOutPlotId" @aladin-loaded="onZoomedOutPlotLoaded"></aladin-plot>
+        <!-- TODO: Maybe don't show this plot of the dither range is larger than the instrument FOV -->
+        <aladin-plot :plot-id="aladinZoomedOutPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedOutPlotLoaded"></aladin-plot>
       </b-col>
       <b-col>
-        <!-- TODO: show legend for what the different annotations mean -->
-        <aladin-plot :plot-id="aladinZoomedInPlotId" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
+        <aladin-plot :plot-id="aladinZoomedInPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
       </b-col>
     </b-row>
   </div>
@@ -52,6 +53,11 @@ export default {
     instrumentArcSecPerPixel: {
       type: Number,
       required: true
+    },
+    instrumentType: {
+      type: String,
+      required: false,
+      default: 'Instrument'
     }
   },
   data: function() {
@@ -64,6 +70,8 @@ export default {
   },
   computed: {
     offsetCoordinates: function() {
+      // TODO: Take into account the fact that the offsets could take you over the boundary of the range of ra or dec
+
       // Calculate list of coordinates from provided offsets. Equations pulled
       // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
       const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
@@ -87,6 +95,8 @@ export default {
   },
   methods: {
     onZoomedInPlotLoaded: function() {
+      // TODO: Center this plot on the middle of the dither sequence
+
       this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, {
         survey: 'P/DSS2/color',
         fov: this.zoomedInFieldOfView,
@@ -102,6 +112,9 @@ export default {
         .getColorMap()
         .update('grayscale');
       this.aladinZoomedIn.setFovRange(this.zoomedInFieldOfView, this.zoomedInFieldOfView);
+      this.aladinZoomedIn.on('positionChanged', () => {
+        this.aladinZoomedIn.gotoRaDec(this.centerRa, this.centerDec);
+      });
       this.addZoomedInAnnotations();
     },
     onZoomedOutPlotLoaded: function() {
@@ -120,23 +133,33 @@ export default {
         .getColorMap()
         .update('grayscale');
       this.aladinZoomedOut.setFovRange(this.instrumentFieldOfViewDegrees, this.instrumentFieldOfViewDegrees);
+      this.aladinZoomedOut.on('positionChanged', () => {
+        this.aladinZoomedOut.gotoRaDec(this.centerRa, this.centerDec);
+      });
       this.addZoomedOutAnnotations();
     },
     addZoomedOutAnnotations: function() {
-      let overlay = A.graphicOverlay({ color: 'cyan', lineWidth: 2 });
-      this.aladinZoomedOut.addOverlay(overlay);
-      overlay.add(A.circle(this.centerRa, this.centerDec, this.instrumentFieldOfViewDegrees / 10, { color: '#36ff75', lineWidth: 2 }));
+      this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
+        offsetLeft: 20,
+        offsetBottom: 50,
+        color: '#36ff75',
+        shape: 'circle',
+        sourceSize: 50,
+        legendSourceSize: 10,
+        label: 'Target'
+      });
       // Make sure the range is at least big enough to be able to be seen on the plot
       let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees / 100);
-      this.addScaleBar(this.aladinZoomedOut, overlay, range, 'Dither range', 30);
+      this.addScaleBar(
+        this.aladinZoomedOut,
+        range,
+        `Scale of dither range (${Math.floor(this.ditherRange * 3600)}")`,
+        { left: 20, bottom: 30 },
+        '#36ff75'
+      );
     },
     addZoomedInAnnotations: function() {
-      // Add annotations circling the center and drawing lines between pointings
-      let overlay = A.graphicOverlay({ color: '#36ff75', lineWidth: 2 });
-      this.aladinZoomedIn.addOverlay(overlay);
-      overlay.add(A.polyline(this.offsetCoordinates, { color: 'cyan', lineWidth: 2 }));
-      overlay.add(A.circle(this.centerRa, this.centerDec, this.zoomedInFieldOfView / 10, { color: '#36ff75', lineWidth: 2 }));
-      // Add annotations to mark a point at the center of each offset pointing
+      // Categorize all offset pointings so that they can be displayed independently on the plot
       let firstPointingSources = [];
       let lastPointingSources = [];
       let middlePointingsSources = [];
@@ -152,38 +175,149 @@ export default {
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
-      this.addCatalog(firstPointingSources, { color: 'red', shape: 'cross', sourceSize: 15 });
-      this.addCatalog(middlePointingsSources, { color: 'red', shape: 'circle', sourceSize: 15 });
-      this.addCatalog(lastPointingSources, { color: 'red', shape: 'triangle', sourceSize: 15 });
-      this.addScaleBar(this.aladinZoomedIn, overlay, this.instrumentArcSecPerPixel / 3600, 'Pixel size', 30);
+
+      // TODO: If set offsets according to if there are sources to be plotted
+
+      this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
+        offsetLeft: 20,
+        offsetBottom: 110,
+        color: 'cyan',
+        shape: 'cross',
+        sourceSize: 15,
+        legendSourceSize: 10,
+        label: 'First dither pointing'
+      });
+      this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
+        offsetLeft: 20,
+        offsetBottom: 90,
+        color: 'cyan',
+        shape: 'circle',
+        sourceSize: 15,
+        legendSourceSize: 10,
+        label: 'Dither pointing'
+      });
+      this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
+        offsetLeft: 20,
+        offsetBottom: 70,
+        color: 'cyan',
+        shape: 'triangle',
+        sourceSize: 15,
+        legendSourceSize: 10,
+        label: 'Last dither pointing'
+      });
+      this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
+        offsetLeft: 20,
+        offsetBottom: 50,
+        color: '#36ff75',
+        shape: 'circle',
+        sourceSize: 50,
+        legendSourceSize: 10,
+        label: 'Target'
+      });
+      // Make sure the pixel scale bar is at least big enough to be seen on the graph is at least big enough to be able to be seen on the plot
+      let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / 3600, this.zoomedInFieldOfView / 100);
+      this.addScaleBar(
+        this.aladinZoomedIn,
+        pixelScaleBar,
+        `${this.instrumentType} pixel scale (${this.instrumentArcSecPerPixel}"/pix)`,
+        { left: 20, bottom: 30 },
+        '#36ff75'
+      );
+      this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: 'cyan', lineWidth: 1 });
     },
-    addScaleBar: function(aladin, overlay, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
-      // TODO: Figure out how to get rid of this window.setTimeout(...). I'm not sure why this is needed, but
-      // without the window.Timeout, the aladin pix2world function returns incorrect coordinates
+    addText: function(aladin, x, y, options) {
+      const label = options['label'] || '';
+      const color = options['color'] || 'white';
+      const align = options['align'] || 'start';
+      const baseline = options['baseline'] || 'middle';
+      let layer = A.graphicOverlay();
+      aladin.addOverlay(layer);
+      layer.add(new TextAnnotation(x, y, label, { color: color, align: align, baseline: baseline }));
+    },
+    addPolyline: function(aladin, coordinates, options) {
+      const color = options['color'] || 'red';
+      const lineWidth = options['lineWidth'] || 2;
+      let layer = A.graphicOverlay();
+      aladin.addOverlay(layer);
+      layer.add(A.polyline(coordinates, { color: color, lineWidth: lineWidth }));
+    },
+    addScaleBar: function(aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
       window.setTimeout(() => {
-        offsetPixFromEdge = offsetPixFromEdge || 30;
         color = color || 'cyan';
-        textSpacing = textSpacing || 7;
+        textSpacing = textSpacing || 15;
         lineWidth = lineWidth || 2;
-        // Add a scale bar showing the size of a pixel of the instrument
+        const offsetBotton = offsetPixFromEdge['bottom'] || 30;
+        const offsetleft = offsetPixFromEdge['left'] || 30;
         // Aladin viewer pixel position (0,0) is the top left corner of the view
+        let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: 4 });
+        aladin.addOverlay(layer);
         const viewSizePix = aladin.getSize();
-        const scaleBarStartPix = [offsetPixFromEdge, viewSizePix[1] - offsetPixFromEdge]; // Bottom left corner
+        const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBotton]; // Bottom left corner
         const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
+
+        // TODO: The scale bar on the zoomed out plot looks weird near the poles, the zoomed in plot looks ok
+
         const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
         const scaleBarEnd = [scaleBarStart[0] - sizeAsDegrees / cosDec, scaleBarStart[1]];
         const scaleBarEndPix = aladin.world2pix(scaleBarEnd[0], scaleBarEnd[1]);
         const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
-        overlay.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
-        overlay.add(new TextAnnotation(scaleBarStartPix[0] + scaleBarLength / 2, scaleBarStartPix[1] - textSpacing, label, { color: color }));
+        layer.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
+        layer.add(
+          new TextAnnotation(scaleBarStartPix[0] + scaleBarLength + textSpacing, scaleBarStartPix[1], label, {
+            color: color,
+            align: 'start',
+            baseline: 'middle'
+          })
+        );
       }, 0);
     },
-    addCatalog: function(coordinates, options) {
-      let catalog = A.catalog(options);
-      this.aladinZoomedIn.addCatalog(catalog);
+    addCatalog: function(aladin, coordinates, options) {
+      const label = options['label'] || '';
+      const color = options['color'] || 'red';
+      const offsetBottom = options['offsetBottom'] || 30;
+      const offsetLeft = options['offsetLeft'] || 30;
+      const shape = options['shape'] || 'circle';
+      const sourceSize = options['sourceSize'] || 15;
+      const legendSourceSize = options['legendSourceSize'] || 15;
+      // Create a catalog and sources to it
+      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
+      aladin.addCatalog(catalog);
       for (let coordinate of coordinates) {
         catalog.addSources(A.source(coordinate[0], coordinate[1]));
       }
+      // Add a legend if there are sources
+      if (coordinates.length > 0) {
+        this.addLegendForCatalog(aladin, {
+          offsetBottom: offsetBottom,
+          offsetLeft: offsetLeft,
+          color: color,
+          label: label,
+          sourceSize: legendSourceSize,
+          shape: shape
+        });
+      }
+    },
+    addLegendForCatalog: function(aladin, options) {
+      const offsetBottom = options['offsetBottom'] || 30;
+      const offsetLeft = options['offsetLeft'] || 30;
+      const sourceSize = options['sourceSize'] || 20;
+      const color = options['color'] || 'red';
+      const label = options['label'] || '';
+      const shape = options['shape'] || 'circle';
+      const textSpacingLeft = 15;
+      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
+      aladin.addCatalog(catalog);
+      window.setTimeout(() => {
+        const viewSizePix = aladin.getSize();
+        const legendSourcePix = [offsetLeft + Math.floor(sourceSize / 2), viewSizePix[1] - offsetBottom]; // Bottom left corner
+        const legendSource = aladin.pix2world(legendSourcePix[0], legendSourcePix[1]);
+        catalog.addSources(A.source(legendSource[0], legendSource[1]));
+        let layer = A.graphicOverlay({ color: color, lineWidth: 2 });
+        aladin.addOverlay(layer);
+        layer.add(
+          new TextAnnotation(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' })
+        );
+      }, 0);
     }
   }
 };

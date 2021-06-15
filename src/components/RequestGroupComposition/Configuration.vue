@@ -230,7 +230,6 @@
                     <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
-                <!-- TODO: Get FOV and pixel scale from instruments -->
                 <dither-pattern-plot
                   plot-id="dither-plot"
                   :offsets="ditherPatternOffsets"
@@ -238,6 +237,7 @@
                   :center-dec="configuration.target.dec | toNumber"
                   :instrument-field-of-view-degrees="instrumentInfo.fieldOfViewDegrees"
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
+                  :instrument-type="configuration.instrument_type"
                   show-help
                 >
                   <template #help>
