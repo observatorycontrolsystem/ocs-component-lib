@@ -10,6 +10,7 @@
         <aladin-plot :plot-id="aladinZoomedOutPlotId" @aladin-loaded="onZoomedOutPlotLoaded"></aladin-plot>
       </b-col>
       <b-col>
+        <!-- TODO: show legend for what the different annotations mean -->
         <aladin-plot :plot-id="aladinZoomedInPlotId" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
       </b-col>
     </b-row>
@@ -18,6 +19,7 @@
 <script>
 /* global A */
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
+import TextAnnotation from '@/components/RequestGroupComposition/aladinTextAnnotation';
 
 export default {
   name: 'DitherPatternPlot',
@@ -42,6 +44,14 @@ export default {
     offsets: {
       type: Array,
       required: true
+    },
+    instrumentFieldOfViewDegrees: {
+      type: Number,
+      required: true
+    },
+    instrumentArcSecPerPixel: {
+      type: Number,
+      required: true
     }
   },
   data: function() {
@@ -54,78 +64,78 @@ export default {
   },
   computed: {
     offsetCoordinates: function() {
+      // Calculate list of coordinates from provided offsets. Equations pulled
+      // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
+      const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
       let coords = [];
-      let ra = this.centerRa;
-      let dec = this.centerDec;
       for (let offset of this.offsets) {
-        ra += offset['ra'] / 3600;
-        dec += offset['dec'] / 3600;
-        coords.push([ra, dec]);
+        coords.push([this.centerRa + offset['ra'] / 3600 / cosDec, this.centerDec + offset['dec'] / 3600]);
       }
       return coords;
     },
-    aladinOptions: function() {
-      let fieldOfView = this.getFieldOfView();
-      return {
-        survey: 'P/DSS2/color',
-        fov: fieldOfView,
-        target: `${this.centerRa} ${this.centerDec}`,
-        showReticle: false,
-        showGotoControl: false,
-        showLayersControl: false,
-        showFullscreenControl: false
-      };
+    ditherRange: function() {
+      const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
+      let decCoords = this.offsetCoordinates.map(coord => coord[1]);
+      let raCoords = this.offsetCoordinates.map(coord => coord[0]);
+      let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * cosDec;
+      let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
+      return Math.max(raRange, decRange);
+    },
+    zoomedInFieldOfView: function() {
+      return this.ditherRange * 4;
     }
   },
   methods: {
     onZoomedInPlotLoaded: function() {
-      let fieldOfView = this.getFieldOfView();
       this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, {
         survey: 'P/DSS2/color',
-        fov: fieldOfView,
+        fov: this.zoomedInFieldOfView,
         target: `${this.centerRa} ${this.centerDec}`,
         showReticle: false,
         showGotoControl: false,
         showLayersControl: false,
-        showFullscreenControl: false
+        showFullscreenControl: false,
+        showZoomControl: false
       });
       this.aladinZoomedIn
         .getBaseImageLayer()
         .getColorMap()
         .update('grayscale');
-      this.addAnnotations();
+      this.aladinZoomedIn.setFovRange(this.zoomedInFieldOfView, this.zoomedInFieldOfView);
+      this.addZoomedInAnnotations();
     },
     onZoomedOutPlotLoaded: function() {
-      let fieldOfView = 20 / 60;
-      this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedOutPlotId}`, {
+      this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, {
         survey: 'P/DSS2/color',
-        fov: fieldOfView,
+        fov: this.instrumentFieldOfViewDegrees,
         target: `${this.centerRa} ${this.centerDec}`,
         showReticle: false,
         showGotoControl: false,
         showLayersControl: false,
-        showFullscreenControl: false
+        showFullscreenControl: false,
+        showZoomControl: false
       });
-      this.aladinZoomedIn
+      this.aladinZoomedOut
         .getBaseImageLayer()
         .getColorMap()
         .update('grayscale');
+      this.aladinZoomedOut.setFovRange(this.instrumentFieldOfViewDegrees, this.instrumentFieldOfViewDegrees);
+      this.addZoomedOutAnnotations();
     },
-    getFieldOfView: function() {
-      let ra_width = 0;
-      let dec_width = 0;
-      for (let offset of this.offsets) {
-        ra_width += offset['ra'];
-        dec_width += offset['dec'];
-      }
-      return (5 * Math.max(ra_width, dec_width)) / 3600;
+    addZoomedOutAnnotations: function() {
+      let overlay = A.graphicOverlay({ color: 'cyan', lineWidth: 2 });
+      this.aladinZoomedOut.addOverlay(overlay);
+      overlay.add(A.circle(this.centerRa, this.centerDec, this.instrumentFieldOfViewDegrees / 10, { color: '#36ff75', lineWidth: 2 }));
+      // Make sure the range is at least big enough to be able to be seen on the plot
+      let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees / 100);
+      this.addScaleBar(this.aladinZoomedOut, overlay, range, 'Dither range', 30);
     },
-    addAnnotations: function() {
+    addZoomedInAnnotations: function() {
       // Add annotations circling the center and drawing lines between pointings
-      let overlay = A.graphicOverlay({ color: 'cyan', lineWidth: 1 });
+      let overlay = A.graphicOverlay({ color: '#36ff75', lineWidth: 2 });
       this.aladinZoomedIn.addOverlay(overlay);
-      overlay.add(A.polyline(this.offsetCoordinates, { color: 'cyan', lineWidth: 1 }));
-      overlay.add(A.circle(this.centerRa, this.centerDec, 2 / 3600, { color: 'green', lineWidth: 1 }));
+      overlay.add(A.polyline(this.offsetCoordinates, { color: 'cyan', lineWidth: 2 }));
+      overlay.add(A.circle(this.centerRa, this.centerDec, this.zoomedInFieldOfView / 10, { color: '#36ff75', lineWidth: 2 }));
       // Add annotations to mark a point at the center of each offset pointing
       let firstPointingSources = [];
       let lastPointingSources = [];
@@ -142,9 +152,31 @@ export default {
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
-      this.addCatalog(firstPointingSources, { color: 'cyan', shape: 'cross' });
-      this.addCatalog(middlePointingsSources, { color: 'red', shape: 'circle' });
-      this.addCatalog(lastPointingSources, { color: 'cyan', shape: 'triangle' });
+      this.addCatalog(firstPointingSources, { color: 'red', shape: 'cross', sourceSize: 15 });
+      this.addCatalog(middlePointingsSources, { color: 'red', shape: 'circle', sourceSize: 15 });
+      this.addCatalog(lastPointingSources, { color: 'red', shape: 'triangle', sourceSize: 15 });
+      this.addScaleBar(this.aladinZoomedIn, overlay, this.instrumentArcSecPerPixel / 3600, 'Pixel size', 30);
+    },
+    addScaleBar: function(aladin, overlay, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
+      // TODO: Figure out how to get rid of this window.setTimeout(...). I'm not sure why this is needed, but
+      // without the window.Timeout, the aladin pix2world function returns incorrect coordinates
+      window.setTimeout(() => {
+        offsetPixFromEdge = offsetPixFromEdge || 30;
+        color = color || 'cyan';
+        textSpacing = textSpacing || 7;
+        lineWidth = lineWidth || 2;
+        // Add a scale bar showing the size of a pixel of the instrument
+        // Aladin viewer pixel position (0,0) is the top left corner of the view
+        const viewSizePix = aladin.getSize();
+        const scaleBarStartPix = [offsetPixFromEdge, viewSizePix[1] - offsetPixFromEdge]; // Bottom left corner
+        const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
+        const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
+        const scaleBarEnd = [scaleBarStart[0] - sizeAsDegrees / cosDec, scaleBarStart[1]];
+        const scaleBarEndPix = aladin.world2pix(scaleBarEnd[0], scaleBarEnd[1]);
+        const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
+        overlay.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
+        overlay.add(new TextAnnotation(scaleBarStartPix[0] + scaleBarLength / 2, scaleBarStartPix[1] - textSpacing, label, { color: color }));
+      }, 0);
     },
     addCatalog: function(coordinates, options) {
       let catalog = A.catalog(options);

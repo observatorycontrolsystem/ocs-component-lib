@@ -37,7 +37,6 @@ export default {
     $.getScript('https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js', () => {
       // `A` is a global variable made available in the component after the script loads
       /* global A */
-      console.log('Aladin loaded', A);
       this.aladinLoaded = true;
       this.$emit('aladin-loaded');
     });
