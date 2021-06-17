@@ -250,6 +250,7 @@
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
                   :instrument-type="configuration.instrument_type"
                   show-help
+                  :show-target="configuration.target.type === 'ICRS'"
                 >
                   <template #help>
                     <p>

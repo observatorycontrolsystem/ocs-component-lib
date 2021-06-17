@@ -58,6 +58,9 @@ export default {
       type: String,
       required: false,
       default: 'Instrument'
+    },
+    showTarget: {
+      type: Boolean
     }
   },
   data: function() {
@@ -70,8 +73,6 @@ export default {
   },
   computed: {
     offsetCoordinates: function() {
-      // TODO: Take into account the fact that the offsets could take you over the boundary of the range of ra or dec
-
       // Calculate list of coordinates from provided offsets. Equations pulled
       // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
       const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
@@ -90,7 +91,14 @@ export default {
       return Math.max(raRange, decRange);
     },
     zoomedInFieldOfView: function() {
-      return this.ditherRange * 4;
+      // Should be at least as large as the instrument pixel scale
+      let fovForDitherRange = this.ditherRange * 4;
+      let fovForPixelScale = this.instrumentArcSecPerPixel * 4 / 3600;
+      if (fovForDitherRange < this.instrumentArcSecPerPixel / 3600) {
+        return fovForPixelScale;
+      } else {
+        return Math.max(fovForDitherRange, fovForPixelScale);
+      }
     }
   },
   methods: {
@@ -139,15 +147,6 @@ export default {
       this.addZoomedOutAnnotations();
     },
     addZoomedOutAnnotations: function() {
-      this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
-        offsetLeft: 20,
-        offsetBottom: 50,
-        color: '#36ff75',
-        shape: 'circle',
-        sourceSize: 50,
-        legendSourceSize: 10,
-        label: 'Target'
-      });
       // Make sure the range is at least big enough to be able to be seen on the plot
       let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees / 100);
       this.addScaleBar(
@@ -157,6 +156,17 @@ export default {
         { left: 20, bottom: 30 },
         '#36ff75'
       );
+      if (this.showTarget) {
+        this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
+          offsetLeft: 20,
+          offsetBottom: 50,
+          color: '#36ff75',
+          shape: 'circle',
+          sourceSize: 50,
+          legendSourceSize: 10,
+          label: 'Target'
+        });
+      }
     },
     addZoomedInAnnotations: function() {
       // Categorize all offset pointings so that they can be displayed independently on the plot
@@ -175,54 +185,65 @@ export default {
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
-
-      // TODO: If set offsets according to if there are sources to be plotted
-
-      this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
-        offsetLeft: 20,
-        offsetBottom: 110,
-        color: 'cyan',
-        shape: 'cross',
-        sourceSize: 15,
-        legendSourceSize: 10,
-        label: 'First dither pointing'
-      });
-      this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
-        offsetLeft: 20,
-        offsetBottom: 90,
-        color: 'cyan',
-        shape: 'circle',
-        sourceSize: 15,
-        legendSourceSize: 10,
-        label: 'Dither pointing'
-      });
-      this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
-        offsetLeft: 20,
-        offsetBottom: 70,
-        color: 'cyan',
-        shape: 'triangle',
-        sourceSize: 15,
-        legendSourceSize: 10,
-        label: 'Last dither pointing'
-      });
-      this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
-        offsetLeft: 20,
-        offsetBottom: 50,
-        color: '#36ff75',
-        shape: 'circle',
-        sourceSize: 50,
-        legendSourceSize: 10,
-        label: 'Target'
-      });
+      let legendOffsetBottom = 30;
+      let legendOffsetBottomStepSize = 20;
       // Make sure the pixel scale bar is at least big enough to be seen on the graph is at least big enough to be able to be seen on the plot
       let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / 3600, this.zoomedInFieldOfView / 100);
       this.addScaleBar(
         this.aladinZoomedIn,
         pixelScaleBar,
         `${this.instrumentType} pixel scale (${this.instrumentArcSecPerPixel}"/pix)`,
-        { left: 20, bottom: 30 },
+        { left: 20, bottom: legendOffsetBottom },
         '#36ff75'
       );
+      if (this.showTarget) {
+        legendOffsetBottom += legendOffsetBottomStepSize;
+        this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
+          offsetLeft: 20,
+          offsetBottom: legendOffsetBottom,
+          color: '#36ff75',
+          shape: 'circle',
+          sourceSize: 50,
+          legendSourceSize: 10,
+          label: 'Target'
+        });
+      }
+      if (firstPointingSources.length > 0) {
+        legendOffsetBottom += legendOffsetBottomStepSize;
+        this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
+          offsetLeft: 20,
+          offsetBottom: legendOffsetBottom,
+          color: 'cyan',
+          shape: 'cross',
+          sourceSize: 15,
+          legendSourceSize: 10,
+          label: 'First dither pointing'
+        });
+      }
+      if (middlePointingsSources.length > 0) {
+        legendOffsetBottom += legendOffsetBottomStepSize;
+        this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
+          offsetLeft: 20,
+          offsetBottom: legendOffsetBottom,
+          color: 'cyan',
+          shape: 'circle',
+          sourceSize: 15,
+          legendSourceSize: 10,
+          label: 'Dither pointing'
+        });
+      }
+      if (lastPointingSources.length > 0) {
+        legendOffsetBottom += legendOffsetBottomStepSize;
+        this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
+          offsetLeft: 20,
+          offsetBottom: legendOffsetBottom,
+          color: 'cyan',
+          shape: 'triangle',
+          sourceSize: 15,
+          legendSourceSize: 10,
+          label: 'Last dither pointing'
+        });
+      }
       this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: 'cyan', lineWidth: 1 });
     },
     addText: function(aladin, x, y, options) {
