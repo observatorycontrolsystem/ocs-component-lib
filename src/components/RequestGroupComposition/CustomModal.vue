@@ -1,5 +1,5 @@
 <template>
-  <b-modal ref="my-modal" size="xl" :title="header">
+  <b-modal ref="my-modal" size="xl" :title="header" @close="close">
     <!-- Clicking the X at the top left breaks the abillity to open this modal again -->
     <slot />
     <div slot="modal-footer">
