@@ -263,6 +263,7 @@ export default {
       layer.add(A.polyline(coordinates, { color: color, lineWidth: lineWidth }));
     },
     addScaleBar: function(aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
+      // Draw a horizontal scale bar
       color = color || 'cyan';
       textSpacing = textSpacing || 15;
       lineWidth = lineWidth || 2;
@@ -273,13 +274,10 @@ export default {
       aladin.addOverlay(layer);
       const viewSizePix = aladin.getSize();
       const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBotton]; // Bottom left corner
-      const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
-
-      // TODO: The scale bar on the zoomed out plot looks weird near the poles, the zoomed in plot looks ok
-
+      const scaleBarSizeInPix = (sizeAsDegrees / aladin.getFov()[0]) * viewSizePix[0];
+      const scaleBarEndPix = [scaleBarStartPix[0] + scaleBarSizeInPix, scaleBarStartPix[1]];
       const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
-      const scaleBarEnd = [scaleBarStart[0] - sizeAsDegrees / cosDec, scaleBarStart[1]];
-      const scaleBarEndPix = aladin.world2pix(scaleBarEnd[0], scaleBarEnd[1]);
+      const scaleBarEnd = aladin.pix2world(scaleBarEndPix[0], scaleBarEndPix[1]);
       const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
       layer.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
       layer.add(
