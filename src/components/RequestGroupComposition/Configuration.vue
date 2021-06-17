@@ -138,7 +138,7 @@
               :errors="{}"
             />
             <custom-field
-              v-if="dither.pattern === 'line' || dither.pattern === 'box' || dither.pattern === 'spiral'"
+              v-if="dither.pattern === 'line' || dither.pattern === 'spiral'"
               v-model="dither.parameters.numPoints"
               field="dither-num-points"
               :label="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'label'], 'Number of Points')"
@@ -148,7 +148,7 @@
               :errors="null"
             />
             <custom-field
-              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'box' || dither.pattern === 'spiral'"
+              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'spiral'"
               v-model="dither.parameters.pointSpacing"
               field="dither-point-spacing"
               :label="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'label'], 'Point Spacing')"
@@ -158,7 +158,17 @@
               :errors="null"
             />
             <custom-field
-              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'box' || dither.pattern === 'spiral'"
+              v-if="dither.pattern === 'grid'"
+              v-model="dither.parameters.lineSpacing"
+              field="line-spacing"
+              :label="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'label'], 'Line Spacing')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], false)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'spiral'"
               v-model="dither.parameters.orientation"
               field="dither-orientation"
               :label="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'label'], 'Orientation')"
@@ -230,6 +240,7 @@
                     <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
+                <!-- TODO: For non-sidereal targets, don't pass in RA and Dec, just plot the zoomed in view on top of a plain background -->
                 <dither-pattern-plot
                   plot-id="dither-plot"
                   :offsets="ditherPatternOffsets"
@@ -416,7 +427,6 @@ export default {
           { text: 'None', value: 'none' },
           { text: 'Line', value: 'line' },
           { text: 'Grid', value: 'grid' },
-          { text: 'Box', value: 'box' },
           { text: 'Spiral', value: 'spiral' }
         ],
         centerOptions: [
@@ -427,6 +437,7 @@ export default {
         parameters: {
           numPoints: 3,
           pointSpacing: 1,
+          lineSpacing: 1,
           orientation: 0,
           center: false,
           numRows: 3,
@@ -549,7 +560,7 @@ export default {
     instrumentInfo: function() {
       let cameraTypeInfo = _.get(this.availableInstruments, [this.configuration.instrument_type, 'camera_type']);
       return {
-        fieldOfViewDegrees: _.get(cameraTypeInfo, 'field_of_view', 0) / 60,
+        fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
         arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0)
       };
     }
@@ -777,45 +788,30 @@ export default {
       if (this.dither.pattern === 'line') {
         return {
           configuration: this.configuration,
-          dither: {
-            pattern: this.dither.pattern,
-            num_points: this.dither.parameters.numPoints,
-            point_spacing: this.dither.parameters.pointSpacing,
-            orientation: this.dither.parameters.orientation,
-            center: this.dither.parameters.center
-          }
-        };
-      } else if (this.dither.pattern === 'box') {
-        return {
-          configuration: this.configuration,
-          dither: {
-            pattern: this.dither.pattern,
-            num_points: this.dither.parameters.numPoints,
-            point_spacing: this.dither.parameters.pointSpacing,
-            orientation: this.dither.parameters.orientation
-          }
+          pattern: this.dither.pattern,
+          num_points: this.dither.parameters.numPoints,
+          point_spacing: this.dither.parameters.pointSpacing,
+          orientation: this.dither.parameters.orientation,
+          center: this.dither.parameters.center
         };
       } else if (this.dither.pattern === 'grid') {
         return {
           configuration: this.configuration,
-          dither: {
-            pattern: this.dither.pattern,
-            num_rows: this.dither.parameters.numRows,
-            num_columns: this.dither.parameters.numColumns,
-            point_spacing: this.dither.parameters.pointSpacing,
-            orientation: this.dither.parameters.orientation,
-            center: this.dither.parameters.center
-          }
+          pattern: this.dither.pattern,
+          num_rows: this.dither.parameters.numRows,
+          num_columns: this.dither.parameters.numColumns,
+          point_spacing: this.dither.parameters.pointSpacing,
+          line_spacing: this.dither.parameters.lineSpacing,
+          orientation: this.dither.parameters.orientation,
+          center: this.dither.parameters.center
         };
       } else if (this.dither.pattern === 'spiral') {
         return {
           configuration: this.configuration,
-          dither: {
-            pattern: this.dither.pattern,
-            num_points: this.dither.parameters.numPoints,
-            point_spacing: this.dither.parameters.pointSpacing,
-            orientation: this.dither.parameters.orientation
-          }
+          pattern: this.dither.pattern,
+          num_points: this.dither.parameters.numPoints,
+          point_spacing: this.dither.parameters.pointSpacing,
+          orientation: this.dither.parameters.orientation
         };
       } else {
         return {};
