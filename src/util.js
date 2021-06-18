@@ -210,6 +210,11 @@ function getFromObject(obj, path, defaultValue) {
   return _.get(obj, path, defaultValue);
 }
 
+function round(value, decimalPlaces) {
+  let factor = Math.pow(10, decimalPlaces);
+  return Math.round(value * factor) / factor;
+}
+
 export {
   copyObject,
   decimalDecToSexigesimal,
@@ -223,6 +228,7 @@ export {
   formatValue,
   generateDurationString,
   getFromObject,
+  round,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
   stateToBsClass,

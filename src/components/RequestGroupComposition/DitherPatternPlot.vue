@@ -7,12 +7,21 @@
       </b-col>
     </b-row>
     <b-row>
-      <b-col>
-        <!-- TODO: Maybe don't show this plot of the dither range is larger than the instrument FOV -->
+      <b-col v-if="isSiderealTarget">
         <aladin-plot :plot-id="aladinZoomedOutPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedOutPlotLoaded"></aladin-plot>
+        <div>
+          Zoomed to the field of view of {{ instrumentType }}. The dither range is {{ ditherRangeInstrumentPercentage | round(1) }}% of this field of
+          view.
+        </div>
       </b-col>
-      <b-col>
+      <b-col :class="{ 'non-sidereal': !isSiderealTarget }">
         <aladin-plot :plot-id="aladinZoomedInPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
+        <div>
+          Zoomed in to the dither pattern.
+          <span v-if="ditherRange > 0"
+            >The pixel size of {{ instrumentType }} is {{ pixelSizeOfDitherRangePercentage | round(1) }}% of the dither range.</span
+          >
+        </div>
       </b-col>
     </b-row>
   </div>
@@ -20,12 +29,19 @@
 <script>
 /* global A */
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
-import TextAnnotation from '@/components/RequestGroupComposition/aladinTextAnnotation';
+import Text from '@/components/Plots/aladinText';
+import Rectangle from '@/components/Plots/aladinRectangle';
+import { round } from '@/util';
 
 export default {
   name: 'DitherPatternPlot',
   components: {
     AladinPlot
+  },
+  filters: {
+    round: function(value, decimalPlaces) {
+      return round(value, decimalPlaces);
+    }
   },
   props: {
     centerRa: {
@@ -59,7 +75,7 @@ export default {
       required: false,
       default: 'Instrument'
     },
-    showTarget: {
+    isSiderealTarget: {
       type: Boolean
     }
   },
@@ -68,7 +84,20 @@ export default {
       aladinZoomedIn: undefined,
       aladinZoomedOut: undefined,
       aladinZoomedInPlotId: 'dither-zoomed-in',
-      aladinZoomedOutPlotId: 'dither-zoomed-out'
+      aladinZoomedOutPlotId: 'dither-zoomed-out',
+      legendItemVerticalSpacingPix: 20,
+      legendItemsOffsetBottom: 30,
+      legendItemsOffsetLeft: 30,
+      legendSourceSize: 10,
+      patternSourceSize: 15,
+      targetMarkerSourceSize: 50,
+      arcSecPerDeg: 3600,
+      minScaleBarSizeFactor: 1 / 200,
+      maxScaleBarSizePercentage: 55,
+      colors: {
+        pattern: 'cyan',
+        info: '#36ff75'
+      }
     };
   },
   computed: {
@@ -78,7 +107,7 @@ export default {
       const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
       let coords = [];
       for (let offset of this.offsets) {
-        coords.push([this.centerRa + offset['ra'] / 3600 / cosDec, this.centerDec + offset['dec'] / 3600]);
+        coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
       }
       return coords;
     },
@@ -92,80 +121,82 @@ export default {
     },
     zoomedInFieldOfView: function() {
       // Should be at least as large as the instrument pixel scale
-      let fovForDitherRange = this.ditherRange * 4;
-      let fovForPixelScale = (this.instrumentArcSecPerPixel * 4) / 3600;
-      if (fovForDitherRange < this.instrumentArcSecPerPixel / 3600) {
+      let zoomedInFieldOfViewFactor = 4;
+      let fovForDitherRange = this.ditherRange * zoomedInFieldOfViewFactor;
+      let fovForPixelScale = (this.instrumentArcSecPerPixel * zoomedInFieldOfViewFactor) / this.arcSecPerDeg;
+      if (fovForDitherRange < this.instrumentArcSecPerPixel / this.arcSecPerDeg) {
         return fovForPixelScale;
       } else {
         return Math.max(fovForDitherRange, fovForPixelScale);
       }
+    },
+    ditherRangeInstrumentPercentage: function() {
+      return (this.ditherRange / this.instrumentFieldOfViewDegrees) * 100;
+    },
+    pixelSizeOfDitherRangePercentage: function() {
+      return (this.instrumentArcSecPerPixel / this.arcSecPerDeg / this.ditherRange) * 100;
     }
   },
   methods: {
-    onZoomedInPlotLoaded: function() {
-      // TODO: Center this plot on the middle of the dither sequence
-
-      this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, {
+    round: function(value, decimalPlaces) {
+      return round(value, decimalPlaces);
+    },
+    getAladinOptions: function() {
+      return {
         survey: 'P/DSS2/color',
-        fov: this.zoomedInFieldOfView,
         target: `${this.centerRa} ${this.centerDec}`,
         showReticle: false,
         showGotoControl: false,
         showLayersControl: false,
         showFullscreenControl: false,
-        showZoomControl: false
-      });
-      this.aladinZoomedIn
-        .getBaseImageLayer()
-        .getColorMap()
-        .update('grayscale');
+        showZoomControl: false,
+        pixelateCanvas: false,
+        showFrame: this.isSiderealTarget
+      };
+    },
+    onZoomedInPlotLoaded: function() {
+      // TODO: Center this plot on the middle of the dither sequence
+      this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, this.getAladinOptions());
+      this.aladinZoomedIn.setFov(this.zoomedInFieldOfView);
       this.aladinZoomedIn.setFovRange(this.zoomedInFieldOfView, this.zoomedInFieldOfView);
       this.aladinZoomedIn.on('positionChanged', () => {
         this.addZoomedInAnnotations();
       });
+      this.setColorMap(this.aladinZoomedIn);
     },
     onZoomedOutPlotLoaded: function() {
-      this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, {
-        survey: 'P/DSS2/color',
-        fov: this.instrumentFieldOfViewDegrees,
-        target: `${this.centerRa} ${this.centerDec}`,
-        showReticle: false,
-        showGotoControl: false,
-        showLayersControl: false,
-        showFullscreenControl: false,
-        showZoomControl: false
-      });
-      this.aladinZoomedOut
-        .getBaseImageLayer()
-        .getColorMap()
-        .update('grayscale');
+      this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions());
+      this.aladinZoomedOut.setFov(this.instrumentFieldOfViewDegrees);
       this.aladinZoomedOut.setFovRange(this.instrumentFieldOfViewDegrees, this.instrumentFieldOfViewDegrees);
       this.aladinZoomedOut.on('positionChanged', () => {
         this.addZoomedOutAnnotations();
       });
+      this.setColorMap(this.aladinZoomedOut);
     },
     addZoomedOutAnnotations: function() {
       this.aladinZoomedOut.removeLayers();
       // Make sure the range is at least big enough to be able to be seen on the plot
-      let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees / 100);
-      this.addScaleBar(
-        this.aladinZoomedOut,
-        range,
-        `Scale of dither range (${Math.floor(this.ditherRange * 3600)}")`,
-        { left: 20, bottom: 30 },
-        '#36ff75'
-      );
-      if (this.showTarget) {
-        this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
-          offsetLeft: 20,
-          offsetBottom: 50,
-          color: '#36ff75',
-          shape: 'circle',
-          sourceSize: 50,
-          legendSourceSize: 10,
-          label: 'Target'
-        });
+      let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees * this.minScaleBarSizeFactor);
+      let legendOffsetBottom = this.legendItemsOffsetBottom;
+      if (this.ditherRangeInstrumentPercentage < this.maxScaleBarSizePercentage) {
+        this.addScaleBar(
+          this.aladinZoomedOut,
+          range,
+          `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
+          { left: this.legendItemsOffsetLeft, bottom: legendOffsetBottom },
+          this.colors.info
+        );
+        legendOffsetBottom += this.legendItemVerticalSpacingPix;
       }
+      this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
+        offsetLeft: this.legendItemsOffsetLeft,
+        offsetBottom: legendOffsetBottom,
+        color: this.colors.info,
+        shape: 'circle',
+        sourceSize: this.targetMarkerSourceSize,
+        legendSourceSize: this.legendSourceSize,
+        label: 'Target'
+      });
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
@@ -185,66 +216,88 @@ export default {
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
-      let legendOffsetBottom = 30;
-      let legendOffsetBottomStepSize = 20;
+      let legendOffsetBottom = this.legendItemsOffsetBottom;
+      // Make sure the dither range scale bar is at least big enough to be able to be seen on the plot
+      let range = Math.max(this.ditherRange, this.zoomedInFieldOfView * this.minScaleBarSizeFactor);
+      this.addScaleBar(
+        this.aladinZoomedIn,
+        range,
+        `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
+        { left: this.legendItemsOffsetLeft, bottom: legendOffsetBottom },
+        this.colors.info
+      );
+      legendOffsetBottom += this.legendItemVerticalSpacingPix;
       // Make sure the pixel scale bar is at least big enough to be seen on the graph is at least big enough to be able to be seen on the plot
-      let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / 3600, this.zoomedInFieldOfView / 100);
+      let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / this.arcSecPerDeg, this.zoomedInFieldOfView / 100);
       this.addScaleBar(
         this.aladinZoomedIn,
         pixelScaleBar,
-        `${this.instrumentType} pixel scale (${this.instrumentArcSecPerPixel}"/pix)`,
-        { left: 20, bottom: legendOffsetBottom },
-        '#36ff75'
+        `${this.instrumentType} pixel size (${this.instrumentArcSecPerPixel}"/pix)`,
+        { left: this.legendItemsOffsetLeft, bottom: legendOffsetBottom },
+        this.colors.info
       );
-      if (this.showTarget) {
-        legendOffsetBottom += legendOffsetBottomStepSize;
-        this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
-          offsetLeft: 20,
-          offsetBottom: legendOffsetBottom,
-          color: '#36ff75',
-          shape: 'circle',
-          sourceSize: 50,
-          legendSourceSize: 10,
-          label: 'Target'
-        });
-      }
+      legendOffsetBottom += this.legendItemVerticalSpacingPix;
+      this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
+        offsetLeft: this.legendItemsOffsetLeft,
+        offsetBottom: legendOffsetBottom,
+        color: this.colors.info,
+        shape: 'circle',
+        sourceSize: this.targetMarkerSourceSize,
+        legendSourceSize: this.legendSourceSize,
+        label: 'Target'
+      });
       if (firstPointingSources.length > 0) {
-        legendOffsetBottom += legendOffsetBottomStepSize;
+        legendOffsetBottom += this.legendItemVerticalSpacingPix;
         this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
-          offsetLeft: 20,
+          offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
-          color: 'cyan',
+          color: this.colors.pattern,
           shape: 'cross',
-          sourceSize: 15,
-          legendSourceSize: 10,
+          sourceSize: this.patternSourceSize,
+          legendSourceSize: this.legendSourceSize,
           label: 'First dither pointing'
         });
       }
       if (middlePointingsSources.length > 0) {
-        legendOffsetBottom += legendOffsetBottomStepSize;
+        legendOffsetBottom += this.legendItemVerticalSpacingPix;
         this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
-          offsetLeft: 20,
+          offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
-          color: 'cyan',
+          color: this.colors.pattern,
           shape: 'circle',
-          sourceSize: 15,
-          legendSourceSize: 10,
+          sourceSize: this.patternSourceSize,
+          legendSourceSize: this.legendSourceSize,
           label: 'Dither pointing'
         });
       }
       if (lastPointingSources.length > 0) {
-        legendOffsetBottom += legendOffsetBottomStepSize;
+        legendOffsetBottom += this.legendItemVerticalSpacingPix;
         this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
-          offsetLeft: 20,
+          offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
-          color: 'cyan',
+          color: this.colors.pattern,
           shape: 'triangle',
-          sourceSize: 15,
-          legendSourceSize: 10,
+          sourceSize: this.patternSourceSize,
+          legendSourceSize: this.legendSourceSize,
           label: 'Last dither pointing'
         });
       }
-      this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: 'cyan', lineWidth: 1 });
+      this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
+      if (!this.isSiderealTarget) {
+        this.addFillBackground();
+      }
+    },
+    setColorMap: function(aladin) {
+      aladin
+        .getBaseImageLayer()
+        .getColorMap()
+        .update('grayscale');
+    },
+    addFillBackground: function() {
+      let layer = A.graphicOverlay();
+      this.aladinZoomedIn.addOverlay(layer);
+      let viewSize = this.aladinZoomedIn.getSize();
+      layer.add(new Rectangle(0, 0, viewSize[0], viewSize[1], { color: '#3f3e40', globalCompositeOperation: 'destination-over' }));
     },
     addText: function(aladin, x, y, options) {
       const label = options['label'] || '';
@@ -253,7 +306,7 @@ export default {
       const baseline = options['baseline'] || 'middle';
       let layer = A.graphicOverlay();
       aladin.addOverlay(layer);
-      layer.add(new TextAnnotation(x, y, label, { color: color, align: align, baseline: baseline }));
+      layer.add(new Text(x, y, label, { color: color, align: align, baseline: baseline }));
     },
     addPolyline: function(aladin, coordinates, options) {
       const color = options['color'] || 'red';
@@ -264,16 +317,16 @@ export default {
     },
     addScaleBar: function(aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
       // Draw a horizontal scale bar
-      color = color || 'cyan';
+      color = color || this.colors.pattern;
       textSpacing = textSpacing || 15;
       lineWidth = lineWidth || 2;
-      const offsetBotton = offsetPixFromEdge['bottom'] || 30;
-      const offsetleft = offsetPixFromEdge['left'] || 30;
+      const offsetBottom = offsetPixFromEdge['bottom'] || this.legendItemsOffsetBottom;
+      const offsetleft = offsetPixFromEdge['left'] || this.legendItemsOffsetLeft;
       // Aladin viewer pixel position (0,0) is the top left corner of the view
       let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: 4 });
       aladin.addOverlay(layer);
       const viewSizePix = aladin.getSize();
-      const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBotton]; // Bottom left corner
+      const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBottom]; // Bottom left corner
       const scaleBarSizeInPix = (sizeAsDegrees / aladin.getFov()[0]) * viewSizePix[0];
       const scaleBarEndPix = [scaleBarStartPix[0] + scaleBarSizeInPix, scaleBarStartPix[1]];
       const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
@@ -281,7 +334,7 @@ export default {
       const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
       layer.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
       layer.add(
-        new TextAnnotation(scaleBarStartPix[0] + scaleBarLength + textSpacing, scaleBarStartPix[1], label, {
+        new Text(scaleBarStartPix[0] + scaleBarLength + textSpacing, scaleBarStartPix[1], label, {
           color: color,
           align: 'start',
           baseline: 'middle'
@@ -291,11 +344,11 @@ export default {
     addCatalog: function(aladin, coordinates, options) {
       const label = options['label'] || '';
       const color = options['color'] || 'red';
-      const offsetBottom = options['offsetBottom'] || 30;
-      const offsetLeft = options['offsetLeft'] || 30;
+      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
+      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
       const shape = options['shape'] || 'circle';
-      const sourceSize = options['sourceSize'] || 15;
-      const legendSourceSize = options['legendSourceSize'] || 15;
+      const sourceSize = options['sourceSize'] || this.patternSourceSize;
+      const legendSourceSize = options['legendSourceSize'] || this.legendSourceSize;
       // Create a catalog and sources to it
       let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
       aladin.addCatalog(catalog);
@@ -315,9 +368,9 @@ export default {
       }
     },
     addLegendForCatalog: function(aladin, options) {
-      const offsetBottom = options['offsetBottom'] || 30;
-      const offsetLeft = options['offsetLeft'] || 30;
-      const sourceSize = options['sourceSize'] || 20;
+      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
+      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
+      const sourceSize = options['sourceSize'] || this.legendSourceSize;
       const color = options['color'] || 'red';
       const label = options['label'] || '';
       const shape = options['shape'] || 'circle';
@@ -330,10 +383,17 @@ export default {
       catalog.addSources(A.source(legendSource[0], legendSource[1]));
       let layer = A.graphicOverlay({ color: color, lineWidth: 2 });
       aladin.addOverlay(layer);
-      layer.add(
-        new TextAnnotation(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' })
-      );
+      layer.add(new Text(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' }));
     }
   }
 };
 </script>
+<style>
+/* Hide .aladin-fov and .aladin-location elements we are displaying a non-sidereal target */
+.non-sidereal .aladin-fov {
+  display: none;
+}
+.non-sidereal .aladin-location {
+  display: none;
+}
+</style>

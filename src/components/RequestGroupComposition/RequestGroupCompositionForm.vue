@@ -10,6 +10,7 @@
         :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :observation-type-options="observationTypeOptions"
+        :dither-pattern-options="ditherPatternOptions"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -206,6 +207,18 @@ export default {
           { value: 'NORMAL', text: 'Queue scheduled (default)' },
           { value: 'TIME_CRITICAL', text: 'Time Critical' },
           { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
+        ];
+      }
+    },
+    // Set the available dither pattern options
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
         ];
       }
     },

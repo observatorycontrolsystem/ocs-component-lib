@@ -129,7 +129,7 @@
             <!-- Begin dither fields -->
             <custom-select
               v-model="dither.pattern"
-              :options="dither.options"
+              :options="ditherPatternOptions"
               field="dither-pattern"
               :label="getFromObject(formConfig, ['configuration', 'dither', 'label'], 'Dither')"
               :desc="getFromObject(formConfig, ['configuration', 'dither', 'desc'], '')"
@@ -216,7 +216,6 @@
               label=""
               label-for="dither-button"
             >
-              <!-- TODO: Do not let user click button if fields aren't filled out -->
               <b-button id="dither-button" block variant="outline-primary" @click="generateDitherPattern">
                 Generate Dither
               </b-button>
@@ -232,15 +231,14 @@
                 :data-loaded="dither.status.loaded"
                 :data-not-found="dither.status.notFound"
                 :data-load-error="dither.status.error"
-                not-found-message="Unable to generate dither pattern"
+                not-found-message="There are no points in the generated dither pattern. Please update your dither parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate dither pattern</p>
-                  <ul>
+                  <ul class="pl-5">
                     <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
-                <!-- TODO: For non-sidereal targets, don't pass in RA and Dec, just plot the zoomed in view on top of a plain background -->
                 <dither-pattern-plot
                   plot-id="dither-plot"
                   :offsets="ditherPatternOffsets"
@@ -249,19 +247,23 @@
                   :instrument-field-of-view-degrees="instrumentInfo.fieldOfViewDegrees"
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
                   :instrument-type="configuration.instrument_type"
+                  :is-sidereal-target="configuration.target.type === 'ICRS'"
                   show-help
-                  :show-target="configuration.target.type === 'ICRS'"
                 >
                   <template #help>
                     <p>
-                      <!-- TODO: Write something more useful -->
-                      Plot help text will go here. The is for a {{ dither.pattern }} type pattern with offsets {{ ditherPatternOffsets }}.
+                      This is your generated <em>{{ dither.pattern }}</em> dither pattern. Click <em>Ok</em> to accept the pattern and <em>Cancel</em> to reject it and start over.
+                    </p>
+                    <p>
+                      Input parameters for the pattern:
+                      <ul class="pl-5">
+                        <li v-for="(value, parameter) in getDitherParameters(true)" :key="parameter">{{ parameter }}: {{ value }}</li>
+                      </ul>
                     </p>
                   </template>
                 </dither-pattern-plot>
               </data-loader>
             </custom-modal>
-
             <!-- End dither fields -->
           </b-form>
         </b-col>
@@ -400,6 +402,17 @@ export default {
         return {};
       }
     },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
+      }
+    },
     tooltipConfig: {
       type: Object,
       default: () => {
@@ -422,14 +435,7 @@ export default {
         configurationIndex: this.index
       },
       dither: {
-        pattern: 'none',
-        // TODO: Pass these through as prop
-        options: [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' },
-          { text: 'Spiral', value: 'spiral' }
-        ],
+        pattern: _.get(this.ditherPatternOptions, [0, 'value'], 'none'),
         centerOptions: [
           { text: 'True', value: true },
           { text: 'False', value: false }
@@ -785,20 +791,17 @@ export default {
     configureGuidingConfig: function() {
       this.setGuideFields();
     },
-    getDitherParameters: function() {
+    getDitherParameters: function(simple) {
+      let parameters = {};
       if (this.dither.pattern === 'line') {
-        return {
-          configuration: this.configuration,
-          pattern: this.dither.pattern,
+        parameters = {
           num_points: this.dither.parameters.numPoints,
           point_spacing: this.dither.parameters.pointSpacing,
           orientation: this.dither.parameters.orientation,
           center: this.dither.parameters.center
         };
       } else if (this.dither.pattern === 'grid') {
-        return {
-          configuration: this.configuration,
-          pattern: this.dither.pattern,
+        parameters = {
           num_rows: this.dither.parameters.numRows,
           num_columns: this.dither.parameters.numColumns,
           point_spacing: this.dither.parameters.pointSpacing,
@@ -807,16 +810,17 @@ export default {
           center: this.dither.parameters.center
         };
       } else if (this.dither.pattern === 'spiral') {
-        return {
-          configuration: this.configuration,
-          pattern: this.dither.pattern,
+        parameters = {
           num_points: this.dither.parameters.numPoints,
           point_spacing: this.dither.parameters.pointSpacing,
           orientation: this.dither.parameters.orientation
         };
-      } else {
-        return {};
       }
+      if (!simple) {
+        parameters.configuration = this.configuration;
+        parameters.pattern = this.dither.pattern;
+      }
+      return parameters;
     },
     generateDitherPattern: function() {
       if (!_.isEmpty(this.errors)) {
@@ -831,7 +835,7 @@ export default {
       $.ajax({
         method: 'POST',
         url: `${this.observationPortalApiBaseUrl}/api/configuration/dither/`,
-        data: JSON.stringify(this.getDitherParameters()),
+        data: JSON.stringify(this.getDitherParameters(false)),
         contentType: 'application/json'
       })
         .done(response => {

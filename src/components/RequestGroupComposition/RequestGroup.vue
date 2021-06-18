@@ -109,6 +109,7 @@
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
+        :dither-pattern-options="ditherPatternOptions"
         :datetime-format="datetimeFormat"
         :form-config="formConfig"
         :tooltip-config="tooltipConfig"
@@ -211,6 +212,17 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
       }
     },
     observationTypeOptions: {

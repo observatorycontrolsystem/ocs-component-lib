@@ -52,6 +52,7 @@
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
+      :dither-pattern-options="ditherPatternOptions"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -190,6 +191,17 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
       }
     }
   },
