@@ -249,14 +249,14 @@
                 >
                   <template #help>
                     <p>
-                      This is your generated <em>{{ dither.pattern }}</em> dither pattern. Click <em>Ok</em> to accept the pattern and <em>Cancel</em> to reject it and start over.
+                      This is your generated <em>{{ dither.pattern }}</em> dither pattern. Click <em>Ok</em> to accept the pattern and
+                      <em>Cancel</em> to reject it and start over.
                     </p>
-                    <p>
-                      Input parameters for the pattern:
-                      <ul class="pl-5">
-                        <li v-for="(value, parameter) in getDitherParameters(true)" :key="parameter">{{ parameter }}: {{ value }}</li>
-                      </ul>
-                    </p>
+                    <p>Calculated dither offsets using input parameters <em>{{ getDitherParameters(true) | objAsString }}</em></p>
+                    <div class="dither-offset-table">
+                      <b-table-lite :items="ditherPatternOffsets" small></b-table-lite>
+                    </div>
+                    <br>
                   </template>
                 </dither-pattern-plot>
               </data-loader>
@@ -359,6 +359,18 @@ export default {
   filters: {
     toNumber(value) {
       return Number(value);
+    },
+    objAsString(value) {
+      let result = '';
+      for (let key in value) {
+        if (result) {
+          result += `, ${key}: ${value[key]}`;
+        } else {
+          // This is the first key, value pair being printed
+          result += `${key}: ${value[key]}`;
+        }
+      }
+      return result;
     }
   },
   mixins: [collapseMixin],
@@ -895,3 +907,9 @@ export default {
   }
 };
 </script>
+<style scoped>
+  .dither-offset-table {
+    max-height: 200px;
+    overflow-y: scroll;
+  }
+</style>
