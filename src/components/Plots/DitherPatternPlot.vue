@@ -18,9 +18,9 @@
         <aladin-plot :plot-id="aladinZoomedInPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
         <div>
           Zoomed in to the dither pattern.
-          <span v-if="ditherRange > 0"
-            >The pixel size of {{ instrumentType }} is {{ pixelSizeOfDitherRangePercentage | round(1) }}% of the dither range.</span
-          >
+          <span v-if="ditherRange > 0">
+            The pixel size of {{ instrumentType }} is {{ pixelSizeOfDitherRangePercentage | round(1) }}% of the dither range.
+          </span>
         </div>
       </b-col>
     </b-row>
@@ -95,8 +95,10 @@ export default {
       minScaleBarSizeFactor: 1 / 200,
       maxScaleBarSizePercentage: 55,
       colors: {
-        pattern: '#ff4500',
-        info: 'MediumSeaGreen'
+        pattern: '#30fff8',
+        info: '#17ff60',  //'#36ff75',
+        transparentBackground: 'rgba(0, 0, 0, 0.4)',
+        nonSiderealBackground: '#3f3e40'
       }
     };
   },
@@ -197,6 +199,7 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
+      this.addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground)
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
@@ -284,7 +287,9 @@ export default {
       }
       this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
       if (!this.isSiderealTarget) {
-        this.addFillBackground();
+        this.addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
+      } else {
+        this.addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground)
       }
     },
     setColorMap: function(aladin) {
@@ -293,11 +298,11 @@ export default {
         .getColorMap()
         .update('grayscale');
     },
-    addFillBackground: function() {
+    addFillBackground: function(aladin, color) {
       let layer = A.graphicOverlay();
-      this.aladinZoomedIn.addOverlay(layer);
-      let viewSize = this.aladinZoomedIn.getSize();
-      layer.add(new Rectangle(0, 0, viewSize[0], viewSize[1], { color: '#3f3e40', globalCompositeOperation: 'destination-over' }));
+      aladin.addOverlay(layer);
+      let viewSize = aladin.getSize();
+      layer.add(new Rectangle(0, 0, viewSize[0], viewSize[1], { color: color, globalCompositeOperation: 'destination-over' }));
     },
     addText: function(aladin, x, y, options) {
       const label = options['label'] || '';
