@@ -252,11 +252,13 @@
                       This is your generated <em>{{ dither.pattern }}</em> dither pattern. Click <em>Ok</em> to accept the pattern and
                       <em>Cancel</em> to reject it and start over.
                     </p>
-                    <p>Calculated dither offsets using input parameters <em>{{ getDitherParameters(true) | objAsString }}</em></p>
+                    <p>
+                      Calculated dither offsets using input parameters <em>{{ getDitherParameters(true) | objAsString }}</em>
+                    </p>
                     <div class="dither-offset-table">
                       <b-table-lite :items="ditherPatternOffsets" small></b-table-lite>
                     </div>
-                    <br>
+                    <br />
                   </template>
                 </dither-pattern-plot>
               </data-loader>
@@ -908,8 +910,8 @@ export default {
 };
 </script>
 <style scoped>
-  .dither-offset-table {
-    max-height: 200px;
-    overflow-y: scroll;
-  }
+.dither-offset-table {
+  max-height: 200px;
+  overflow-y: scroll;
+}
 </style>

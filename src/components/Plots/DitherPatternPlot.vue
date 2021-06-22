@@ -96,7 +96,7 @@ export default {
       maxScaleBarSizePercentage: 55,
       colors: {
         pattern: '#30fff8',
-        info: '#17ff60',  //'#36ff75',
+        info: '#17ff60',
         transparentBackground: 'rgba(0, 0, 0, 0.4)',
         nonSiderealBackground: '#3f3e40'
       }
@@ -121,6 +121,14 @@ export default {
       let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
       return Math.max(raRange, decRange);
     },
+    ditherMidPoint: function() {
+      // Find the center of the dither sequence
+      let decCoords = this.offsetCoordinates.map(coord => coord[1]);
+      let raCoords = this.offsetCoordinates.map(coord => coord[0]);
+      let ra = (Math.max(...raCoords) + Math.min(...raCoords)) / 2;
+      let dec = (Math.max(...decCoords) + Math.min(...decCoords)) / 2;
+      return [ra, dec];
+    },
     zoomedInFieldOfView: function() {
       // Should be at least as large as the instrument pixel scale
       let zoomedInFieldOfViewFactor = 4;
@@ -143,10 +151,10 @@ export default {
     round: function(value, decimalPlaces) {
       return round(value, decimalPlaces);
     },
-    getAladinOptions: function() {
+    getAladinOptions: function(ra, dec) {
       return {
         survey: 'P/DSS2/color',
-        target: `${this.centerRa} ${this.centerDec}`,
+        target: `${ra} ${dec}`,
         showReticle: false,
         showGotoControl: false,
         showLayersControl: false,
@@ -157,8 +165,7 @@ export default {
       };
     },
     onZoomedInPlotLoaded: function() {
-      // TODO: Center this plot on the middle of the dither sequence
-      this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, this.getAladinOptions());
+      this.aladinZoomedIn = A.aladin(`#${this.aladinZoomedInPlotId}`, this.getAladinOptions(this.ditherMidPoint[0], this.ditherMidPoint[1]));
       this.aladinZoomedIn.setFov(this.zoomedInFieldOfView);
       this.aladinZoomedIn.setFovRange(this.zoomedInFieldOfView, this.zoomedInFieldOfView);
       this.aladinZoomedIn.on('positionChanged', () => {
@@ -167,7 +174,7 @@ export default {
       this.setColorMap(this.aladinZoomedIn);
     },
     onZoomedOutPlotLoaded: function() {
-      this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions());
+      this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions(this.centerRa, this.centerDec));
       this.aladinZoomedOut.setFov(this.instrumentFieldOfViewDegrees);
       this.aladinZoomedOut.setFovRange(this.instrumentFieldOfViewDegrees, this.instrumentFieldOfViewDegrees);
       this.aladinZoomedOut.on('positionChanged', () => {
@@ -199,7 +206,7 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
-      this.addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground)
+      this.addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground);
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
@@ -289,7 +296,7 @@ export default {
       if (!this.isSiderealTarget) {
         this.addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
       } else {
-        this.addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground)
+        this.addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground);
       }
     },
     setColorMap: function(aladin) {
