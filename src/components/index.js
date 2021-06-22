@@ -14,7 +14,7 @@ import {
 } from './RequestGroupComposition';
 import { ObservationDetail, ObservationsTable } from './Observations';
 import { RequestOverview, RequestWindowsDetail } from './Requests';
-import { AirmassPlot, CadencePlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
+import { AirmassPlot, CadencePlot, DitherPatternPlot, ObservationHistoryPlot, TelescopeStatesPlot } from './Plots';
 import { DataLoader, Pagination } from './Util';
 
 export {
@@ -26,6 +26,7 @@ export {
   CustomModal,
   CustomSelect,
   DataLoader,
+  DitherPatternPlot,
   FormPanel,
   ObservationDetail,
   ObservationsTable,

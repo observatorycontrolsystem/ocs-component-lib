@@ -95,8 +95,8 @@ export default {
       minScaleBarSizeFactor: 1 / 200,
       maxScaleBarSizePercentage: 55,
       colors: {
-        pattern: 'cyan',
-        info: '#36ff75'
+        pattern: '#ff4500',
+        info: 'MediumSeaGreen'
       }
     };
   },

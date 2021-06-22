@@ -53,6 +53,7 @@
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
       :dither-pattern-options="ditherPatternOptions"
+      :dithering-allowed="ditheringAllowed"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -202,6 +203,13 @@ export default {
           { text: 'Grid', value: 'grid' },
           { text: 'Spiral', value: 'spiral' }
         ];
+      }
+    },
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
       }
     }
   },

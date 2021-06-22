@@ -123,9 +123,6 @@
               :errors="null"
               @input="updateAcquisitionConfigExtraParam($event, field)"
             />
-
-            <!-- TODO: Only display dither options if imager instrument -->
-
             <!-- Begin dither fields -->
             <custom-select
               v-model="dither.pattern"
@@ -133,7 +130,7 @@
               field="dither-pattern"
               :label="getFromObject(formConfig, ['configuration', 'dither', 'label'], 'Dither')"
               :desc="getFromObject(formConfig, ['configuration', 'dither', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="{}"
             />
@@ -143,7 +140,7 @@
               field="dither-num-points"
               :label="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'label'], 'Number of Points')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -153,7 +150,7 @@
               field="dither-point-spacing"
               :label="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'label'], 'Point Spacing')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -163,7 +160,7 @@
               field="line-spacing"
               :label="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'label'], 'Line Spacing')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -173,7 +170,7 @@
               field="dither-orientation"
               :label="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'label'], 'Orientation')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -183,7 +180,7 @@
               field="dither-num-rows"
               :label="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'label'], 'Number of Rows')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -193,7 +190,7 @@
               field="dither-num-columns"
               :label="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'label'], 'Number of Columns')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -204,12 +201,12 @@
               field="dither-center"
               :label="getFromObject(formConfig, ['configuration', 'ditherCenter', 'label'], 'Center')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherCenter', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherCenter', 'hide'], false)"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherCenter', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <b-form-group
-              v-show="dither.pattern !== 'none' && show"
+              v-show="ditheringIsAllowed && dither.pattern !== 'none' && show"
               label-size="sm"
               label-align-sm="right"
               label-cols-sm="4"
@@ -280,6 +277,7 @@
       :instrument-config="instrumentConfig"
       :selected-instrument="configuration.instrument_type"
       :available-instruments="availableInstruments"
+      :dithering-is-allowed="ditheringIsAllowed"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
@@ -339,7 +337,7 @@ import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue'
 import InstrumentConfigPanel from '@/components/RequestGroupComposition/InstrumentConfigPanel.vue';
 import Constraints from '@/components/RequestGroupComposition/Constraints.vue';
 import Target from '@/components/RequestGroupComposition/Target.vue';
-import DitherPatternPlot from '@/components/RequestGroupComposition/DitherPatternPlot.vue';
+import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, defaultTooltipConfig } from '@/util';
@@ -411,6 +409,15 @@ export default {
           { text: 'Grid', value: 'grid' },
           { text: 'Spiral', value: 'spiral' }
         ];
+      }
+    },
+    // `ditheringAllowed` is a function that takes the configuration data, the request index, and the configuration index,
+    // and returns a boolean indicating whether dithering is allowed.
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
       }
     },
     tooltipConfig: {
@@ -553,6 +560,9 @@ export default {
         }
       }
       return _.sortBy(options, 'text');
+    },
+    ditheringIsAllowed: function() {
+      return this.ditheringAllowed(this.configuration, this.requestIndex, this.index);
     },
     ditherPatternOffsets: function() {
       let offsets = [];

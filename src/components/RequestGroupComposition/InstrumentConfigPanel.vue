@@ -26,11 +26,12 @@
           <slot
             name="instrument-config-form"
             :update="update"
-            :data="{ instrumentConfig: instrumentConfig, errors: errors, show: show, position: position }"
+            :data="{ instrumentConfig: instrumentConfig, ditheringIsAllowed: ditheringIsAllowed, errors: errors, show: show, position: position }"
           >
             <instrument-config-form
               :show="show"
               :instrument-config="instrumentConfig"
+              :dithering-is-allowed="ditheringIsAllowed"
               :selected-instrument="selectedInstrument"
               :available-instruments="availableInstruments"
               :errors="errors"
@@ -87,6 +88,9 @@ export default {
     instrumentConfig: {
       type: Object,
       required: true
+    },
+    ditheringIsAllowed: {
+      type: Boolean
     },
     show: {
       type: Boolean

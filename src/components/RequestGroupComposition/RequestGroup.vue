@@ -110,6 +110,7 @@
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
         :dither-pattern-options="ditherPatternOptions"
+        :dithering-allowed="ditheringAllowed"
         :datetime-format="datetimeFormat"
         :form-config="formConfig"
         :tooltip-config="tooltipConfig"
@@ -223,6 +224,13 @@ export default {
           { text: 'Grid', value: 'grid' },
           { text: 'Spiral', value: 'spiral' }
         ];
+      }
+    },
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
       }
     },
     observationTypeOptions: {

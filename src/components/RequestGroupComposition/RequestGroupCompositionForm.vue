@@ -11,6 +11,7 @@
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :observation-type-options="observationTypeOptions"
         :dither-pattern-options="ditherPatternOptions"
+        :dithering-allowed="ditheringAllowed"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -220,6 +221,15 @@ export default {
           { text: 'Grid', value: 'grid' },
           { text: 'Spiral', value: 'spiral' }
         ];
+      }
+    },
+    // `ditheringAllowed` is a function that takes the configuration data, the request index, and the configuration index,
+    // and returns a boolean indicating whether dithering is allowed.
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
       }
     },
     // Object containing configuration for form panels and form fields. Top level fields are keys
