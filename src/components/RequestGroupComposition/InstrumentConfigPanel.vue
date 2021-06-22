@@ -29,6 +29,7 @@
             :data="{ instrumentConfig: instrumentConfig, ditheringIsAllowed: ditheringIsAllowed, errors: errors, show: show, position: position }"
           >
             <instrument-config-form
+              :id="'instrument-config-form' + position.requestIndex + position.configurationIndex + position.instrumentConfigIndex"
               :show="show"
               :instrument-config="instrumentConfig"
               :dithering-is-allowed="ditheringIsAllowed"

@@ -1,5 +1,5 @@
 <template>
-  <b-form>
+  <b-form :id="id">
     <custom-field
       v-model="instrumentConfig.exposure_count"
       field="exposure_count"
@@ -71,25 +71,25 @@
         :errors="null"
         @input="updateInstrumentConfigExtraParam($event, field)"
       />
-      <custom-field
-        v-model="offsetRa"
-        field="offset_ra"
-        :label="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'label'], 'Offset RA')"
-        :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'desc'], '')"
-        :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'hide'], !ditheringIsAllowed)"
-        :errors="null"
-        @input="update"
-      />
-      <custom-field
-        v-model="offsetDec"
-        field="offset_dec"
-        :label="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'label'], 'Offset Dec')"
-        :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'desc'], '')"
-        :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'hide'], !ditheringIsAllowed)"
-        :errors="null"
-        @input="update"
-      />
     </div>
+    <custom-field
+      v-model="offsetRa"
+      field="offset_ra"
+      :label="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'label'], 'Offset RA')"
+      :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'hide'], !ditheringIsAllowed)"
+      :errors="null"
+      @input="update"
+    />
+    <custom-field
+      v-model="offsetDec"
+      field="offset_dec"
+      :label="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'label'], 'Offset Dec')"
+      :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'hide'], !ditheringIsAllowed)"
+      :errors="null"
+      @input="update"
+    />
   </b-form>
 </template>
 <script>
@@ -107,6 +107,10 @@ export default {
     CustomSelect
   },
   props: {
+    id: {
+      type: String,
+      required: true
+    },
     errors: {
       type: Object,
       required: true
