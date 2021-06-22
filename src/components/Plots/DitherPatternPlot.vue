@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- TODO: Make this nice for small screens -->
     <b-row>
       <b-col>
         <slot name="help"></slot>
@@ -8,15 +7,27 @@
     </b-row>
     <b-row>
       <b-col v-if="isSiderealTarget">
-        <aladin-plot :plot-id="aladinZoomedOutPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedOutPlotLoaded"></aladin-plot>
-        <div>
+        <aladin-plot
+          :plot-id="aladinZoomedOutPlotId"
+          :plot-height="plotHeight"
+          :plot-width="plotWidth"
+          class="aladin-responsive"
+          @aladin-loaded="onZoomedOutPlotLoaded"
+        />
+        <div class="text-center font-italic m-auto w-100">
           Zoomed to the field of view of {{ instrumentType }}. The dither range is {{ ditherRangeInstrumentPercentage | round(1) }}% of this field of
           view.
         </div>
       </b-col>
       <b-col :class="{ 'non-sidereal': !isSiderealTarget }">
-        <aladin-plot :plot-id="aladinZoomedInPlotId" plot-height="500px" plot-width="500px" @aladin-loaded="onZoomedInPlotLoaded"></aladin-plot>
-        <div>
+        <aladin-plot
+          :plot-id="aladinZoomedInPlotId"
+          :plot-height="plotHeight"
+          :plot-width="plotWidth"
+          class="aladin-responsive"
+          @aladin-loaded="onZoomedInPlotLoaded"
+        />
+        <div class="text-center font-italic m-auto w-100">
           Zoomed in to the dither pattern.
           <span v-if="ditherRange > 0">
             The pixel size of {{ instrumentType }} is {{ pixelSizeOfDitherRangePercentage | round(1) }}% of the dither range.
@@ -28,6 +39,8 @@
 </template>
 <script>
 /* global A */
+import $ from 'jquery';
+
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import Text from '@/components/Plots/aladinText';
 import Rectangle from '@/components/Plots/aladinRectangle';
@@ -81,6 +94,10 @@ export default {
   },
   data: function() {
     return {
+      // These values for height and width are chosen to work well with everything
+      // that is drawn on the plots.
+      plotHeight: '500px',
+      plotWidth: '500px',
       aladinZoomedIn: undefined,
       aladinZoomedOut: undefined,
       aladinZoomedInPlotId: 'dither-zoomed-in',
@@ -151,6 +168,12 @@ export default {
     round: function(value, decimalPlaces) {
       return round(value, decimalPlaces);
     },
+    removeReticleEventHandlers: function() {
+      // There are event handlers to allow a user to drag the aladin view around, and also
+      // zoom in and out of the view. Disable those event handlers since we do not want to
+      // allow either of those actions
+      $('.aladin-reticleCanvas').unbind();
+    },
     getAladinOptions: function(ra, dec) {
       return {
         survey: 'P/DSS2/color',
@@ -172,6 +195,7 @@ export default {
         this.addZoomedInAnnotations();
       });
       this.setColorMap(this.aladinZoomedIn);
+      this.removeReticleEventHandlers();
     },
     onZoomedOutPlotLoaded: function() {
       this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions(this.centerRa, this.centerDec));
@@ -181,6 +205,7 @@ export default {
         this.addZoomedOutAnnotations();
       });
       this.setColorMap(this.aladinZoomedOut);
+      this.removeReticleEventHandlers();
     },
     addZoomedOutAnnotations: function() {
       this.aladinZoomedOut.removeLayers();
@@ -407,5 +432,8 @@ export default {
 }
 .non-sidereal .aladin-location {
   display: none;
+}
+.aladin-responsive {
+  overflow-x: scroll;
 }
 </style>
