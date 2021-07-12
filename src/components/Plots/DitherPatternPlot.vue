@@ -120,21 +120,26 @@ export default {
     };
   },
   computed: {
+    cosDec: function() {
+      let cosDec = Math.cos((this.centerDec * Math.PI) / 180);
+      // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
+      // precise since this is only for visualization purposes and a small shift won't matter.
+      cosDec = Math.max(cosDec, 10e-4);
+      return cosDec;
+    },
     offsetCoordinates: function() {
       // Calculate list of coordinates from provided offsets. Equations pulled
       // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
-      const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
       let coords = [];
       for (let offset of this.offsets) {
-        coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
+        coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / this.cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
       }
       return coords;
     },
     ditherRange: function() {
-      const cosDec = Math.cos((this.centerDec * Math.PI) / 180);
       let decCoords = this.offsetCoordinates.map(coord => coord[1]);
       let raCoords = this.offsetCoordinates.map(coord => coord[0]);
-      let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * cosDec;
+      let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * this.cosDec;
       let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
       return Math.max(raRange, decRange);
     },
