@@ -137,6 +137,7 @@ export default {
       return coords;
     },
     ditherRange: function() {
+      // Find the size of the dither offsets
       let decCoords = this.offsetCoordinates.map(coord => coord[1]);
       let raCoords = this.offsetCoordinates.map(coord => coord[0]);
       let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * this.cosDec;
