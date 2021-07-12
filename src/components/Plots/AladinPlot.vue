@@ -35,7 +35,9 @@ export default {
     // Aladin does not come bundled up as an NPM package and instead much be included like this
     // https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
     $.getScript('https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js', () => {
-      // After the script loads, the global variable `A` is available
+      // After the script loads, the global variable `A` is available. Add the following line to the page
+      // where aladin is being used to silence lint errors saying that A is not defined:
+      // /* global A */
       this.aladinLoaded = true;
       this.$emit('aladin-loaded');
     });
