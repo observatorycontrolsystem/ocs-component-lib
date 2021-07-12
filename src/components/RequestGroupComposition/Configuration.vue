@@ -256,7 +256,7 @@
                       Calculated dither offsets using input parameters <em>{{ getDitherParameters(true) | objAsString }}</em>
                     </p>
                     <div class="dither-offset-table">
-                      <b-table-lite :items="ditherPatternOffsets" small></b-table-lite>
+                      <b-table-lite :items="ditherPatternOffsets" :fields="dither.fields" small></b-table-lite>
                     </div>
                     <br />
                   </template>
@@ -456,6 +456,10 @@ export default {
         configurationIndex: this.index
       },
       dither: {
+        fields: [
+          { key: 'ra', label: 'RA offset (arcsec)' },
+          { key: 'dec', label: 'Dec offset (arcsec)' }
+        ],
         pattern: _.get(this.ditherPatternOptions, [0, 'value'], 'none'),
         centerOptions: [
           { text: 'True', value: true },
