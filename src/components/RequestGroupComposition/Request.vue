@@ -54,6 +54,8 @@
       :tooltip-config="tooltipConfig"
       :dither-pattern-options="ditherPatternOptions"
       :dithering-allowed="ditheringAllowed"
+      :aladin-script-location="aladinScriptLocation"
+      :aladin-style-location="aladinStyleLocation"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -211,6 +213,14 @@ export default {
       default: (configuration, requestIndex, configurationIndex) => {
         return true;
       }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {

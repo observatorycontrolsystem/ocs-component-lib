@@ -111,6 +111,8 @@
         :instrument-category-to-name="instrumentCategoryToName"
         :dither-pattern-options="ditherPatternOptions"
         :dithering-allowed="ditheringAllowed"
+        :aladin-script-location="aladinScriptLocation"
+        :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
         :form-config="formConfig"
         :tooltip-config="tooltipConfig"
@@ -258,6 +260,14 @@ export default {
       default: () => {
         return defaultTooltipConfig;
       }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {

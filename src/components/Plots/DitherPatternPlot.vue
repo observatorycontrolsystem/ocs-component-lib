@@ -12,6 +12,8 @@
           :plot-height="plotHeight"
           :plot-width="plotWidth"
           class="aladin-responsive"
+          :aladin-script-location="aladinScriptLocation"
+          :aladin-style-location="aladinStyleLocation"
           @aladin-loaded="onZoomedOutPlotLoaded"
         />
         <div class="text-center font-italic m-auto w-100">
@@ -25,6 +27,8 @@
           :plot-height="plotHeight"
           :plot-width="plotWidth"
           class="aladin-responsive"
+          :aladin-script-location="aladinScriptLocation"
+          :aladin-style-location="aladinStyleLocation"
           @aladin-loaded="onZoomedInPlotLoaded"
         />
         <div class="text-center font-italic m-auto w-100">
@@ -90,6 +94,14 @@ export default {
     },
     isSiderealTarget: {
       type: Boolean
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {

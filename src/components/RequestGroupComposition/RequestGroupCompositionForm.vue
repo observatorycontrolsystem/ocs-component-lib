@@ -12,6 +12,8 @@
         :observation-type-options="observationTypeOptions"
         :dither-pattern-options="ditherPatternOptions"
         :dithering-allowed="ditheringAllowed"
+        :aladin-script-location="aladinScriptLocation"
+        :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -231,6 +233,16 @@ export default {
       default: (configuration, requestIndex, configurationIndex) => {
         return true;
       }
+    },
+    // Location from which to load the aladin JavaScript https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    // Location from which to load the aladin CSS https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     },
     // Object containing configuration for form panels and form fields. Top level fields are keys
     // referencing a panel, and map to an object that can contain a `panel` key to configure panel

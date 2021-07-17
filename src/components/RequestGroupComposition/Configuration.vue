@@ -157,7 +157,7 @@
             <custom-field
               v-if="dither.pattern === 'grid'"
               v-model="dither.parameters.lineSpacing"
-              field="line-spacing"
+              field="dither-line-spacing"
               :label="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'label'], 'Line Spacing')"
               :desc="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'desc'], '')"
               :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], !ditheringIsAllowed)"
@@ -165,7 +165,7 @@
               :errors="null"
             />
             <custom-field
-              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'spiral'"
+              v-if="dither.pattern === 'line' || dither.pattern === 'grid'"
               v-model="dither.parameters.orientation"
               field="dither-orientation"
               :label="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'label'], 'Orientation')"
@@ -245,6 +245,8 @@
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
                   :instrument-type="configuration.instrument_type"
                   :is-sidereal-target="configuration.target.type === 'ICRS'"
+                  :aladin-script-location="aladinScriptLocation"
+                  :aladin-style-location="aladinStyleLocation"
                   show-help
                 >
                   <template #help>
@@ -445,6 +447,14 @@ export default {
       default: () => {
         return {};
       }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
@@ -840,8 +850,7 @@ export default {
       } else if (this.dither.pattern === 'spiral') {
         parameters = {
           num_points: this.dither.parameters.numPoints,
-          point_spacing: this.dither.parameters.pointSpacing,
-          orientation: this.dither.parameters.orientation
+          point_spacing: this.dither.parameters.pointSpacing
         };
       }
       if (!simple) {
