@@ -73,8 +73,8 @@
       />
     </div>
     <custom-field
-      v-model="offsetRa"
-      field="offset_ra"
+      v-model="offsetRA"
+      field="offset-ra"
       :label="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'label'], 'Offset RA')"
       :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'desc'], '')"
       :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_ra', 'hide'], !ditheringIsAllowed)"
@@ -83,7 +83,7 @@
     />
     <custom-field
       v-model="offsetDec"
-      field="offset_dec"
+      field="offset-dec"
       :label="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'label'], 'Offset Dec')"
       :desc="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'desc'], '')"
       :hide="getFromObject(formConfig, ['instrumentConfig', 'offset_dec', 'hide'], !ditheringIsAllowed)"
