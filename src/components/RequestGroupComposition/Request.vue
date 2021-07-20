@@ -45,12 +45,17 @@
       :request-index="index"
       :configuration="configuration"
       :parent-show="show"
+      :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :available-instruments="availableInstruments"
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
+      :dither-pattern-options="ditherPatternOptions"
+      :dithering-allowed="ditheringAllowed"
+      :aladin-script-location="aladinScriptLocation"
+      :aladin-style-location="aladinStyleLocation"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -190,6 +195,32 @@ export default {
       default: () => {
         return {};
       }
+    },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
+      }
+    },
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {

@@ -10,6 +10,10 @@
         :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :observation-type-options="observationTypeOptions"
+        :dither-pattern-options="ditherPatternOptions"
+        :dithering-allowed="ditheringAllowed"
+        :aladin-script-location="aladinScriptLocation"
+        :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -124,7 +128,8 @@ export default {
                       mode: '',
                       rotator_mode: '',
                       extra_params: {
-                        defocus: 0
+                        offset_ra: 0,
+                        offset_dec: 0
                       },
                       optical_elements: {}
                     }
@@ -207,6 +212,37 @@ export default {
           { value: 'RAPID_RESPONSE', text: 'Rapid Response' }
         ];
       }
+    },
+    // Set the available dither pattern options
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
+      }
+    },
+    // `ditheringAllowed` is a function that takes the configuration data, the request index, and the configuration index,
+    // and returns a boolean indicating whether dithering is allowed.
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
+    // Location from which to load the aladin JavaScript https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    // Location from which to load the aladin CSS https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     },
     // Object containing configuration for form panels and form fields. Top level fields are keys
     // referencing a panel, and map to an object that can contain a `panel` key to configure panel

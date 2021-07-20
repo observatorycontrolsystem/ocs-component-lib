@@ -109,6 +109,10 @@
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
+        :dither-pattern-options="ditherPatternOptions"
+        :dithering-allowed="ditheringAllowed"
+        :aladin-script-location="aladinScriptLocation"
+        :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
         :form-config="formConfig"
         :tooltip-config="tooltipConfig"
@@ -213,6 +217,24 @@ export default {
         return {};
       }
     },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
+      }
+    },
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
     observationTypeOptions: {
       type: Array,
       default: () => {
@@ -238,6 +260,14 @@ export default {
       default: () => {
         return defaultTooltipConfig;
       }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {

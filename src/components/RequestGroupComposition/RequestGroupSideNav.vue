@@ -88,8 +88,8 @@
 
               <b-nav-item
                 v-for="(instrumentconfig, icIndex) in configuration.instrument_configs"
-                :key="'instrumentconfig' + icIndex"
-                :href="'#instrumentconfig' + requestIndex + confIndex + icIndex"
+                :key="'instrument-config' + icIndex"
+                :href="'#instrument-config' + requestIndex + confIndex + icIndex"
                 class="nested-twice"
               >
                 <i

@@ -1,5 +1,5 @@
 <template>
-  <b-modal ref="my-modal" size="xl" :title="header">
+  <b-modal ref="my-modal" size="xl" :title="header" @close="close" @hidden="close">
     <slot />
     <div slot="modal-footer">
       <b-button v-show="showCancel" variant="secondary" class="float-right m-1" @click="close">

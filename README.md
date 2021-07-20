@@ -133,6 +133,26 @@ export default {
 }
 ```
 
+## Using Aladin
+
+The [Aladin sky viewer](https://aladin.u-strasbg.fr/aladin.gml#AladinLite) expects JQuery to be available globally. One way to provide JQuery in this manner is to add the following to your `vue.config.js` file. When using a component that uses Aladin, this or something similar to it must be configured.
+
+```
+{
+  ...
+  configureWebpack: () => {
+    return {
+      resolve: {
+        alias: {
+          jquery: path.join(__dirname, 'node_modules/jquery/src/jquery')
+        }
+      }
+    };
+  }
+  ...
+}
+```
+
 ### Browser
 The library is also available from a CDN by including the script in the head section of your HTML file. Remember to include the other dependencies as well.
 

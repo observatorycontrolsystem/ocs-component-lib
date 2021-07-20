@@ -123,6 +123,149 @@
               :errors="null"
               @input="updateAcquisitionConfigExtraParam($event, field)"
             />
+            <!-- Begin dither fields -->
+            <custom-select
+              v-model="dither.pattern"
+              :options="ditherPatternOptions"
+              field="dither-pattern"
+              :label="getFromObject(formConfig, ['configuration', 'dither', 'label'], 'Dither')"
+              :desc="getFromObject(formConfig, ['configuration', 'dither', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="{}"
+            />
+            <custom-field
+              v-if="dither.pattern === 'line' || dither.pattern === 'spiral'"
+              v-model="dither.parameters.numPoints"
+              field="dither-num-points"
+              :label="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'label'], 'Number of Points')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'spiral'"
+              v-model="dither.parameters.pointSpacing"
+              field="dither-point-spacing"
+              :label="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'label'], 'Point Spacing')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'grid'"
+              v-model="dither.parameters.lineSpacing"
+              field="dither-line-spacing"
+              :label="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'label'], 'Line Spacing')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'line' || dither.pattern === 'grid'"
+              v-model="dither.parameters.orientation"
+              field="dither-orientation"
+              :label="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'label'], 'Orientation')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'grid'"
+              v-model="dither.parameters.numRows"
+              field="dither-num-rows"
+              :label="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'label'], 'Number of Rows')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="dither.pattern === 'grid'"
+              v-model="dither.parameters.numColumns"
+              field="dither-num-columns"
+              :label="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'label'], 'Number of Columns')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-select
+              v-if="dither.pattern === 'grid' || dither.pattern === 'line'"
+              v-model="dither.parameters.center"
+              :options="dither.centerOptions"
+              field="dither-center"
+              :label="getFromObject(formConfig, ['configuration', 'ditherCenter', 'label'], 'Center')"
+              :desc="getFromObject(formConfig, ['configuration', 'ditherCenter', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['configuration', 'ditherCenter', 'hide'], !ditheringIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <b-form-group
+              v-show="ditheringIsAllowed && dither.pattern !== 'none' && show"
+              label-size="sm"
+              label-align-sm="right"
+              label-cols-sm="4"
+              label=""
+              label-for="dither-button"
+            >
+              <b-button id="dither-button" block variant="outline-primary" @click="generateDitherPattern">
+                Generate Dither
+              </b-button>
+            </b-form-group>
+            <custom-modal
+              :show="dither.showDitherModal"
+              header="Generated Dither Pattern"
+              :show-accept="dither.expandedInstrumentConfigs.length > 0"
+              @close="cancelDitherPattern"
+              @submit="acceptDitherPattern"
+            >
+              <data-loader
+                :data-loaded="dither.status.loaded"
+                :data-not-found="dither.status.notFound"
+                :data-load-error="dither.status.error"
+                not-found-message="There are no points in the generated dither pattern. Please update your dither parameters and try again."
+              >
+                <template #data-load-error>
+                  <p>Unable to generate dither pattern</p>
+                  <ul class="pl-5">
+                    <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
+                  </ul>
+                </template>
+                <dither-pattern-plot
+                  plot-id="dither-plot"
+                  :offsets="ditherPatternOffsets"
+                  :center-ra="configuration.target.ra | toNumber"
+                  :center-dec="configuration.target.dec | toNumber"
+                  :instrument-field-of-view-degrees="instrumentInfo.fieldOfViewDegrees"
+                  :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
+                  :instrument-type="configuration.instrument_type"
+                  :is-sidereal-target="configuration.target.type === 'ICRS'"
+                  :aladin-script-location="aladinScriptLocation"
+                  :aladin-style-location="aladinStyleLocation"
+                  show-help
+                >
+                  <template #help>
+                    <p>
+                      This is your generated <em>{{ dither.pattern }}</em> dither pattern. Click <em>Ok</em> to accept the pattern and
+                      <em>Cancel</em> to reject it and start over.
+                    </p>
+                    <p>
+                      Calculated dither offsets using input parameters <em>{{ getDitherParameters(true) | objAsString }}</em>
+                    </p>
+                    <div class="dither-offset-table">
+                      <b-table-lite :items="ditherPatternOffsets" :fields="dither.fields" small></b-table-lite>
+                    </div>
+                    <br />
+                  </template>
+                </dither-pattern-plot>
+              </data-loader>
+            </custom-modal>
+            <!-- End dither fields -->
           </b-form>
         </b-col>
       </b-row>
@@ -138,6 +281,7 @@
       :instrument-config="instrumentConfig"
       :selected-instrument="configuration.instrument_type"
       :available-instruments="availableInstruments"
+      :dithering-is-allowed="ditheringIsAllowed"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
       :form-config="formConfig"
       :tooltip-config="tooltipConfig"
@@ -187,27 +331,51 @@
 </template>
 <script>
 import _ from 'lodash';
+import $ from 'jquery';
 
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
+import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import InstrumentConfigPanel from '@/components/RequestGroupComposition/InstrumentConfigPanel.vue';
 import Constraints from '@/components/RequestGroupComposition/Constraints.vue';
 import Target from '@/components/RequestGroupComposition/Target.vue';
+import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
+import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, defaultTooltipConfig } from '@/util';
 
 export default {
   name: 'Configuration',
   components: {
+    DataLoader,
     CustomField,
     CustomSelect,
+    CustomModal,
     FormPanel,
     CustomAlert,
     InstrumentConfigPanel,
+    DitherPatternPlot,
     Constraints,
     Target
+  },
+  filters: {
+    toNumber(value) {
+      return Number(value);
+    },
+    objAsString(value) {
+      let result = '';
+      for (let key in value) {
+        if (result) {
+          result += `, ${key}: ${value[key]}`;
+        } else {
+          // This is the first key, value pair being printed
+          result += `${key}: ${value[key]}`;
+        }
+      }
+      return result;
+    }
   },
   mixins: [collapseMixin],
   props: {
@@ -231,6 +399,10 @@ export default {
       type: Object,
       required: true
     },
+    observationPortalApiBaseUrl: {
+      type: String,
+      required: true
+    },
     parentShow: {
       type: Boolean
     },
@@ -244,6 +416,26 @@ export default {
         return {};
       }
     },
+    ditherPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' },
+          { text: 'Spiral', value: 'spiral' }
+        ];
+      }
+    },
+    // `ditheringAllowed` is a function that takes the configuration data, the request index, and the configuration index,
+    // and returns a boolean indicating whether dithering is allowed.
+    ditheringAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
     tooltipConfig: {
       type: Object,
       default: () => {
@@ -255,6 +447,14 @@ export default {
       default: () => {
         return {};
       }
+    },
+    aladinScriptLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+    },
+    aladinStyleLocation: {
+      type: String,
+      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
@@ -264,6 +464,34 @@ export default {
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.index
+      },
+      dither: {
+        fields: [
+          { key: 'ra', label: 'RA offset (arcsec)' },
+          { key: 'dec', label: 'Dec offset (arcsec)' }
+        ],
+        pattern: _.get(this.ditherPatternOptions, [0, 'value'], 'none'),
+        centerOptions: [
+          { text: 'True', value: true },
+          { text: 'False', value: false }
+        ],
+        showDitherModal: false,
+        parameters: {
+          numPoints: 3,
+          pointSpacing: 1,
+          lineSpacing: 1,
+          orientation: 0,
+          center: false,
+          numRows: 3,
+          numColumns: 3
+        },
+        status: {
+          notFound: false,
+          error: false,
+          loaded: false,
+          errorResponse: {}
+        },
+        expandedInstrumentConfigs: []
       }
     };
   },
@@ -360,6 +588,26 @@ export default {
         }
       }
       return _.sortBy(options, 'text');
+    },
+    ditheringIsAllowed: function() {
+      return this.ditheringAllowed(this.configuration, this.requestIndex, this.index);
+    },
+    ditherPatternOffsets: function() {
+      let offsets = [];
+      for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
+        offsets.push({
+          ra: instrumentConfig.extra_params.offset_ra,
+          dec: instrumentConfig.extra_params.offset_dec
+        });
+      }
+      return offsets;
+    },
+    instrumentInfo: function() {
+      let cameraTypeInfo = _.get(this.availableInstruments, [this.configuration.instrument_type, 'camera_type']);
+      return {
+        fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
+        arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0)
+      };
     }
   },
   watch: {
@@ -580,7 +828,103 @@ export default {
     },
     configureGuidingConfig: function() {
       this.setGuideFields();
+    },
+    getDitherParameters: function(simple) {
+      let parameters = {};
+      if (this.dither.pattern === 'line') {
+        parameters = {
+          num_points: this.dither.parameters.numPoints,
+          point_spacing: this.dither.parameters.pointSpacing,
+          orientation: this.dither.parameters.orientation,
+          center: this.dither.parameters.center
+        };
+      } else if (this.dither.pattern === 'grid') {
+        parameters = {
+          num_rows: this.dither.parameters.numRows,
+          num_columns: this.dither.parameters.numColumns,
+          point_spacing: this.dither.parameters.pointSpacing,
+          line_spacing: this.dither.parameters.lineSpacing,
+          orientation: this.dither.parameters.orientation,
+          center: this.dither.parameters.center
+        };
+      } else if (this.dither.pattern === 'spiral') {
+        parameters = {
+          num_points: this.dither.parameters.numPoints,
+          point_spacing: this.dither.parameters.pointSpacing
+        };
+      }
+      if (!simple) {
+        parameters.configuration = this.configuration;
+        parameters.pattern = this.dither.pattern;
+      }
+      return parameters;
+    },
+    generateDitherPattern: function() {
+      if (!_.isEmpty(this.errors)) {
+        alert('Please make sure your configuration is valid before generating a dither pattern for it');
+        return false;
+      }
+      this.dither.showDitherModal = true;
+      this.dither.status.loaded = false;
+      this.dither.status.error = false;
+      this.dither.status.notFound = false;
+      this.dither.status.errorResponse = {};
+      $.ajax({
+        method: 'POST',
+        url: `${this.observationPortalApiBaseUrl}/api/configuration/dither/`,
+        data: JSON.stringify(this.getDitherParameters(false)),
+        contentType: 'application/json'
+      })
+        .done(response => {
+          if (response.instrument_configs.length < 1) {
+            this.dither.status.notFound = true;
+          } else {
+            this.dither.expandedInstrumentConfigs = response.instrument_configs;
+          }
+        })
+        .fail(response => {
+          this.dither.status.errorResponse = response.responseJSON;
+          this.dither.status.error = true;
+        })
+        .always(() => {
+          this.dither.status.loaded = true;
+        });
+    },
+    cancelDitherPattern: function() {
+      this.dither.showDitherModal = false;
+      this.dither.expandedInstrumentConfigs = [];
+    },
+    getDitherErrors: function() {
+      let errors = [];
+      for (let field in this.dither.status.errorResponse) {
+        if (field === 'non_field_errors') {
+          for (let msg of this.dither.status.errorResponse[field]) {
+            errors.push(msg);
+          }
+        } else {
+          for (let msg of this.dither.status.errorResponse[field]) {
+            errors.push(`${field}: ${msg}`);
+          }
+        }
+      }
+      return errors;
+    },
+    acceptDitherPattern: function() {
+      this.dither.showDitherModal = false;
+      // Clear out instrument configs before setting them again to allow any existing instrument
+      // configs to re-render so that the mounted hook is entered.
+      this.configuration.instrument_configs = [];
+      this.$nextTick(() => {
+        this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;
+        this.dither.expandedInstrumentConfigs = [];
+      });
     }
   }
 };
 </script>
+<style scoped>
+.dither-offset-table {
+  max-height: 200px;
+  overflow-y: scroll;
+}
+</style>
