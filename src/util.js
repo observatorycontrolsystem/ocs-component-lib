@@ -215,6 +215,19 @@ function round(value, decimalPlaces) {
   return Math.round(value * factor) / factor;
 }
 
+function objAsString(value) {
+  let result = '';
+  for (let key in value) {
+    if (result) {
+      result += `, ${key}: ${value[key]}`;
+    } else {
+      // This is the first key, value pair being printed
+      result += `${key}: ${value[key]}`;
+    }
+  }
+  return result;
+}
+
 export {
   copyObject,
   decimalDecToSexigesimal,
@@ -228,6 +241,7 @@ export {
   formatValue,
   generateDurationString,
   getFromObject,
+  objAsString,
   round,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,

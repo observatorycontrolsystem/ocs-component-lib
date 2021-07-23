@@ -142,9 +142,17 @@ export default {
     offsetCoordinates: function() {
       // Calculate list of coordinates from provided offsets. Equations pulled
       // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
+      // If any adjacent offsets are the same, only add one coordinate to the list
+      // for that offset so that the same pointing is not plotted twice.
       let coords = [];
+      let lastOffset;
+      let isSameOffset = false;
       for (let offset of this.offsets) {
-        coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / this.cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
+        isSameOffset = lastOffset && offset['ra'] === lastOffset['ra'] && offset['dec'] === lastOffset['dec'];
+        if (!isSameOffset) {
+          coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / this.cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
+        }
+        lastOffset = { ra: offset['ra'], dec: offset['dec'] };
       }
       return coords;
     },

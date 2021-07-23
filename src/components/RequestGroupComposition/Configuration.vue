@@ -260,6 +260,7 @@
                     <div class="dither-offset-table">
                       <b-table-lite :items="ditherPatternOffsets" :fields="dither.fields" small></b-table-lite>
                     </div>
+                    <p class="float-right px-3 mt-1 mb-4 font-weight-bolder">{{ ditherPatternOffsets.length }} offsets</p>
                     <br />
                   </template>
                 </dither-pattern-plot>
@@ -344,7 +345,7 @@ import Target from '@/components/RequestGroupComposition/Target.vue';
 import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig } from '@/util';
+import { getFromObject, defaultTooltipConfig, objAsString } from '@/util';
 
 export default {
   name: 'Configuration',
@@ -365,16 +366,7 @@ export default {
       return Number(value);
     },
     objAsString(value) {
-      let result = '';
-      for (let key in value) {
-        if (result) {
-          result += `, ${key}: ${value[key]}`;
-        } else {
-          // This is the first key, value pair being printed
-          result += `${key}: ${value[key]}`;
-        }
-      }
-      return result;
+      return objAsString(value);
     }
   },
   mixins: [collapseMixin],
@@ -468,7 +460,15 @@ export default {
       dither: {
         fields: [
           { key: 'ra', label: 'RA offset (arcsec)' },
-          { key: 'dec', label: 'Dec offset (arcsec)' }
+          { key: 'dec', label: 'Dec offset (arcsec)' },
+          { key: 'exposure_time', label: 'Exposure Time (s)' },
+          {
+            key: 'optical_elements',
+            label: 'Optical Elements',
+            formatter: value => {
+              return objAsString(value);
+            }
+          }
         ],
         pattern: _.get(this.ditherPatternOptions, [0, 'value'], 'none'),
         centerOptions: [
@@ -597,7 +597,9 @@ export default {
       for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
         offsets.push({
           ra: instrumentConfig.extra_params.offset_ra,
-          dec: instrumentConfig.extra_params.offset_dec
+          dec: instrumentConfig.extra_params.offset_dec,
+          exposure_time: instrumentConfig.exposure_time,
+          optical_elements: instrumentConfig.optical_elements
         });
       }
       return offsets;
