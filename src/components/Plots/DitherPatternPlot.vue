@@ -43,11 +43,15 @@
 </template>
 <script>
 /* global A */
-import $ from 'jquery';
-
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
-import Text from '@/components/Plots/aladinText';
-import Rectangle from '@/components/Plots/aladinRectangle';
+import {
+  addPolyline,
+  addScaleBar,
+  addCatalog,
+  setColorMap,
+  addFillBackground,
+  removeReticleEventHandlers
+} from '@/components/Plots/aladinPlotUtil.js';
 import { round } from '@/util';
 
 export default {
@@ -186,12 +190,6 @@ export default {
     round: function(value, decimalPlaces) {
       return round(value, decimalPlaces);
     },
-    removeReticleEventHandlers: function() {
-      // There are event handlers to allow a user to drag the aladin view around, and also
-      // zoom in and out of the view. Disable those event handlers since we do not want to
-      // allow either of those actions
-      $('.aladin-reticleCanvas').unbind();
-    },
     getAladinOptions: function(ra, dec) {
       return {
         survey: 'P/DSS2/color',
@@ -212,8 +210,8 @@ export default {
       this.aladinZoomedIn.on('positionChanged', () => {
         this.addZoomedInAnnotations();
       });
-      this.setColorMap(this.aladinZoomedIn);
-      this.removeReticleEventHandlers();
+      setColorMap(this.aladinZoomedIn);
+      removeReticleEventHandlers();
     },
     onZoomedOutPlotLoaded: function() {
       this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions(this.centerRa, this.centerDec));
@@ -222,8 +220,8 @@ export default {
       this.aladinZoomedOut.on('positionChanged', () => {
         this.addZoomedOutAnnotations();
       });
-      this.setColorMap(this.aladinZoomedOut);
-      this.removeReticleEventHandlers();
+      setColorMap(this.aladinZoomedOut);
+      removeReticleEventHandlers();
     },
     addZoomedOutAnnotations: function() {
       this.aladinZoomedOut.removeLayers();
@@ -231,7 +229,7 @@ export default {
       let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees * this.minScaleBarSizeFactor);
       let legendOffsetBottom = this.legendItemsOffsetBottom;
       if (this.ditherRangeInstrumentPercentage < this.maxScaleBarSizePercentage) {
-        this.addScaleBar(
+        addScaleBar(
           this.aladinZoomedOut,
           range,
           `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
@@ -240,7 +238,7 @@ export default {
         );
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
       }
-      this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
+      addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
         offsetLeft: this.legendItemsOffsetLeft,
         offsetBottom: legendOffsetBottom,
         color: this.colors.info,
@@ -249,7 +247,7 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
-      this.addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground);
+      addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground);
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
@@ -272,7 +270,7 @@ export default {
       let legendOffsetBottom = this.legendItemsOffsetBottom;
       // Make sure the dither range scale bar is at least big enough to be able to be seen on the plot
       let range = Math.max(this.ditherRange, this.zoomedInFieldOfView * this.minScaleBarSizeFactor);
-      this.addScaleBar(
+      addScaleBar(
         this.aladinZoomedIn,
         range,
         `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
@@ -282,7 +280,7 @@ export default {
       legendOffsetBottom += this.legendItemVerticalSpacingPix;
       // Make sure the pixel scale bar is at least big enough to be seen on the graph is at least big enough to be able to be seen on the plot
       let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / this.arcSecPerDeg, this.zoomedInFieldOfView / 100);
-      this.addScaleBar(
+      addScaleBar(
         this.aladinZoomedIn,
         pixelScaleBar,
         `${this.instrumentType} pixel size (${this.instrumentArcSecPerPixel}"/pix)`,
@@ -290,7 +288,7 @@ export default {
         this.colors.info
       );
       legendOffsetBottom += this.legendItemVerticalSpacingPix;
-      this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
+      addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
         offsetLeft: this.legendItemsOffsetLeft,
         offsetBottom: legendOffsetBottom,
         color: this.colors.info,
@@ -301,7 +299,7 @@ export default {
       });
       if (firstPointingSources.length > 0) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
+        addCatalog(this.aladinZoomedIn, firstPointingSources, {
           offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
           color: this.colors.pattern,
@@ -313,7 +311,7 @@ export default {
       }
       if (middlePointingsSources.length > 0) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
+        addCatalog(this.aladinZoomedIn, middlePointingsSources, {
           offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
           color: this.colors.pattern,
@@ -325,7 +323,7 @@ export default {
       }
       if (lastPointingSources.length > 0) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
+        addCatalog(this.aladinZoomedIn, lastPointingSources, {
           offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
           color: this.colors.pattern,
@@ -335,110 +333,12 @@ export default {
           label: 'Last dither pointing'
         });
       }
-      this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
+      addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
       if (!this.isSiderealTarget) {
-        this.addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
+        addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
       } else {
-        this.addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground);
+        addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground);
       }
-    },
-    setColorMap: function(aladin) {
-      aladin
-        .getBaseImageLayer()
-        .getColorMap()
-        .update('grayscale');
-    },
-    addFillBackground: function(aladin, color) {
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      let viewSize = aladin.getSize();
-      layer.add(new Rectangle(0, 0, viewSize[0], viewSize[1], { color: color, globalCompositeOperation: 'destination-over' }));
-    },
-    addText: function(aladin, x, y, options) {
-      const label = options['label'] || '';
-      const color = options['color'] || 'white';
-      const align = options['align'] || 'start';
-      const baseline = options['baseline'] || 'middle';
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      layer.add(new Text(x, y, label, { color: color, align: align, baseline: baseline }));
-    },
-    addPolyline: function(aladin, coordinates, options) {
-      const color = options['color'] || 'red';
-      const lineWidth = options['lineWidth'] || 2;
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      layer.add(A.polyline(coordinates, { color: color, lineWidth: lineWidth }));
-    },
-    addScaleBar: function(aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
-      // Draw a horizontal scale bar
-      color = color || this.colors.pattern;
-      textSpacing = textSpacing || 15;
-      lineWidth = lineWidth || 2;
-      const offsetBottom = offsetPixFromEdge['bottom'] || this.legendItemsOffsetBottom;
-      const offsetleft = offsetPixFromEdge['left'] || this.legendItemsOffsetLeft;
-      // Aladin viewer pixel position (0,0) is the top left corner of the view
-      let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: 4 });
-      aladin.addOverlay(layer);
-      const viewSizePix = aladin.getSize();
-      const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBottom]; // Bottom left corner
-      const scaleBarSizeInPix = (sizeAsDegrees / aladin.getFov()[0]) * viewSizePix[0];
-      const scaleBarEndPix = [scaleBarStartPix[0] + scaleBarSizeInPix, scaleBarStartPix[1]];
-      const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
-      const scaleBarEnd = aladin.pix2world(scaleBarEndPix[0], scaleBarEndPix[1]);
-      const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
-      layer.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
-      layer.add(
-        new Text(scaleBarStartPix[0] + scaleBarLength + textSpacing, scaleBarStartPix[1], label, {
-          color: color,
-          align: 'start',
-          baseline: 'middle'
-        })
-      );
-    },
-    addCatalog: function(aladin, coordinates, options) {
-      const label = options['label'] || '';
-      const color = options['color'] || 'red';
-      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
-      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
-      const shape = options['shape'] || 'circle';
-      const sourceSize = options['sourceSize'] || this.patternSourceSize;
-      const legendSourceSize = options['legendSourceSize'] || this.legendSourceSize;
-      // Create a catalog and sources to it
-      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
-      aladin.addCatalog(catalog);
-      for (let coordinate of coordinates) {
-        catalog.addSources(A.source(coordinate[0], coordinate[1]));
-      }
-      // Add a legend if there are sources
-      if (coordinates.length > 0) {
-        this.addLegendForCatalog(aladin, {
-          offsetBottom: offsetBottom,
-          offsetLeft: offsetLeft,
-          color: color,
-          label: label,
-          sourceSize: legendSourceSize,
-          shape: shape
-        });
-      }
-    },
-    addLegendForCatalog: function(aladin, options) {
-      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
-      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
-      const sourceSize = options['sourceSize'] || this.legendSourceSize;
-      const color = options['color'] || 'red';
-      const label = options['label'] || '';
-      const shape = options['shape'] || 'circle';
-      const textSpacingLeft = 15;
-      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
-      aladin.addCatalog(catalog);
-      const viewSizePix = aladin.getSize();
-      const legendSourcePix = [offsetLeft + Math.floor(sourceSize / 2), viewSizePix[1] - offsetBottom]; // Bottom left corner
-      const legendSource = aladin.pix2world(legendSourcePix[0], legendSourcePix[1]);
-      catalog.addSources(A.source(legendSource[0], legendSource[1]));
-      let layer = A.graphicOverlay({ color: color, lineWidth: 2 });
-      aladin.addOverlay(layer);
-      layer.add(new Text(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' }));
     }
   }
 };
