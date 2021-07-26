@@ -150,13 +150,13 @@
                 </template>
                 <mosaic-plot
                   plot-id="mosaic-plot"
-                  :offsets="mosaicPointings"
-                  :center-ra="getFromObject(mosaicConfiguration, ['target', 'ra']) | toNumber"
-                  :center-dec="getFromObject(mosaicConfiguration, ['target', 'dec']) | toNumber"
                   :pointing-coordinates="mosaicPointings"
                   :instrument-field-of-view-degrees="mosaicInstrumentInfo.fieldOfViewDegrees"
                   :instrument-arc-sec-per-pixel="mosaicInstrumentInfo.arcSecPerPixel"
-                  :instrument-type="mosaicConfiguration.instrument_type"
+                  :instrument-pixels-x="mosaicInstrumentInfo.pixelsX"
+                  :instrument-pixels-y="mosaicInstrumentInfo.pixelsY"
+                  :instrument-orientation="mosaicInstrumentInfo.orientation"
+                  :configuration="mosaicConfiguration"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help
@@ -472,7 +472,11 @@ export default {
       let cameraTypeInfo = _.get(this.availableInstruments, [instrumentType, 'camera_type']);
       return {
         fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
-        arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0)
+        arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0),
+        // TODO: Update the defaults below to sensible values
+        pixelsX: _.get(cameraTypeInfo, 'pixels_x', 2000),
+        pixelsY: _.get(cameraTypeInfo, 'pixels_y', 1000),
+        orientation: _.get(cameraTypeInfo, 'orientation', 10)
       };
     }
   },

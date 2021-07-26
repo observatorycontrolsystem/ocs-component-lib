@@ -52,7 +52,7 @@ import {
   addFillBackground,
   removeReticleEventHandlers
 } from '@/components/Plots/aladinPlotUtil.js';
-import { round } from '@/util';
+import { round, offsetCoordinate, cosineDeclinationTerm } from '@/util';
 
 export default {
   name: 'DitherPatternPlot',
@@ -137,18 +137,16 @@ export default {
   },
   computed: {
     cosDec: function() {
-      let cosDec = Math.cos((this.centerDec * Math.PI) / 180);
-      // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
-      // precise since this is only for visualization purposes and a small shift won't matter.
-      cosDec = Math.max(cosDec, 10e-4);
-      return cosDec;
+      return cosineDeclinationTerm(this.centerDec);
     },
     offsetCoordinates: function() {
       // Calculate list of coordinates from provided offsets. Equations pulled
       // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
       let coords = [];
+      let finalCoordinate;
       for (let offset of this.offsets) {
-        coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / this.cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
+        finalCoordinate = offsetCoordinate({ ra: this.centerRa, dec: this.centerDec }, offset);
+        coords.push([finalCoordinate['ra'], finalCoordinate['dec']]);
       }
       return coords;
     },

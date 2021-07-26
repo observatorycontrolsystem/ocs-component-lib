@@ -215,8 +215,49 @@ function round(value, decimalPlaces) {
   return Math.round(value * factor) / factor;
 }
 
+function cosineDeclinationTerm(declination) {
+  let cosDec = Math.cos((declination * Math.PI) / 180);
+  // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
+  // precise since this is only for visualization purposes and a small shift won't matter.
+  cosDec = Math.max(cosDec, 10e-4);
+  return cosDec;
+}
+
+function offsetCoordinate(initial, offset) {
+  // Calculate coordinates from provided offsets. Equations pulled
+  // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
+  // Takes a object with the initial coordinate and an object with the offsets,
+  // where each object has "ra" and "dec" keys, and outputs an object with the
+  // initial coordinate with the offset applied.
+  const ARC_SEC_PER_DEG = 3600;
+  let cosInitialDec = cosineDeclinationTerm(initial['dec']);
+  return {
+    ra: initial['ra'] + offset['ra'] / ARC_SEC_PER_DEG / cosInitialDec,
+    dec: initial['dec'] + offset['dec'] / ARC_SEC_PER_DEG
+  };
+}
+
+function rotateCoordinate(coordinate, center, angle) {
+  // Move the target coordinate to the origin. RA goes along the x direction and Declination along the y.
+  let coordX = coordinate['ra'] - center['ra'];
+  let coordY = coordinate['dec'] - center['dec'];
+  // Rotate the target coordinate about the origin. To rotate clockwise, which is east of north,
+  // use the following equations:
+  // xrotated = x * cos(angle) - y * sin(angle)
+  // yrotated = x * sin(angle) + y * sin(angle)
+  let cosAngle = Math.cos((angle * Math.PI) / 180);
+  let sinAngle = Math.sin((angle * Math.PI) / 180);
+  let coordXRotated = coordX * cosAngle - coordY * sinAngle;
+  let coordYRotated = coordX * sinAngle + coordY * cosAngle;
+  // Shift the rotated coordinate back so that the center is taken into account
+  let coordXShiftedBack = coordXRotated + center['ra'];
+  let coordYShiftedBack = coordYRotated + center['dec'];
+  return { ra: coordXShiftedBack, dec: coordYShiftedBack };
+}
+
 export {
   copyObject,
+  cosineDeclinationTerm,
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
   defaultDatetimeFormat,
@@ -228,6 +269,8 @@ export {
   formatValue,
   generateDurationString,
   getFromObject,
+  offsetCoordinate,
+  rotateCoordinate,
   round,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,

@@ -28,7 +28,8 @@
 import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
-import { addCatalog, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
+import { addPolyline, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
+import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate } from '@/util';
 
 export default {
   name: 'MosaicPlot',
@@ -36,14 +37,6 @@ export default {
     AladinPlot
   },
   props: {
-    centerRa: {
-      type: Number,
-      required: true
-    },
-    centerDec: {
-      type: Number,
-      required: true
-    },
     // List of RA and Dec pointings in the form of:
     // [
     //   { ra: ra1, dec: dec1 },
@@ -62,10 +55,32 @@ export default {
       type: Number,
       required: true
     },
-    instrumentType: {
-      type: String,
-      required: false,
-      default: 'Instrument'
+    instrumentPixelsX: {
+      type: Number,
+      required: true
+    },
+    instrumentPixelsY: {
+      type: Number,
+      required: true
+    },
+    // The oriention of the CCD in degrees east of north
+    instrumentOrientation: {
+      type: Number,
+      required: true
+    },
+    // The configuration that was used to generate the mosaic pattern
+    configuration: {
+      type: Object,
+      required: true
+    },
+    // Function that takes the configuration that was used to generate the mosaic pattern, and returns
+    // the added orientation east or north defined by things like any rotator mode that is set.
+    extraRotation: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: configuration => {
+        return 0;
+      }
     },
     aladinScriptLocation: {
       type: String,
@@ -87,20 +102,13 @@ export default {
       legendItemsOffsetBottom: 30,
       legendItemsOffsetLeft: 30,
       legendSourceSize: 10,
-      targetMarkerSourceSize: 50,
+      targetMarkerSourceSize: 20,
       colors: {
         info: '#17ff60'
       }
     };
   },
   computed: {
-    cosDec: function() {
-      let cosDec = Math.cos((this.centerDec * Math.PI) / 180);
-      // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
-      // precise since this is only for visualization purposes and a small shift won't matter.
-      cosDec = Math.max(cosDec, 10e-4);
-      return cosDec;
-    },
     mosaicMidPoint: function() {
       // Find the center of the mosaic sequence
       let decCoords = this.pointingCoordinates.map(coord => coord.dec);
@@ -112,7 +120,8 @@ export default {
     fieldOfView: function() {
       let decCoords = this.pointingCoordinates.map(coord => coord.dec);
       let raCoords = this.pointingCoordinates.map(coord => coord.ra);
-      let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * this.cosDec;
+      let cosDec = cosineDeclinationTerm(_.mean(decCoords));
+      let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * cosDec;
       let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
       let mosaicRange = Math.max(raRange, decRange) + this.instrumentFieldOfViewDegrees;
       // Add a little extra to the FOV around the mosaic range to be able to see the full CCD footprints
@@ -123,6 +132,34 @@ export default {
       return _.map(this.pointingCoordinates, i => {
         return [i['ra'], i['dec']];
       });
+    },
+    CCDOrientation: function() {
+      return this.instrumentOrientation + this.extraRotation(this.configuration);
+    },
+    CCDFootprints: function() {
+      // Return a list of lists, where each internal list is a collection of 5 2-element lists, where the first
+      // element is the RA and the second is the Dec, and the 2 coordinates come together to draw a closing polygon.
+      // Rotation is degrees east of north. Pixels x is along the north-south line (RA), and pixels y is perpendicular
+      // to that, along the east-west line (declination).
+      let footprints = [];
+      let HalfCCDWidthArcSec = (this.instrumentArcSecPerPixel * this.instrumentPixelsX) / 2;
+      let HalfCCDHeightArcSec = (this.instrumentArcSecPerPixel * this.instrumentPixelsY) / 2;
+      let footprint;
+      for (let coord of this.pointingCoordinates) {
+        footprint = [];
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: -HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -HalfCCDHeightArcSec, dec: -HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        // Repeat the first offset to close the loop
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        footprints.push(
+          _.map(footprint, i => {
+            return [i['ra'], i['dec']];
+          })
+        );
+      }
+      return footprints;
     }
   },
   methods: {
@@ -147,24 +184,11 @@ export default {
     },
     addAnnotations: function() {
       this.aladin.removeLayers();
-      addCatalog(this.aladin, [[this.centerRa, this.centerDec]], {
-        offsetLeft: this.legendItemsOffsetLeft,
-        offsetBottom: this.legendItemsOffsetBottom,
-        color: this.colors.info,
-        shape: 'cross',
-        sourceSize: this.targetMarkerSourceSize,
-        legendSourceSize: this.legendSourceSize,
-        label: 'Target'
-      });
-      addCatalog(this.aladin, this.coordinates, {
-        offsetLeft: this.legendItemsOffsetLeft,
-        offsetBottom: this.legendItemsOffsetBottom,
-        color: this.colors.info,
-        shape: 'square',
-        sourceSize: this.targetMarkerSourceSize,
-        legendSourceSize: this.legendSourceSize,
-        label: 'Target'
-      });
+      for (let footprint of this.CCDFootprints) {
+        addPolyline(this.aladin, footprint, {
+          color: this.colors.info
+        });
+      }
     }
   }
 };
