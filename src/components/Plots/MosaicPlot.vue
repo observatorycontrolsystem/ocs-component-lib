@@ -132,8 +132,8 @@ export default {
       //
       // Return an array of arrays, where each internal array is a collection of 5 2-element arrays, where the first
       // element is the RA and the second is the Dec, and the 5 coordinates come together to draw a polygon.
-      // Rotation is degrees east of north. Pixels x is along the north-south line (RA), and pixels y is perpendicular
-      // to that, along the east-west line (declination).
+      // Rotation is degrees east of north. Pixels y is along the north-south line (declination), and pixels x is perpendicular
+      // to that, along the east-west line (RA).
       let footprints = [];
       let halfCCDWidthArcSec;
       let halfCCDHeightArcSec;
@@ -148,12 +148,12 @@ export default {
         rotation = instrumentInfo.orientation + this.extraRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: -halfCCDWidthArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDHeightArcSec, dec: -halfCCDWidthArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         // Repeat the first offset to close the loop
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
