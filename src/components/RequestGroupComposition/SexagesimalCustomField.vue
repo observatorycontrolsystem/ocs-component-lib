@@ -75,7 +75,8 @@ export default {
   data: function() {
     return {
       displayValue: this.value,
-      helpText: this.getHelpText(this.value)
+      helpText: this.getHelpText(this.value),
+      id: this.field + '-' + this.$parent.id
     };
   },
   computed: {

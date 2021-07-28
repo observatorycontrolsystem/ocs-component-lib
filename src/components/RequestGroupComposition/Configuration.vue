@@ -213,27 +213,32 @@
               label=""
               label-for="dither-button"
             >
-              <b-button id="dither-button" block variant="outline-primary" @click="generateDitherPattern">
+              <b-button
+                :id="'dither-button-' + position.requestIndex + position.configurationIndex"
+                block
+                variant="outline-primary"
+                @click="generateDitherPattern"
+              >
                 Generate Dither
               </b-button>
             </b-form-group>
             <custom-modal
-              :show="dither.showDitherModal"
+              :show="expansion.showModal"
               header="Generated Dither Pattern"
-              :show-accept="dither.expandedInstrumentConfigs.length > 0"
-              @close="cancelDitherPattern"
-              @submit="acceptDitherPattern"
+              :show-accept="expansion.expanded.length > 0"
+              @close="cancelExpansion"
+              @submit="acceptExpansion('instrument_configs')"
             >
               <data-loader
-                :data-loaded="dither.status.loaded"
-                :data-not-found="dither.status.notFound"
-                :data-load-error="dither.status.error"
+                :data-loaded="expansion.status.loaded"
+                :data-not-found="expansion.status.notFound"
+                :data-load-error="expansion.status.error"
                 not-found-message="There are no points in the generated dither pattern. Please update your dither parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate dither pattern</p>
                   <ul class="pl-5">
-                    <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
+                    <li v-for="errorMsg in getExpansionErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
                 <dither-pattern-plot
@@ -331,7 +336,7 @@
 </template>
 <script>
 import _ from 'lodash';
-import $ from 'jquery';
+import { toRef } from '@vue/composition-api';
 
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
@@ -345,6 +350,7 @@ import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, defaultTooltipConfig, objAsString } from '@/util';
+import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 
 export default {
   name: 'Configuration',
@@ -466,7 +472,6 @@ export default {
           { text: 'True', value: true },
           { text: 'False', value: false }
         ],
-        showDitherModal: false,
         parameters: {
           numPoints: 3,
           pointSpacing: 1,
@@ -475,15 +480,28 @@ export default {
           center: false,
           numRows: 3,
           numColumns: 3
-        },
-        status: {
-          notFound: false,
-          error: false,
-          loaded: false,
-          errorResponse: {}
-        },
-        expandedInstrumentConfigs: []
+        }
       }
+    };
+  },
+  setup: function(props) {
+    const configuration = toRef(props, 'configuration');
+
+    const {
+      expansion,
+      acceptExpansion,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
+    } = requestExpansionWithModalConfirm(configuration);
+    return {
+      expansion,
+      acceptExpansion,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
     };
   },
   computed: {
@@ -585,7 +603,7 @@ export default {
     },
     ditherPatternOffsets: function() {
       let offsets = [];
-      for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
+      for (let instrumentConfig of this.expansion.expanded) {
         offsets.push({
           ra: instrumentConfig.extra_params.offset_ra,
           dec: instrumentConfig.extra_params.offset_dec
@@ -851,64 +869,15 @@ export default {
       return parameters;
     },
     generateDitherPattern: function() {
-      if (!_.isEmpty(this.errors)) {
-        alert('Please make sure your configuration is valid before generating a dither pattern for it');
-        return false;
-      }
-      this.dither.showDitherModal = true;
-      this.dither.status.loaded = false;
-      this.dither.status.error = false;
-      this.dither.status.notFound = false;
-      this.dither.status.errorResponse = {};
-      $.ajax({
-        method: 'POST',
-        url: `${this.observationPortalApiBaseUrl}/api/configuration/dither/`,
-        data: JSON.stringify(this.getDitherParameters(false)),
-        contentType: 'application/json'
-      })
-        .done(response => {
-          if (response.instrument_configs.length < 1) {
-            this.dither.status.notFound = true;
-          } else {
-            this.dither.expandedInstrumentConfigs = response.instrument_configs;
-          }
+      if (
+        this.checkReadyToGenerateExpansion('Please make sure your configuration is valid before generating a dither pattern for it', () => {
+          return !_.isEmpty(this.errors);
         })
-        .fail(response => {
-          this.dither.status.errorResponse = response.responseJSON;
-          this.dither.status.error = true;
-        })
-        .always(() => {
-          this.dither.status.loaded = true;
+      ) {
+        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configuration/dither/`, this.getDitherParameters(false), response => {
+          return response.instrument_configs;
         });
-    },
-    cancelDitherPattern: function() {
-      this.dither.showDitherModal = false;
-      this.dither.expandedInstrumentConfigs = [];
-    },
-    getDitherErrors: function() {
-      let errors = [];
-      for (let field in this.dither.status.errorResponse) {
-        if (field === 'non_field_errors') {
-          for (let msg of this.dither.status.errorResponse[field]) {
-            errors.push(msg);
-          }
-        } else {
-          for (let msg of this.dither.status.errorResponse[field]) {
-            errors.push(`${field}: ${msg}`);
-          }
-        }
       }
-      return errors;
-    },
-    acceptDitherPattern: function() {
-      this.dither.showDitherModal = false;
-      // Clear out instrument configs before setting them again to allow any existing instrument
-      // configs to re-render so that the mounted hook is entered.
-      this.configuration.instrument_configs = [];
-      this.$nextTick(() => {
-        this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;
-        this.dither.expandedInstrumentConfigs = [];
-      });
     }
   }
 };

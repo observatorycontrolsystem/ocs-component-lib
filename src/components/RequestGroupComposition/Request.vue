@@ -125,32 +125,32 @@
               label=""
               label-for="mosaic-button"
             >
-              <b-button id="mosaic-button" block variant="outline-primary" @click="generateMosaicPattern">
+              <b-button :id="'mosaic-button-' + position.requestIndex" block variant="outline-primary" @click="generateMosaicPattern">
                 Generate Mosaic
               </b-button>
             </b-form-group>
             <custom-modal
-              :show="mosaic.showModal"
+              :show="expansion.showModal"
               header="Generated Mosaic"
-              :show-accept="mosaic.expandedConfigurations.length > 0"
-              @close="cancelMosaic"
-              @submit="acceptMosaic"
+              :show-accept="expansion.expanded.length > 0"
+              @close="cancelExpansion"
+              @submit="acceptExpansion('configurations')"
             >
               <data-loader
-                :data-loaded="mosaic.status.loaded"
-                :data-not-found="mosaic.status.notFound"
-                :data-load-error="mosaic.status.error"
+                :data-loaded="expansion.status.loaded"
+                :data-not-found="expansion.status.notFound"
+                :data-load-error="expansion.status.error"
                 not-found-message="There are no pointing in the generated mosaic. Please update your mosaic parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate mosaic</p>
                   <ul class="pl-5">
-                    <li v-for="errorMsg in getMosaicErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
+                    <li v-for="errorMsg in getExpansionErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
                 <mosaic-plot
                   plot-id="mosaic-plot"
-                  :configurations="mosaic.expandedConfigurations"
+                  :configurations="expansion.expanded"
                   :instruments-info="availableInstruments"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
@@ -250,7 +250,7 @@
 </template>
 <script>
 import _ from 'lodash';
-import $ from 'jquery';
+import { toRef } from '@vue/composition-api';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -261,7 +261,7 @@ import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue'
 import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import MosaicPlot from '@/components/Plots/MosaicPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
-
+import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat, objAsString } from '@/util';
 
@@ -409,7 +409,6 @@ export default {
           { text: 'True', value: true },
           { text: 'False', value: false }
         ],
-        showModal: false,
         parameters: {
           numPoints: 3,
           pointSpacing: 1,
@@ -418,18 +417,31 @@ export default {
           center: false,
           numRows: 3,
           numColumns: 3
-        },
-        status: {
-          notFound: false,
-          error: false,
-          loaded: false,
-          errorResponse: {}
-        },
-        expandedConfigurations: []
+        }
       },
       position: {
         requestIndex: this.index
       }
+    };
+  },
+  setup: function(props) {
+    const request = toRef(props, 'request');
+
+    const {
+      expansion,
+      acceptExpansion,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
+    } = requestExpansionWithModalConfirm(request);
+    return {
+      expansion,
+      acceptExpansion,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
     };
   },
   computed: {
@@ -438,7 +450,7 @@ export default {
     },
     mosaicTableItems: function() {
       let pointings = [];
-      for (let configuration of this.mosaic.expandedConfigurations) {
+      for (let configuration of this.expansion.expanded) {
         pointings.push({
           ra: configuration.target.ra,
           dec: configuration.target.dec
@@ -553,64 +565,15 @@ export default {
       return parameters;
     },
     generateMosaicPattern: function() {
-      if (!_.isEmpty(this.errors)) {
-        alert('Please make sure your request is valid before generating a mosaic for it');
-        return false;
-      }
-      this.mosaic.showModal = true;
-      this.mosaic.status.loaded = false;
-      this.mosaic.status.error = false;
-      this.mosaic.status.notFound = false;
-      this.mosaic.status.errorResponse = {};
-      $.ajax({
-        method: 'POST',
-        url: `${this.observationPortalApiBaseUrl}/api/requests/mosaic/`,
-        data: JSON.stringify(this.getMosaicParameters(false)),
-        contentType: 'application/json'
-      })
-        .done(response => {
-          if (response.configurations.length < 1) {
-            this.mosaic.status.notFound = true;
-          } else {
-            this.mosaic.expandedConfigurations = response.configurations;
-          }
+      if (
+        this.checkReadyToGenerateExpansion('Please make sure your request is valid before generating a mosaic for it', () => {
+          return !_.isEmpty(this.errors);
         })
-        .fail(response => {
-          this.mosaic.status.errorResponse = response.responseJSON;
-          this.mosaic.status.error = true;
-        })
-        .always(() => {
-          this.mosaic.status.loaded = true;
+      ) {
+        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/requests/mosaic/`, this.getMosaicParameters(false), response => {
+          return response.configurations;
         });
-    },
-    cancelMosaic: function() {
-      this.mosaic.showModal = false;
-      this.mosaic.expandedConfigurations = [];
-    },
-    getMosaicErrors: function() {
-      let errors = [];
-      for (let field in this.mosaic.status.errorResponse) {
-        if (field === 'non_field_errors') {
-          for (let msg of this.mosaic.status.errorResponse[field]) {
-            errors.push(msg);
-          }
-        } else {
-          for (let msg of this.mosaic.status.errorResponse[field]) {
-            errors.push(`${field}: ${msg}`);
-          }
-        }
       }
-      return errors;
-    },
-    acceptMosaic: function() {
-      this.mosaic.showModal = false;
-      // Clear out configurations before setting them again to allow any existing ones
-      // to re-render so that the mounted hook is entered.
-      this.configurations = [];
-      this.$nextTick(() => {
-        this.configurations = this.mosaic.expandedConfigurations;
-        this.mosaic.expandedConfigurations = [];
-      });
     }
   }
 };
