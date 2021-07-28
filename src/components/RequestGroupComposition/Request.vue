@@ -34,7 +34,6 @@
               :errors="errors.acceptability_threshold"
               @input="update"
             />
-
             <!-- Begin mosaic fields -->
             <custom-select
               v-model="mosaic.pattern"
@@ -45,6 +44,26 @@
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="{}"
+            />
+            <custom-field
+              v-if="mosaic.pattern === 'line' || mosaic.pattern === 'grid'"
+              v-model="mosaic.parameters.lineOverlapPercent"
+              field="mosaic-line-overlap-percent"
+              :label="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'label'], 'Line Overlap Percent')"
+              :desc="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
+            />
+            <custom-field
+              v-if="mosaic.pattern === 'line' || mosaic.pattern === 'grid'"
+              v-model="mosaic.parameters.pointOverlapPercent"
+              field="mosaic-point-overlap-percent"
+              :label="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'label'], 'Point Overlap Percent')"
+              :desc="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
+              :tooltip-config="tooltipConfig"
+              :errors="null"
             />
             <custom-field
               v-if="mosaic.pattern === 'line'"
@@ -410,6 +429,8 @@ export default {
           { text: 'False', value: false }
         ],
         parameters: {
+          pointOverlapPercent: 10,
+          lineOverlapPercent: 10,
           numPoints: 3,
           pointSpacing: 1,
           lineSpacing: 1,
@@ -542,6 +563,8 @@ export default {
       let parameters = {};
       if (this.mosaic.pattern === 'line') {
         parameters = {
+          line_overlap_percent: this.mosaic.parameters.lineOverlapPercent,
+          point_overlap_percent: this.mosaic.parameters.pointOverlapPercent,
           num_points: this.mosaic.parameters.numPoints,
           point_spacing: this.mosaic.parameters.pointSpacing,
           orientation: this.mosaic.parameters.orientation,
@@ -549,6 +572,8 @@ export default {
         };
       } else if (this.mosaic.pattern === 'grid') {
         parameters = {
+          line_overlap_percent: this.mosaic.parameters.lineOverlapPercent,
+          point_overlap_percent: this.mosaic.parameters.pointOverlapPercent,
           num_rows: this.mosaic.parameters.numRows,
           num_columns: this.mosaic.parameters.numColumns,
           point_spacing: this.mosaic.parameters.pointSpacing,
