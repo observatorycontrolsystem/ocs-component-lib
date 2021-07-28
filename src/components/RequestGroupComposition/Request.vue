@@ -171,6 +171,7 @@
                   plot-id="mosaic-plot"
                   :configurations="expansion.expanded"
                   :instruments-info="availableInstruments"
+                  :extra-rotation="mosaicExtraRotation"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help
@@ -404,6 +405,13 @@ export default {
       // eslint-disable-next-line no-unused-vars
       default: (request, requestIndex) => {
         return true;
+      }
+    },
+    mosaicExtraRotation: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: configuration => {
+        return 0;
       }
     },
     aladinScriptLocation: {

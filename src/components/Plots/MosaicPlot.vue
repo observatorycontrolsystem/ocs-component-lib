@@ -47,8 +47,6 @@ export default {
       type: Object,
       required: true
     },
-    // Function that takes the configuration that was used to generate the mosaic pattern, and returns
-    // the added orientation east of north defined by e.g. rotator_mode.
     extraRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
@@ -171,10 +169,9 @@ export default {
       return {
         fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
         arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0),
-        // TODO: Update the defaults below to sensible values
-        pixelsX: _.get(cameraTypeInfo, 'pixels_x', 2000),
+        pixelsX: _.get(cameraTypeInfo, 'pixels_x', 1000),
         pixelsY: _.get(cameraTypeInfo, 'pixels_y', 1000),
-        orientation: _.get(cameraTypeInfo, 'orientation', 10)
+        orientation: _.get(cameraTypeInfo, 'orientation', 0)
       };
     },
     onAladinLoaded: function() {

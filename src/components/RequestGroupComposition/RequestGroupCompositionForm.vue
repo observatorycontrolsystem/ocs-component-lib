@@ -14,6 +14,7 @@
         :dithering-allowed="ditheringAllowed"
         :mosaic-pattern-options="mosaicPatternOptions"
         :mosaic-allowed="mosaicAllowed"
+        :mosaic-extra-rotation="mosaicExtraRotation"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
@@ -254,6 +255,14 @@ export default {
       // eslint-disable-next-line no-unused-vars
       default: (request, requestIndex) => {
         return true;
+      }
+    },
+    // Function that takes a configuration and returns added rotation orientated east of north defined by e.g. rotator_mode.
+    mosaicExtraRotation: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: configuration => {
+        return 0;
       }
     },
     // Location from which to load the aladin JavaScript https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
