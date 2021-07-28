@@ -111,6 +111,8 @@
         :instrument-category-to-name="instrumentCategoryToName"
         :dither-pattern-options="ditherPatternOptions"
         :dithering-allowed="ditheringAllowed"
+        :mosaic-pattern-options="mosaicPatternOptions"
+        :mosaic-allowed="mosaicAllowed"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
@@ -232,6 +234,23 @@ export default {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
+    mosaicPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' }
+        ];
+      }
+    },
+    mosaicAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (request, requestIndex) => {
         return true;
       }
     },

@@ -7,6 +7,7 @@ import {
   formatDate,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
+  rotateCoordinate,
   stateToBsClass,
   stateToIcon,
   timeFromNow
@@ -133,5 +134,39 @@ describe('formatFloat', () => {
     let result = formatFloat(value, 1);
     let expected = '0.0';
     expect(result).toEqual(expected);
+  });
+});
+
+describe('rotateCoordinates', () => {
+  it('does nothing when rotation 0', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, 0);
+    let expected = { ra: 1, dec: 0 };
+    expect(result.ra).toEqual(expected.ra);
+    expect(result.dec).toEqual(expected.dec);
+  });
+
+  it('rotates positive rotation', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, 90);
+    let expected = { ra: 0, dec: 1 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+
+  it('rotates negative rotation', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, -90);
+    let expected = { ra: 0, dec: -1 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+
+  it('rotates around a point that is not the origin', () => {
+    let coordinate = { ra: 2, dec: 2 };
+    let result = rotateCoordinate(coordinate, { ra: 1, dec: 1 }, 90);
+    let expected = { ra: 0, dec: 2 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
   });
 });

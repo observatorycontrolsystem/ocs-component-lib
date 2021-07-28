@@ -37,44 +37,18 @@ export default {
     AladinPlot
   },
   props: {
-    // List of RA and Dec pointings in the form of:
-    // [
-    //   { ra: ra1, dec: dec1 },
-    //   { ra: ra2, dec: dec2 },
-    //   ...
-    // ]
-    pointingCoordinates: {
+    // List of configurations which make up this mosaic.
+    configurations: {
       type: Array,
       required: true
     },
-    instrumentFieldOfViewDegrees: {
-      type: Number,
-      required: true
-    },
-    instrumentArcSecPerPixel: {
-      type: Number,
-      required: true
-    },
-    instrumentPixelsX: {
-      type: Number,
-      required: true
-    },
-    instrumentPixelsY: {
-      type: Number,
-      required: true
-    },
-    // The oriention of the CCD in degrees east of north
-    instrumentOrientation: {
-      type: Number,
-      required: true
-    },
-    // The configuration that was used to generate the mosaic pattern
-    configuration: {
+    // Instruments information in the form of the response of the /api/instruments/ endpoint
+    instrumentsInfo: {
       type: Object,
       required: true
     },
     // Function that takes the configuration that was used to generate the mosaic pattern, and returns
-    // the added orientation east or north defined by things like any rotator mode that is set.
+    // the added orientation east of north defined by e.g. rotator_mode.
     extraRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
@@ -109,6 +83,16 @@ export default {
     };
   },
   computed: {
+    pointingCoordinates: function() {
+      let pointings = [];
+      for (let configuration of this.configurations) {
+        pointings.push({
+          ra: configuration.target.ra,
+          dec: configuration.target.dec
+        });
+      }
+      return pointings;
+    },
     mosaicMidPoint: function() {
       // Find the center of the mosaic sequence
       let decCoords = this.pointingCoordinates.map(coord => coord.dec);
@@ -117,42 +101,59 @@ export default {
       let dec = (Math.max(...decCoords) + Math.min(...decCoords)) / 2;
       return [ra, dec];
     },
+    maxInstrumentFieldOfViewDegrees: function() {
+      // Get the largest field of view of all the instruments used in the mosaic
+      let instrumentTypes = [];
+      let maxFOV = 0;
+      let instrumentInfo;
+      for (let configuration of this.configurations) {
+        if (!instrumentTypes.includes(configuration.instrument_type)) {
+          instrumentTypes.push(configuration.instrument_type);
+          instrumentInfo = this.getInstrumentInfo(configuration.instrument_type);
+          if (instrumentInfo.fieldOfViewDegrees > maxFOV) {
+            maxFOV = instrumentInfo.fieldOfViewDegrees;
+          }
+        }
+      }
+      return maxFOV;
+    },
     fieldOfView: function() {
       let decCoords = this.pointingCoordinates.map(coord => coord.dec);
       let raCoords = this.pointingCoordinates.map(coord => coord.ra);
       let cosDec = cosineDeclinationTerm(_.mean(decCoords));
       let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * cosDec;
       let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
-      let mosaicRange = Math.max(raRange, decRange) + this.instrumentFieldOfViewDegrees;
+      let mosaicRange = Math.max(raRange, decRange) + this.maxInstrumentFieldOfViewDegrees;
       // Add a little extra to the FOV around the mosaic range to be able to see the full CCD footprints
       // of all the pointings in the mosaic
       return mosaicRange * 1.2;
     },
-    coordinates: function() {
-      return _.map(this.pointingCoordinates, i => {
-        return [i['ra'], i['dec']];
-      });
-    },
-    CCDOrientation: function() {
-      return this.instrumentOrientation + this.extraRotation(this.configuration);
-    },
     CCDFootprints: function() {
-      // Return a list of lists, where each internal list is a collection of 5 2-element lists, where the first
-      // element is the RA and the second is the Dec, and the 2 coordinates come together to draw a closing polygon.
+      // Return an array of arrays, where each internal array is a collection of 5 2-element arrays, where the first
+      // element is the RA and the second is the Dec, and the 5 coordinates come together to draw a polygon.
       // Rotation is degrees east of north. Pixels x is along the north-south line (RA), and pixels y is perpendicular
       // to that, along the east-west line (declination).
       let footprints = [];
-      let HalfCCDWidthArcSec = (this.instrumentArcSecPerPixel * this.instrumentPixelsX) / 2;
-      let HalfCCDHeightArcSec = (this.instrumentArcSecPerPixel * this.instrumentPixelsY) / 2;
+      let halfCCDWidthArcSec;
+      let halfCCDHeightArcSec;
+      let instrumentInfo;
       let footprint;
-      for (let coord of this.pointingCoordinates) {
+      let coord;
+      let rotation;
+      for (let configuration of this.configurations) {
         footprint = [];
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: -HalfCCDWidthArcSec }), coord, this.CCDOrientation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -HalfCCDHeightArcSec, dec: -HalfCCDWidthArcSec }), coord, this.CCDOrientation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        coord = { ra: configuration.target.ra, dec: configuration.target.dec };
+        instrumentInfo = this.getInstrumentInfo(configuration.instrument_type);
+        // TODO: Should we handle drawing a separate footprint per instrument config, in case there are different rotator modes?
+        rotation = instrumentInfo.orientation + this.extraRotation(configuration);
+        halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
+        halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: -halfCCDWidthArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDHeightArcSec, dec: -halfCCDWidthArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
         // Repeat the first offset to close the loop
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: HalfCCDHeightArcSec, dec: HalfCCDWidthArcSec }), coord, this.CCDOrientation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDHeightArcSec, dec: halfCCDWidthArcSec }), coord, rotation));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
@@ -163,6 +164,17 @@ export default {
     }
   },
   methods: {
+    getInstrumentInfo: function(instrumentType) {
+      let cameraTypeInfo = _.get(this.instrumentsInfo, [instrumentType, 'camera_type']);
+      return {
+        fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
+        arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0),
+        // TODO: Update the defaults below to sensible values
+        pixelsX: _.get(cameraTypeInfo, 'pixels_x', 2000),
+        pixelsY: _.get(cameraTypeInfo, 'pixels_y', 1000),
+        orientation: _.get(cameraTypeInfo, 'orientation', 10)
+      };
+    },
     onAladinLoaded: function() {
       this.aladin = A.aladin(`#${this.aladinPlotId}`, {
         survey: 'P/DSS2/color',

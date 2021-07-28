@@ -150,13 +150,8 @@
                 </template>
                 <mosaic-plot
                   plot-id="mosaic-plot"
-                  :pointing-coordinates="mosaicPointings"
-                  :instrument-field-of-view-degrees="mosaicInstrumentInfo.fieldOfViewDegrees"
-                  :instrument-arc-sec-per-pixel="mosaicInstrumentInfo.arcSecPerPixel"
-                  :instrument-pixels-x="mosaicInstrumentInfo.pixelsX"
-                  :instrument-pixels-y="mosaicInstrumentInfo.pixelsY"
-                  :instrument-orientation="mosaicInstrumentInfo.orientation"
-                  :configuration="mosaicConfiguration"
+                  :configurations="mosaic.expandedConfigurations"
+                  :instruments-info="availableInstruments"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help
@@ -170,7 +165,7 @@
                       Calculated mosaic pointings using input parameters <em>{{ getMosaicParameters(true) | objAsString }}</em>
                     </p>
                     <div class="mosaic-offset-table">
-                      <b-table-lite :items="mosaicPointings" :fields="mosaic.fields" small></b-table-lite>
+                      <b-table-lite :items="mosaicTableItems" :fields="mosaic.fields" small></b-table-lite>
                     </div>
                     <br />
                   </template>
@@ -268,7 +263,7 @@ import MosaicPlot from '@/components/Plots/MosaicPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
+import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat, objAsString } from '@/util';
 
 export default {
   name: 'Request',
@@ -284,18 +279,8 @@ export default {
     DataLoader
   },
   filters: {
-    // TODO: This might be a duplicate
     objAsString(value) {
-      let result = '';
-      for (let key in value) {
-        if (result) {
-          result += `, ${key}: ${value[key]}`;
-        } else {
-          // This is the first key, value pair being printed
-          result += `${key}: ${value[key]}`;
-        }
-      }
-      return result;
+      return objAsString(value);
     },
     toNumber(value) {
       return Number(value);
@@ -395,8 +380,6 @@ export default {
         ];
       }
     },
-    // `mosaicAllowed` is a function that takes the request data and the request index,
-    // and returns a boolean indicating whether mosaicing is allowed.
     mosaicAllowed: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
@@ -453,7 +436,7 @@ export default {
     mosaicIsAllowed: function() {
       return this.mosaicAllowed(this.request, this.index);
     },
-    mosaicPointings: function() {
+    mosaicTableItems: function() {
       let pointings = [];
       for (let configuration of this.mosaic.expandedConfigurations) {
         pointings.push({
@@ -462,22 +445,6 @@ export default {
         });
       }
       return pointings;
-    },
-    mosaicConfiguration: function() {
-      // The mosaic pattern is generated from the first (and only) configuration.
-      return _.get(this.request.configurations, [0], {});
-    },
-    mosaicInstrumentInfo: function() {
-      let instrumentType = _.get(this.mosaicConfiguration, ['instrument_type']);
-      let cameraTypeInfo = _.get(this.availableInstruments, [instrumentType, 'camera_type']);
-      return {
-        fieldOfViewDegrees: _.get(cameraTypeInfo, 'science_field_of_view', 0) / 60,
-        arcSecPerPixel: _.get(cameraTypeInfo, 'pixel_scale', 0),
-        // TODO: Update the defaults below to sensible values
-        pixelsX: _.get(cameraTypeInfo, 'pixels_x', 2000),
-        pixelsY: _.get(cameraTypeInfo, 'pixels_y', 1000),
-        orientation: _.get(cameraTypeInfo, 'orientation', 10)
-      };
     }
   },
   methods: {
@@ -560,7 +527,6 @@ export default {
     generateCadence: function(data) {
       this.$emit('generate-cadence', { id: this.index, request: this.request, cadence: data });
     },
-
     getMosaicParameters: function(simple) {
       let parameters = {};
       if (this.mosaic.pattern === 'line') {

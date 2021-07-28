@@ -215,6 +215,20 @@ function round(value, decimalPlaces) {
   return Math.round(value * factor) / factor;
 }
 
+function objAsString(obj) {
+  // Get a string representation of a simple object
+  let result = '';
+  for (let key in obj) {
+    if (result) {
+      result += `, ${key}: ${obj[key]}`;
+    } else {
+      // This is the first key, value pair being printed
+      result += `${key}: ${obj[key]}`;
+    }
+  }
+  return result;
+}
+
 function cosineDeclinationTerm(declination) {
   let cosDec = Math.cos((declination * Math.PI) / 180);
   // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
@@ -269,6 +283,7 @@ export {
   formatValue,
   generateDurationString,
   getFromObject,
+  objAsString,
   offsetCoordinate,
   rotateCoordinate,
   round,

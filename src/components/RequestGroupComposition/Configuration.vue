@@ -344,7 +344,7 @@ import Target from '@/components/RequestGroupComposition/Target.vue';
 import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig } from '@/util';
+import { getFromObject, defaultTooltipConfig, objAsString } from '@/util';
 
 export default {
   name: 'Configuration',
@@ -365,16 +365,7 @@ export default {
       return Number(value);
     },
     objAsString(value) {
-      let result = '';
-      for (let key in value) {
-        if (result) {
-          result += `, ${key}: ${value[key]}`;
-        } else {
-          // This is the first key, value pair being printed
-          result += `${key}: ${value[key]}`;
-        }
-      }
-      return result;
+      return objAsString(value);
     }
   },
   mixins: [collapseMixin],

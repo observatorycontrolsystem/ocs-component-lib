@@ -12,6 +12,8 @@
         :observation-type-options="observationTypeOptions"
         :dither-pattern-options="ditherPatternOptions"
         :dithering-allowed="ditheringAllowed"
+        :mosaic-pattern-options="mosaicPatternOptions"
+        :mosaic-allowed="mosaicAllowed"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
@@ -231,6 +233,26 @@ export default {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: (configuration, requestIndex, configurationIndex) => {
+        return true;
+      }
+    },
+    // Set the available mosaic pattern options
+    mosaicPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' }
+        ];
+      }
+    },
+    // `mosaicAllowed` is a function that takes the request data and the request index,
+    // and returns a boolean indicating whether mosaicing is allowed.
+    mosaicAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (request, requestIndex) => {
         return true;
       }
     },
