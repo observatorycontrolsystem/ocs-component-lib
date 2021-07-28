@@ -486,7 +486,6 @@ export default {
   },
   setup: function(props) {
     const configuration = toRef(props, 'configuration');
-
     const {
       expansion,
       acceptExpansion,

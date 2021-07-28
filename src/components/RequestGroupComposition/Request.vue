@@ -426,7 +426,6 @@ export default {
   },
   setup: function(props) {
     const request = toRef(props, 'request');
-
     const {
       expansion,
       acceptExpansion,

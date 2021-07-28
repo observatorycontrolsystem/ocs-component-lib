@@ -129,6 +129,9 @@ export default {
       return mosaicRange * 1.2;
     },
     CCDFootprints: function() {
+      // Get the coordinates of the corners of the CCD for each target. Only draw one footprint for each configuration, using
+      // the first instrument_config in each configuration.
+      //
       // Return an array of arrays, where each internal array is a collection of 5 2-element arrays, where the first
       // element is the RA and the second is the Dec, and the 5 coordinates come together to draw a polygon.
       // Rotation is degrees east of north. Pixels x is along the north-south line (RA), and pixels y is perpendicular
@@ -144,7 +147,6 @@ export default {
         footprint = [];
         coord = { ra: configuration.target.ra, dec: configuration.target.dec };
         instrumentInfo = this.getInstrumentInfo(configuration.instrument_type);
-        // TODO: Should we handle drawing a separate footprint per instrument config, in case there are different rotator modes?
         rotation = instrumentInfo.orientation + this.extraRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
