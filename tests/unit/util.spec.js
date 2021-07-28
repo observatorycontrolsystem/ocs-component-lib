@@ -5,6 +5,8 @@ import {
   formatField,
   formatFloat,
   formatDate,
+  objAsString,
+  offsetCoordinate,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
   rotateCoordinate,
@@ -168,5 +170,38 @@ describe('rotateCoordinates', () => {
     let expected = { ra: 0, dec: 2 };
     expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+});
+
+describe('offsetCoordinate', () => {
+  it('offsets coordinate', () => {
+    let coordinate = { ra: 0, dec: 0 };
+    let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
+    let expected = { ra: 1, dec: 1 };
+    expect(result.ra).toEqual(expected.ra, 1);
+    expect(result.dec).toEqual(expected.dec, 1);
+  });
+
+  it('offsets coordinate close to pole', () => {
+    let coordinate = { ra: 0, dec: 89 };
+    let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
+    let expected = { ra: 57.3, dec: 90 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+});
+
+describe('objAsString', () => {
+  it('returns object string', () => {
+    let obj = { apples: 12, bananas: 4, pineapples: 1 };
+    let result = objAsString(obj);
+    let expected = 'apples: 12, bananas: 4, pineapples: 1';
+    expect(result).toEqual(expected);
+  });
+  it('returns object string for empty object', () => {
+    let obj = {};
+    let result = objAsString(obj);
+    let expected = '';
+    expect(result).toEqual(expected);
   });
 });
