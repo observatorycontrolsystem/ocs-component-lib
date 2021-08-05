@@ -29,7 +29,7 @@ import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import { addPolyline, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
-import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate } from '@/util';
+import { cosineDeclinationTerm, offsetCoordinateNoCosDec, rotateCoordinate } from '@/util';
 
 export default {
   name: 'MosaicPlot',
@@ -139,7 +139,9 @@ export default {
       let halfCCDHeightArcSec;
       let instrumentInfo;
       let footprint;
+      let arrow;
       let coord;
+      let i = 0;
       let rotation;
       for (let configuration of this.configurations) {
         footprint = [];
@@ -148,17 +150,51 @@ export default {
         rotation = instrumentInfo.orientation + this.extraRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         // Repeat the first offset to close the loop
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
           })
         );
+        arrow = [];
+        if  ((i + 1) < this.configurations.length) {
+          let nextCoord = { ra: this.configurations[i+1].target.ra, dec: this.configurations[i+1].target.dec };
+          // h and w are just reasonable scale factors for drawing a small arrow within the FOV outlines
+          let h = (halfCCDWidthArcSec / 10.0) * Math.sqrt(3);
+          let w = (halfCCDWidthArcSec / 10.0);
+          let Ux = (nextCoord.ra - coord.ra);
+          let Uy = (nextCoord.dec - coord.dec);
+          let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
+          Ux /= diffLength;
+          Uy /= diffLength;
+          arrow.push(offsetCoordinateNoCosDec(coord, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux}));
+          arrow.push(coord);
+          arrow.push(offsetCoordinateNoCosDec(coord, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux}));
+          footprints.push(
+            _.map(arrow, i => {
+              return [i['ra'], i['dec']];
+            })
+          );
+        }
+        else {
+          let end1 = [];
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0}), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0}), coord, 45.0));
+          end1.push(coord);
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0}), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0}), coord, 45.0));
+          footprints.push(
+            _.map(end1, i => {
+              return [i['ra'], i['dec']];
+            })
+          );
+        }
+        i++;
       }
       return footprints;
     }
@@ -195,10 +231,19 @@ export default {
     },
     addAnnotations: function() {
       this.aladin.removeLayers();
+      let i = 0;
+      let numColors = this.CCDFootprints.length / 2;
       for (let footprint of this.CCDFootprints) {
+        // // This interpolates the color evenly from green to red accross the spectrum
+        // let colorVal = 120.0 - 120.0 * (i / (numColors - 1));
+        // let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
+        // This interpolates the color evenly from light to dark green
+        let colorVal = 75.0 - 55.0 * (Math.floor(i / 2) / (numColors - 1));
+        let colorString = 'hsl(120,100%,' + colorVal.toString() + '%)';
         addPolyline(this.aladin, footprint, {
-          color: this.colors.info
+          color: colorString
         });
+        i++;
       }
     }
   }
