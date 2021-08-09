@@ -135,11 +135,12 @@ export default {
       // Rotation is degrees east of north. Pixels y is along the north-south line (declination), and pixels x is perpendicular
       // to that, along the east-west line (RA).
       let footprints = [];
+      let annotations = [];
+      let arrow;
       let halfCCDWidthArcSec;
       let halfCCDHeightArcSec;
       let instrumentInfo;
       let footprint;
-      let arrow;
       let coord;
       let i = 0;
       let rotation;
@@ -162,33 +163,47 @@ export default {
           })
         );
         arrow = [];
-        if  ((i + 1) < this.configurations.length) {
-          let nextCoord = { ra: this.configurations[i+1].target.ra, dec: this.configurations[i+1].target.dec };
+        if (i + 1 < this.configurations.length) {
+          let nextCoord = { ra: this.configurations[i + 1].target.ra, dec: this.configurations[i + 1].target.dec };
           // h and w are just reasonable scale factors for drawing a small arrow within the FOV outlines
           let h = (halfCCDWidthArcSec / 10.0) * Math.sqrt(3);
-          let w = (halfCCDWidthArcSec / 10.0);
-          let Ux = (nextCoord.ra - coord.ra);
-          let Uy = (nextCoord.dec - coord.dec);
+          let w = halfCCDWidthArcSec / 10.0;
+          let Ux = nextCoord.ra - coord.ra;
+          let Uy = nextCoord.dec - coord.dec;
           let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
           Ux /= diffLength;
           Uy /= diffLength;
-          arrow.push(offsetCoordinateNoCosDec(coord, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux}));
-          arrow.push(coord);
-          arrow.push(offsetCoordinateNoCosDec(coord, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux}));
-          footprints.push(
+          let shiftedCenter;
+          if (i === 0) {
+            shiftedCenter = coord;
+          } else {
+            shiftedCenter = offsetCoordinateNoCosDec(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
+          }
+          arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+          arrow.push(shiftedCenter);
+          arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
+          if (i === 0) {
+            // Close the arrow to form a triangle for the first position
+            arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+          }
+          annotations.push(
             _.map(arrow, i => {
               return [i['ra'], i['dec']];
             })
           );
-        }
-        else {
+          // add a line between this coordinates center and the next
+          annotations.push([
+            [coord.ra, coord.dec],
+            [nextCoord.ra, nextCoord.dec]
+          ]);
+        } else {
           let end1 = [];
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0}), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0}), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
           end1.push(coord);
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0}), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0}), coord, 45.0));
-          footprints.push(
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0 }), coord, 45.0));
+          annotations.push(
             _.map(end1, i => {
               return [i['ra'], i['dec']];
             })
@@ -196,7 +211,7 @@ export default {
         }
         i++;
       }
-      return footprints;
+      return { footprints: footprints, annotations: annotations };
     }
   },
   methods: {
@@ -230,20 +245,41 @@ export default {
       removeReticleEventHandlers();
     },
     addAnnotations: function() {
+      let shapes = this.CCDFootprints;
       this.aladin.removeLayers();
       let i = 0;
-      let numColors = this.CCDFootprints.length / 2;
-      for (let footprint of this.CCDFootprints) {
-        // // This interpolates the color evenly from green to red accross the spectrum
-        // let colorVal = 120.0 - 120.0 * (i / (numColors - 1));
-        // let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
-        // This interpolates the color evenly from light to dark green
-        let colorVal = 75.0 - 55.0 * (Math.floor(i / 2) / (numColors - 1));
-        let colorString = 'hsl(120,100%,' + colorVal.toString() + '%)';
+      let color1 = 220; // blueish
+      let color2 = 0; // red
+      let colorVal;
+      // Loop over footprints 3 times to draw the even/odd overlays on top of each other for clarity
+      // This alternates the color between blue and red for the outlines, and uses green for the inner arrows
+      for (let footprint of shapes.footprints) {
+        if (i % 2 === 0) {
+          colorVal = color1;
+          let colorString = 'hsl(' + colorVal.toString() + ',100%,60%)';
+          addPolyline(this.aladin, footprint, {
+            color: colorString
+          });
+        }
+        i++;
+      }
+      i = 0;
+      for (let footprint of shapes.footprints) {
+        if (i % 2 === 1) {
+          colorVal = color2;
+          let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
+          addPolyline(this.aladin, footprint, {
+            color: colorString
+          });
+        }
+        i++;
+      }
+      for (let footprint of shapes.annotations) {
+        colorVal = 120;
+        let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
         addPolyline(this.aladin, footprint, {
           color: colorString
         });
-        i++;
       }
     }
   }

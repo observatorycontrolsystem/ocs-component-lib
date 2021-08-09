@@ -197,10 +197,10 @@ function generateDurationString(durationSeconds) {
   let duration = moment.duration(durationSeconds, 'seconds');
   let durationString = '';
   if (duration.days() > 0) {
-    durationString = duration.days() + ' days ' + durationString;
+    durationString = duration.days() + ' days ';
   }
   if (duration.hours() > 0) {
-    durationString += duration.hours() + ' hrs ' + durationString;
+    durationString += duration.hours() + ' hrs ';
   }
   durationString += duration.minutes() + ' min ' + duration.seconds() + ' sec';
   return durationString;
