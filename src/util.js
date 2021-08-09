@@ -244,9 +244,10 @@ function offsetCoordinate(initial, offset) {
   // where each object has "ra" and "dec" keys, and outputs an object with the
   // initial coordinate with the offset applied.
   const ARC_SEC_PER_DEG = 3600;
-  let cosInitialDec = cosineDeclinationTerm(initial['dec']);
+  let finalDec = initial['dec'] + offset['dec'] / ARC_SEC_PER_DEG;
+  let cosDec = cosineDeclinationTerm(finalDec);
   return {
-    ra: initial['ra'] + offset['ra'] / ARC_SEC_PER_DEG / cosInitialDec,
+    ra: initial['ra'] + offset['ra'] / ARC_SEC_PER_DEG / cosDec,
     dec: initial['dec'] + offset['dec'] / ARC_SEC_PER_DEG
   };
 }

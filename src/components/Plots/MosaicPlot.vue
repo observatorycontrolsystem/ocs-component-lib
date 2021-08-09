@@ -142,7 +142,7 @@ export default {
       let instrumentInfo;
       let footprint;
       let coord;
-      let i = 0;
+      let j = 0;
       let rotation;
       for (let configuration of this.configurations) {
         footprint = [];
@@ -163,18 +163,18 @@ export default {
           })
         );
         arrow = [];
-        if (i + 1 < this.configurations.length) {
-          let nextCoord = { ra: this.configurations[i + 1].target.ra, dec: this.configurations[i + 1].target.dec };
+        if (j + 1 < this.configurations.length) {
+          let nextCoord = { ra: this.configurations[j + 1].target.ra, dec: this.configurations[j + 1].target.dec };
           // h and w are just reasonable scale factors for drawing a small arrow within the FOV outlines
           let h = (halfCCDWidthArcSec / 10.0) * Math.sqrt(3);
           let w = halfCCDWidthArcSec / 10.0;
-          let Ux = nextCoord.ra - coord.ra;
+          let Ux = (nextCoord.ra - coord.ra) * cosineDeclinationTerm(nextCoord.dec);
           let Uy = nextCoord.dec - coord.dec;
           let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
           Ux /= diffLength;
           Uy /= diffLength;
           let shiftedCenter;
-          if (i === 0) {
+          if (j === 0) {
             shiftedCenter = coord;
           } else {
             shiftedCenter = offsetCoordinate(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
@@ -182,7 +182,7 @@ export default {
           arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
           arrow.push(shiftedCenter);
           arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
-          if (i === 0) {
+          if (j === 0) {
             // Close the arrow to form a triangle for the first position
             arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
           }
@@ -198,18 +198,18 @@ export default {
           ]);
         } else {
           let end1 = [];
-          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec / 9.0, dec: 0 }, { ra: 0, dec: 0 }, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec / 9.0, dec: 0 }, { ra: 0, dec: 0 }, 45)));
           end1.push(coord);
-          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0 }), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0 }), coord, 45.0));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: halfCCDWidthArcSec / 9.0 }, { ra: 0, dec: 0 }, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -halfCCDWidthArcSec / 9.0 }, { ra: 0, dec: 0 }, 45)));
           annotations.push(
             _.map(end1, i => {
               return [i['ra'], i['dec']];
             })
           );
         }
-        i++;
+        j++;
       }
       return { footprints: footprints, annotations: annotations };
     }

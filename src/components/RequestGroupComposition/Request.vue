@@ -40,7 +40,13 @@
               :options="mosaicPatternOptions"
               field="mosaic-pattern"
               :label="getFromObject(formConfig, ['request', 'mosaic', 'label'], 'Mosaic')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic', 'desc'], 'Pattern for generating targets for configurations for a mosaic set of observations')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic', 'desc'],
+                  'Pattern for generating targets for configurations for a mosaic set of observations'
+                )
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="{}"
@@ -50,7 +56,13 @@
               v-model="mosaic.parameters.lineOverlapPercent"
               field="mosaic-line-overlap-percent"
               :label="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'label'], 'Line Overlap Percent')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'desc'], 'The percentage overlap of the targets in the pattern as a % of the FOV Ra (0 - 100)')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_line_overlap_percent', 'desc'],
+                  'The percentage overlap of the targets in the pattern as a % of the FOV Ra (0 - 100)'
+                )
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -60,7 +72,13 @@
               v-model="mosaic.parameters.pointOverlapPercent"
               field="mosaic-point-overlap-percent"
               :label="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'label'], 'Point Overlap Percent')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'desc'], 'The percentage overlap of the targets in the pattern as a % of the FOV Dec (0 - 100)')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_point_overlap_percent', 'desc'],
+                  'The percentage overlap of the targets in the pattern as a % of the FOV Dec (0 - 100)'
+                )
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -80,7 +98,13 @@
               v-model="mosaic.parameters.orientation"
               field="mosaic-orientation"
               :label="getFromObject(formConfig, ['request', 'mosaic_orientation', 'label'], 'Orientation')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_orientation', 'desc'], 'Angular Rotation of the pattern in degrees clockwise East (Ra) of North (Dec)')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_orientation', 'desc'],
+                  'Angular Rotation of the pattern in degrees clockwise East (Ra) of North (Dec)'
+                )
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -90,7 +114,9 @@
               v-model="mosaic.parameters.numRows"
               field="mosaic-num-rows"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'label'], 'Number of Rows')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'desc'], 'Number of targets in the grid in the Ra / horizontal direction')"
+              :desc="
+                getFromObject(formConfig, ['request', 'mosaic_num_rows', 'desc'], 'Number of targets in the grid in the Ra / horizontal direction')
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -100,7 +126,9 @@
               v-model="mosaic.parameters.numColumns"
               field="mosaic-num-columns"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'label'], 'Number of Columns')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'desc'], 'Number of targets in the grid in the Dec / vertical direction')"
+              :desc="
+                getFromObject(formConfig, ['request', 'mosaic_num_columns', 'desc'], 'Number of targets in the grid in the Dec / vertical direction')
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -111,7 +139,13 @@
               :options="mosaic.centerOptions"
               field="mosaic-center"
               :label="getFromObject(formConfig, ['request', 'mosaic_center', 'label'], 'Center')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_center', 'desc'], 'If True, the pattern is centered on the initial target. If False, the pattern begins at the initial target')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_center', 'desc'],
+                  'If True, the pattern is centered on the initial target. If False, the pattern begins at the initial target'
+                )
+              "
               :hide="getFromObject(formConfig, ['request', 'mosaic_center', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
