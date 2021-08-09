@@ -29,7 +29,7 @@ import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import { addPolyline, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
-import { cosineDeclinationTerm, offsetCoordinateNoCosDec, rotateCoordinate } from '@/util';
+import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate } from '@/util';
 
 export default {
   name: 'MosaicPlot',
@@ -151,12 +151,12 @@ export default {
         rotation = instrumentInfo.orientation + this.extraRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
-        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         // Repeat the first offset to close the loop
-        footprint.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
@@ -177,14 +177,14 @@ export default {
           if (i === 0) {
             shiftedCenter = coord;
           } else {
-            shiftedCenter = offsetCoordinateNoCosDec(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
+            shiftedCenter = offsetCoordinate(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
           }
-          arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+          arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
           arrow.push(shiftedCenter);
-          arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
+          arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
           if (i === 0) {
             // Close the arrow to form a triangle for the first position
-            arrow.push(offsetCoordinateNoCosDec(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+            arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
           }
           annotations.push(
             _.map(arrow, i => {
@@ -198,11 +198,11 @@ export default {
           ]);
         } else {
           let end1 = [];
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec / 9.0, dec: 0 }), coord, 45.0));
           end1.push(coord);
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0 }), coord, 45.0));
-          end1.push(rotateCoordinate(offsetCoordinateNoCosDec(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: 0, dec: halfCCDWidthArcSec / 9.0 }), coord, 45.0));
+          end1.push(rotateCoordinate(offsetCoordinate(coord, { ra: 0, dec: -halfCCDWidthArcSec / 9.0 }), coord, 45.0));
           annotations.push(
             _.map(end1, i => {
               return [i['ra'], i['dec']];

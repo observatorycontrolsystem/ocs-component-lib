@@ -251,19 +251,6 @@ function offsetCoordinate(initial, offset) {
   };
 }
 
-function offsetCoordinateNoCosDec(initial, offset) {
-  // Calculate coordinates from provided offsets. Equations pulled
-  // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
-  // Takes a object with the initial coordinate and an object with the offsets,
-  // where each object has "ra" and "dec" keys, and outputs an object with the
-  // initial coordinate with the offset applied.
-  const ARC_SEC_PER_DEG = 3600;
-  return {
-    ra: initial['ra'] + offset['ra'] / ARC_SEC_PER_DEG,
-    dec: initial['dec'] + offset['dec'] / ARC_SEC_PER_DEG
-  };
-}
-
 function rotateCoordinate(coordinate, center, angle) {
   // Move the target coordinate to the origin. RA goes along the x direction and Declination along the y.
   let coordX = coordinate['ra'] - center['ra'];
@@ -298,7 +285,6 @@ export {
   getFromObject,
   objAsString,
   offsetCoordinate,
-  offsetCoordinateNoCosDec,
   rotateCoordinate,
   round,
   sexagesimalDecToDecimal,
