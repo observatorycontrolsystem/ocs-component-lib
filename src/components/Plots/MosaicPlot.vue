@@ -143,6 +143,7 @@ export default {
       let footprint;
       let coord;
       let j = 0;
+      let origin = { ra: 0, dec: 0 };
       let rotation;
       for (let configuration of this.configurations) {
         footprint = [];
@@ -151,12 +152,12 @@ export default {
         rotation = instrumentInfo.orientation + this.extraRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }), coord, rotation));
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, origin, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, origin, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
         // Repeat the first offset to close the loop
-        footprint.push(rotateCoordinate(offsetCoordinate(coord, { ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }), coord, rotation));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
@@ -198,11 +199,11 @@ export default {
           ]);
         } else {
           let end1 = [];
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec / 9.0, dec: 0 }, { ra: 0, dec: 0 }, 45)));
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec / 9.0, dec: 0 }, { ra: 0, dec: 0 }, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec / 9.0, dec: 0 }, origin, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec / 9.0, dec: 0 }, origin, 45)));
           end1.push(coord);
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: halfCCDWidthArcSec / 9.0 }, { ra: 0, dec: 0 }, 45)));
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -halfCCDWidthArcSec / 9.0 }, { ra: 0, dec: 0 }, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: halfCCDWidthArcSec / 9.0 }, origin, 45)));
+          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -halfCCDWidthArcSec / 9.0 }, origin, 45)));
           annotations.push(
             _.map(end1, i => {
               return [i['ra'], i['dec']];
