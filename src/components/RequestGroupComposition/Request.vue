@@ -60,7 +60,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_line_overlap_percent', 'desc'],
-                  'The percentage overlap of the targets in the pattern as a % of the FOV Ra (0 - 100)'
+                  'The percentage overlap of the targets in the pattern as a % of the FOV RA (0 - 100)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
@@ -76,7 +76,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_point_overlap_percent', 'desc'],
-                  'The percentage overlap of the targets in the pattern as a % of the FOV Dec (0 - 100)'
+                  'The percentage overlap of the targets in the pattern as a % of the FOV DEC (0 - 100)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
@@ -88,7 +88,7 @@
               v-model="mosaic.parameters.numPoints"
               field="mosaic-num-points"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_points', 'label'], 'Number of Points')"
-              :desc="getFromObject(formConfig, ['request', 'mosaic_num_points', 'desc'], '')"
+              :desc="getFromObject(formConfig, ['request', 'mosaic_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_points', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -102,7 +102,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_orientation', 'desc'],
-                  'Angular Rotation of the pattern in degrees clockwise East (Ra) of North (Dec)'
+                  'Angular Rotation of the pattern in degrees clockwise East (RA) of North (DEC)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
@@ -115,7 +115,7 @@
               field="mosaic-num-rows"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'label'], 'Number of Rows')"
               :desc="
-                getFromObject(formConfig, ['request', 'mosaic_num_rows', 'desc'], 'Number of targets in the grid in the Ra / horizontal direction')
+                getFromObject(formConfig, ['request', 'mosaic_num_rows', 'desc'], 'Number of targets in the grid in the DEC / vertical direction')
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
@@ -127,7 +127,7 @@
               field="mosaic-num-columns"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'label'], 'Number of Columns')"
               :desc="
-                getFromObject(formConfig, ['request', 'mosaic_num_columns', 'desc'], 'Number of targets in the grid in the Dec / vertical direction')
+                getFromObject(formConfig, ['request', 'mosaic_num_columns', 'desc'], 'Number of targets in the grid in the RA / horizontal direction')
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"

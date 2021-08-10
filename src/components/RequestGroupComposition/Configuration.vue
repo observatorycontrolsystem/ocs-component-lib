@@ -133,7 +133,9 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither', 'desc'],
-                  'Pattern for generating offsets for a dithered set of instrument configurations'
+                  `Optionally select a dither pattern. After selecting a pattern, clicking the 'Generate Dither' button
+                  will generate and display the dither pattern which can then be either accepted or rejected. If accepted, the
+                  configuration will be updated to include dither offsets.`
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
@@ -145,7 +147,7 @@
               v-model="dither.parameters.numPoints"
               field="dither-num-points"
               :label="getFromObject(formConfig, ['configuration', 'dither_num_points', 'label'], 'Number of Points')"
-              :desc="getFromObject(formConfig, ['configuration', 'dither_num_points', 'desc'], '')"
+              :desc="getFromObject(formConfig, ['configuration', 'dither_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_points', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
@@ -159,7 +161,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_point_spacing', 'desc'],
-                  'Spacing in the  Dec / vertical direction between offsets in the dither pattern'
+                  'DEC / vertical spacing between offsets in the dither pattern'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'hide'], !ditheringIsAllowed)"
@@ -175,7 +177,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_line_spacing', 'desc'],
-                  'Spacing in the Ra / horizontal direction between offsets in the dither pattern'
+                  'RA / horizontal spacing between offsets in the dither pattern'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'hide'], !ditheringIsAllowed)"
@@ -191,7 +193,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_orientation', 'desc'],
-                  'Angular Rotation of the pattern in degrees clockwise East (Ra) of North (Dec)'
+                  'Angular Rotation of the pattern in degrees measured clockwise East (RA) of North (DEC)'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
