@@ -1,4 +1,5 @@
 import {
+  cosineDeclinationTerm,
   decimalRaToSexigesimal,
   decimalDecToSexigesimal,
   formatValue,
@@ -150,7 +151,7 @@ describe('rotateCoordinates', () => {
 
   it('rotates positive rotation', () => {
     let coordinate = { ra: 1, dec: 0 };
-    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, 90);
+    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, -90);
     let expected = { ra: 0, dec: 1 };
     expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toBeCloseTo(expected.dec, 1);
@@ -158,7 +159,7 @@ describe('rotateCoordinates', () => {
 
   it('rotates negative rotation', () => {
     let coordinate = { ra: 1, dec: 0 };
-    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, -90);
+    let result = rotateCoordinate(coordinate, { ra: 0, dec: 0 }, 90);
     let expected = { ra: 0, dec: -1 };
     expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toBeCloseTo(expected.dec, 1);
@@ -166,7 +167,7 @@ describe('rotateCoordinates', () => {
 
   it('rotates around a point that is not the origin', () => {
     let coordinate = { ra: 2, dec: 2 };
-    let result = rotateCoordinate(coordinate, { ra: 1, dec: 1 }, 90);
+    let result = rotateCoordinate(coordinate, { ra: 1, dec: 1 }, -90);
     let expected = { ra: 0, dec: 2 };
     expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toBeCloseTo(expected.dec, 1);
@@ -178,14 +179,15 @@ describe('offsetCoordinate', () => {
     let coordinate = { ra: 0, dec: 0 };
     let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
     let expected = { ra: 1, dec: 1 };
-    expect(result.ra).toEqual(expected.ra, 1);
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toEqual(expected.dec, 1);
   });
 
   it('offsets coordinate close to pole', () => {
     let coordinate = { ra: 0, dec: 89 };
     let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
-    let expected = { ra: 57.3, dec: 90 };
+    let cosDec = cosineDeclinationTerm(coordinate.dec + 1.0);
+    let expected = { ra: 1.0 / cosDec, dec: 90 };
     expect(result.ra).toBeCloseTo(expected.ra, 1);
     expect(result.dec).toBeCloseTo(expected.dec, 1);
   });
