@@ -588,7 +588,6 @@ export default {
           line_overlap_percent: this.mosaic.parameters.lineOverlapPercent,
           point_overlap_percent: this.mosaic.parameters.pointOverlapPercent,
           num_points: this.mosaic.parameters.numPoints,
-          point_spacing: this.mosaic.parameters.pointSpacing,
           orientation: this.mosaic.parameters.orientation,
           center: this.mosaic.parameters.center
         };
@@ -598,8 +597,6 @@ export default {
           point_overlap_percent: this.mosaic.parameters.pointOverlapPercent,
           num_rows: this.mosaic.parameters.numRows,
           num_columns: this.mosaic.parameters.numColumns,
-          point_spacing: this.mosaic.parameters.pointSpacing,
-          line_spacing: this.mosaic.parameters.lineSpacing,
           orientation: this.mosaic.parameters.orientation,
           center: this.mosaic.parameters.center
         };
