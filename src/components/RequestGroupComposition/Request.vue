@@ -44,7 +44,9 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic', 'desc'],
-                  'Pattern for generating targets for configurations for a mosaic set of observations'
+                  `Optionally select a mosaic pattern. After selecting a pattern, clicking the 'Generate Mosaic' button will
+                  generate and display the mosaic pattern which can then be either accepted or rejected. If accepted, the
+                  request will be updated to include all configurations with the targets in the mosaic.`
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
@@ -60,7 +62,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_line_overlap_percent', 'desc'],
-                  'The percentage overlap of the targets in the pattern as a % of the FOV RA (0 - 100)'
+                  'The percentage overlap of the pointings in the pattern as a percentage of the FOV in RA (0 - 100)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
@@ -76,7 +78,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_point_overlap_percent', 'desc'],
-                  'The percentage overlap of the targets in the pattern as a % of the FOV DEC (0 - 100)'
+                  'The percentage overlap of the pointings in the pattern as a percentage of the FOV in Declination (0 - 100)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
@@ -102,7 +104,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_orientation', 'desc'],
-                  'Angular Rotation of the pattern in degrees clockwise East (RA) of North (DEC)'
+                  'Angular rotation of the pattern in degrees clockwise East (RA) of North (Declination)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
@@ -115,7 +117,11 @@
               field="mosaic-num-rows"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'label'], 'Number of Rows')"
               :desc="
-                getFromObject(formConfig, ['request', 'mosaic_num_rows', 'desc'], 'Number of targets in the grid in the DEC / vertical direction')
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_num_rows', 'desc'],
+                  'Number of pointings in the grid in the Declination / vertical direction'
+                )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"
@@ -127,7 +133,11 @@
               field="mosaic-num-columns"
               :label="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'label'], 'Number of Columns')"
               :desc="
-                getFromObject(formConfig, ['request', 'mosaic_num_columns', 'desc'], 'Number of targets in the grid in the RA / horizontal direction')
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic_num_columns', 'desc'],
+                  'Number of pointings in the grid in the RA / horizontal direction'
+                )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
               :tooltip-config="tooltipConfig"

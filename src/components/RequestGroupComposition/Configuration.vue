@@ -161,7 +161,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_point_spacing', 'desc'],
-                  'DEC / vertical spacing between offsets in the dither pattern'
+                  'Declination / vertical spacing between offsets in the dither pattern'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'hide'], !ditheringIsAllowed)"
@@ -193,7 +193,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_orientation', 'desc'],
-                  'Angular Rotation of the pattern in degrees measured clockwise East (RA) of North (DEC)'
+                  'Angular rotation of the pattern in degrees measured clockwise East (RA) of North (Declination)'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
@@ -209,7 +209,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_num_rows', 'desc'],
-                  'Number of offsets in the grid in the Ra / horizontal direction'
+                  'Number of offsets in the grid in the RA / horizontal direction'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'hide'], !ditheringIsAllowed)"
@@ -225,7 +225,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_num_columns', 'desc'],
-                  'Number of targets in the grid in the Dec / vertical direction'
+                  'Number of offsets in the grid in the Declination / vertical direction'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_columns', 'hide'], !ditheringIsAllowed)"
