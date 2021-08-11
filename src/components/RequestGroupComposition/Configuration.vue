@@ -928,7 +928,7 @@ export default {
           return !_.isEmpty(this.errors);
         })
       ) {
-        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configuration/dither/`, this.getDitherParameters(false), response => {
+        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configurations/dither/`, this.getDitherParameters(false), response => {
           return response.instrument_configs;
         });
       }
