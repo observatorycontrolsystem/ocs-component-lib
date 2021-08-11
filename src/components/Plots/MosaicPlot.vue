@@ -17,7 +17,8 @@
           @aladin-loaded="onAladinLoaded"
         />
         <div class="text-center font-italic m-auto w-100">
-          Mosaic pattern
+          Mosaic pattern. The field of view of {{ instrumentType }} is {{ instrumentTypeFOVArcMin.x | round(1) }} arcminutes by
+          {{ instrumentTypeFOVArcMin.y | round(1) }} arcminutes.
         </div>
       </b-col>
     </b-row>
@@ -29,12 +30,17 @@ import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import { addPolyline, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
-import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate } from '@/util';
+import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate, round } from '@/util';
 
 export default {
   name: 'MosaicPlot',
   components: {
     AladinPlot
+  },
+  filters: {
+    round: function(value, decimalPlaces) {
+      return round(value, decimalPlaces);
+    }
   },
   props: {
     // List of configurations which make up this mosaic.
@@ -64,6 +70,8 @@ export default {
     }
   },
   data: function() {
+    let instrumentType = this.configurations[0].instrument_type;
+    let instrumentInfo = this.getInstrumentInfo(instrumentType);
     return {
       // These values for height and width are chosen to work well with everything
       // that is drawn on the plots.
@@ -77,6 +85,11 @@ export default {
       targetMarkerSourceSize: 20,
       colors: {
         info: '#17ff60'
+      },
+      instrumentType: instrumentType,
+      instrumentTypeFOVArcMin: {
+        x: (instrumentInfo.pixelsX * instrumentInfo.arcSecPerPixel) / 60,
+        y: (instrumentInfo.pixelsY * instrumentInfo.arcSecPerPixel) / 60
       }
     };
   },
