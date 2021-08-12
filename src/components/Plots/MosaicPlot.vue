@@ -84,7 +84,10 @@ export default {
       legendSourceSize: 10,
       targetMarkerSourceSize: 20,
       colors: {
-        info: '#17ff60'
+        info: '#17ff60',
+        blue: 'hsl(220,100%,60%)',
+        red: 'hsl(0,100%,50%)',
+        green: 'hsl(120,100%,50%)'
       },
       instrumentType: instrumentType,
       instrumentTypeFOVArcMin: {
@@ -262,17 +265,12 @@ export default {
       let shapes = this.CCDFootprints;
       this.aladin.removeLayers();
       let i = 0;
-      let color1 = 220; // blueish
-      let color2 = 0; // red
-      let colorVal;
       // Loop over footprints 3 times to draw the even/odd overlays on top of each other for clarity
       // This alternates the color between blue and red for the outlines, and uses green for the inner arrows
       for (let footprint of shapes.footprints) {
         if (i % 2 === 0) {
-          colorVal = color1;
-          let colorString = 'hsl(' + colorVal.toString() + ',100%,60%)';
           addPolyline(this.aladin, footprint, {
-            color: colorString
+            color: this.colors.blue
           });
         }
         i++;
@@ -280,19 +278,15 @@ export default {
       i = 0;
       for (let footprint of shapes.footprints) {
         if (i % 2 === 1) {
-          colorVal = color2;
-          let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
           addPolyline(this.aladin, footprint, {
-            color: colorString
+            color: this.colors.red
           });
         }
         i++;
       }
       for (let footprint of shapes.annotations) {
-        colorVal = 120;
-        let colorString = 'hsl(' + colorVal.toString() + ',100%,50%)';
         addPolyline(this.aladin, footprint, {
-          color: colorString
+          color: this.colors.green
         });
       }
     }
