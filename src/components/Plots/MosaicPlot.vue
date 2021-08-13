@@ -225,12 +225,11 @@ export default {
       removeReticleEventHandlers();
     },
     addAnnotations: function() {
-      let shapes = this.CCDFootprints;
       this.aladin.removeLayers();
       let i = 0;
       // Loop over footprints 3 times to draw the even/odd overlays on top of each other for clarity
       // This alternates the color between blue and red for the outlines, and uses green for the inner arrows
-      for (let footprint of shapes.footprints) {
+      for (let footprint of this.CCDFootprints.footprints) {
         if (i % 2 === 0) {
           addPolyline(this.aladin, footprint, {
             color: this.colors.blue
@@ -239,7 +238,7 @@ export default {
         i++;
       }
       i = 0;
-      for (let footprint of shapes.footprints) {
+      for (let footprint of this.CCDFootprints.footprints) {
         if (i % 2 === 1) {
           addPolyline(this.aladin, footprint, {
             color: this.colors.red
@@ -247,7 +246,7 @@ export default {
         }
         i++;
       }
-      for (let annotation of shapes.annotations) {
+      for (let annotation of this.CCDFootprints.annotations) {
         addPolyline(this.aladin, annotation, {
           color: this.colors.green
         });
