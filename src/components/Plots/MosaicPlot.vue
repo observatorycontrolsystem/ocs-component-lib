@@ -17,7 +17,7 @@
           @aladin-loaded="onAladinLoaded"
         />
         <div class="text-center font-italic m-auto w-100">
-          Mosaic pattern. The field of view of {{ instrumentType }} is {{ instrumentTypeFOVArcMin.x | round(1) }} arcminutes by
+          Mosaic pattern. The field of view (FOV) of {{ instrumentType }} is {{ instrumentTypeFOVArcMin.x | round(1) }} arcminutes by
           {{ instrumentTypeFOVArcMin.y | round(1) }} arcminutes.
         </div>
       </b-col>
@@ -29,7 +29,14 @@
 import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
-import { addPolyline, setColorMap, removeReticleEventHandlers } from '@/components/Plots/aladinPlotUtil.js';
+import {
+  addPolyline,
+  addFillBackground,
+  addLegendForCatalog,
+  getPathAnnotations,
+  setColorMap,
+  removeReticleEventHandlers
+} from '@/components/Plots/aladinPlotUtil.js';
 import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate, round } from '@/util';
 
 export default {
@@ -84,10 +91,10 @@ export default {
       legendSourceSize: 10,
       targetMarkerSourceSize: 20,
       colors: {
-        info: '#17ff60',
-        blue: 'hsl(220,100%,60%)',
-        red: 'hsl(0,100%,50%)',
-        green: 'hsl(120,100%,50%)'
+        blue: '#30fff8',
+        red: '#fc2128',
+        green: '#17ff60',
+        transparentBackground: 'rgba(0, 0, 0, 0.4)'
       },
       instrumentType: instrumentType,
       instrumentTypeFOVArcMin: {
@@ -140,7 +147,7 @@ export default {
       let mosaicRange = Math.max(raRange, decRange) + this.maxInstrumentFieldOfViewDegrees;
       // Add a little extra to the FOV around the mosaic range to be able to see the full CCD footprints
       // of all the pointings in the mosaic
-      return mosaicRange * 1.2;
+      return mosaicRange * 1.3;
     },
     CCDFootprints: function() {
       // Get the coordinates of the corners of the CCD for each target. Only draw one footprint for each configuration, using
@@ -151,14 +158,11 @@ export default {
       // Rotation is degrees east of north. Pixels y is along the north-south line (declination), and pixels x is perpendicular
       // to that, along the east-west line (RA).
       let footprints = [];
-      let annotations = [];
-      let arrow;
       let halfCCDWidthArcSec;
       let halfCCDHeightArcSec;
       let instrumentInfo;
       let footprint;
       let coord;
-      let j = 0;
       let origin = { ra: 0, dec: 0 };
       let rotation;
       for (let configuration of this.configurations) {
@@ -179,55 +183,14 @@ export default {
             return [i['ra'], i['dec']];
           })
         );
-        arrow = [];
-        if (j + 1 < this.configurations.length) {
-          let nextCoord = { ra: this.configurations[j + 1].target.ra, dec: this.configurations[j + 1].target.dec };
-          // h and w are just reasonable scale factors for drawing a small arrow within the FOV outlines
-          let h = (halfCCDWidthArcSec / 10.0) * Math.sqrt(3);
-          let w = halfCCDWidthArcSec / 10.0;
-          let Ux = (nextCoord.ra - coord.ra) * cosineDeclinationTerm(nextCoord.dec);
-          let Uy = nextCoord.dec - coord.dec;
-          let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
-          Ux /= diffLength;
-          Uy /= diffLength;
-          let shiftedCenter;
-          if (j === 0) {
-            shiftedCenter = coord;
-          } else {
-            shiftedCenter = offsetCoordinate(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
-          }
-          arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
-          arrow.push(shiftedCenter);
-          arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
-          if (j === 0) {
-            // Close the arrow to form a triangle for the first position
-            arrow.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
-          }
-          annotations.push(
-            _.map(arrow, i => {
-              return [i['ra'], i['dec']];
-            })
-          );
-          // add a line between this coordinates center and the next
-          annotations.push([
-            [coord.ra, coord.dec],
-            [nextCoord.ra, nextCoord.dec]
-          ]);
-        } else {
-          let end1 = [];
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec / 9.0, dec: 0 }, origin, 45)));
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec / 9.0, dec: 0 }, origin, 45)));
-          end1.push(coord);
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: halfCCDWidthArcSec / 9.0 }, origin, 45)));
-          end1.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -halfCCDWidthArcSec / 9.0 }, origin, 45)));
-          annotations.push(
-            _.map(end1, i => {
-              return [i['ra'], i['dec']];
-            })
-          );
-        }
-        j++;
       }
+      let annotations = getPathAnnotations(
+        _.map(this.configurations, i => {
+          return { ra: i.target.ra, dec: i.target.dec };
+        }),
+        halfCCDWidthArcSec,
+        origin
+      );
       return { footprints: footprints, annotations: annotations };
     }
   },
@@ -284,11 +247,22 @@ export default {
         }
         i++;
       }
-      for (let footprint of shapes.annotations) {
-        addPolyline(this.aladin, footprint, {
+      for (let annotation of shapes.annotations) {
+        addPolyline(this.aladin, annotation, {
           color: this.colors.green
         });
       }
+      addLegendForCatalog(this.aladin, { label: 'Last pointing', offsetBottom: 35, offsetLeft: 10, shape: 'cross', color: this.colors.green });
+      addLegendForCatalog(this.aladin, { label: 'First pointing', offsetBottom: 55, offsetLeft: 10, shape: 'triangle', color: this.colors.green });
+      addLegendForCatalog(this.aladin, {
+        label: 'Pointing FOV outline',
+        offsetBottom: 35,
+        offsetLeft: 333,
+        shape: 'square',
+        color: this.colors.blue
+      });
+      addLegendForCatalog(this.aladin, { label: 'Pointing FOV outline', offsetBottom: 55, offsetLeft: 333, shape: 'square', color: this.colors.red });
+      addFillBackground(this.aladin, this.colors.transparentBackground);
     }
   }
 };
