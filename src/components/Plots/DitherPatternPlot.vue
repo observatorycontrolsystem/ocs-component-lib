@@ -43,11 +43,15 @@
 </template>
 <script>
 /* global A */
+import _ from 'lodash';
+
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import {
   addPolyline,
   addScaleBar,
   addCatalog,
+  addLegendForCatalog,
+  getPointingPathAnnotations,
   setColorMap,
   addFillBackground,
   removeReticleEventHandlers
@@ -99,6 +103,10 @@ export default {
     isSiderealTarget: {
       type: Boolean
     },
+    patternType: {
+      type: String,
+      required: true
+    },
     aladinScriptLocation: {
       type: String,
       default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
@@ -122,7 +130,7 @@ export default {
       legendItemsOffsetBottom: 30,
       legendItemsOffsetLeft: 30,
       legendSourceSize: 10,
-      patternSourceSize: 15,
+      patternSourceSize: 10,
       targetMarkerSourceSize: 50,
       arcSecPerDeg: 3600,
       minScaleBarSizeFactor: 1 / 200,
@@ -257,19 +265,10 @@ export default {
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
-      // Categorize all offset pointings so that they can be displayed independently on the plot
-      let firstPointingSources = [];
-      let lastPointingSources = [];
       let middlePointingsSources = [];
       for (let offsetIndex in this.offsetCoordinates) {
-        if (offsetIndex == 0) {
-          // This is the first pointing, use an X marker
-          firstPointingSources.push(this.offsetCoordinates[offsetIndex]);
-        } else if (offsetIndex == this.offsetCoordinates.length - 1) {
-          // This is the last pointing, use a triangle marker
-          lastPointingSources.push(this.offsetCoordinates[offsetIndex]);
-        } else {
-          // This is a pointing somewhere in the middles, use a dot
+        if (offsetIndex != 0 && offsetIndex != this.offsetCoordinates.length - 1) {
+          // This is a pointing somewhere in the middle of the pattern, will draw those on the plot separately
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
@@ -303,16 +302,14 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
-      if (firstPointingSources.length > 0) {
+      if (this.offsetCoordinates.length >= 1) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        addCatalog(this.aladinZoomedIn, firstPointingSources, {
-          offsetLeft: this.legendItemsOffsetLeft,
+        addLegendForCatalog(this.aladinZoomedIn, {
+          label: 'Last dither pointing',
           offsetBottom: legendOffsetBottom,
-          color: this.colors.pattern,
+          offsetLeft: this.legendItemsOffsetLeft,
           shape: 'cross',
-          sourceSize: this.patternSourceSize,
-          legendSourceSize: this.legendSourceSize,
-          label: 'First dither pointing'
+          color: this.colors.pattern
         });
       }
       if (middlePointingsSources.length > 0) {
@@ -327,19 +324,46 @@ export default {
           label: 'Dither pointing'
         });
       }
-      if (lastPointingSources.length > 0) {
+      if (this.offsetCoordinates.length >= 2) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        addCatalog(this.aladinZoomedIn, lastPointingSources, {
-          offsetLeft: this.legendItemsOffsetLeft,
+        addLegendForCatalog(this.aladinZoomedIn, {
+          label: 'First dither pointing',
           offsetBottom: legendOffsetBottom,
-          color: this.colors.pattern,
+          offsetLeft: this.legendItemsOffsetLeft,
           shape: 'triangle',
-          sourceSize: this.patternSourceSize,
-          legendSourceSize: this.legendSourceSize,
-          label: 'Last dither pointing'
+          color: this.colors.pattern
         });
       }
-      addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
+      // If the graph starts to look too crowded, don't draw the arrows from the path annotations. These were decided visually.
+      let drawArrows = true;
+      if (this.patternType === 'line') {
+        if (this.offsetCoordinates.length > 6) {
+          drawArrows = false;
+        }
+      } else if (this.patternType === 'grid') {
+        if (Math.sqrt(this.offsetCoordinates.length) > 6) {
+          drawArrows = false;
+        }
+      } else if (this.patternType === 'spiral') {
+        if (this.offsetCoordinates.length > 10) {
+          drawArrows = false;
+        }
+      }
+      // Set the size of the arrows and markers in the path annotations
+      let arrowSize = 0.1 * this.ditherRange * this.arcSecPerDeg;
+      if (arrowSize == 0) {
+        arrowSize = (this.zoomedInFieldOfView / 20) * this.arcSecPerDeg;
+      }
+      let pathAnnotations = getPointingPathAnnotations(
+        _.map(this.offsetCoordinates, i => {
+          return { ra: i[0], dec: i[1] };
+        }),
+        arrowSize,
+        drawArrows
+      );
+      for (let annotation of pathAnnotations) {
+        addPolyline(this.aladinZoomedIn, annotation, { color: this.colors.pattern, lineWidth: 1 });
+      }
       if (!this.isSiderealTarget) {
         addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
       } else {

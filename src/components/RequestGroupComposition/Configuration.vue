@@ -294,6 +294,7 @@
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
                   :instrument-type="configuration.instrument_type"
                   :is-sidereal-target="configuration.target.type === 'ICRS'"
+                  :pattern-type="dither.pattern"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help

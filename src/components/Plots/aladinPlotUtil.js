@@ -119,47 +119,72 @@ const removeReticleEventHandlers = () => {
   $('.aladin-reticleCanvas').unbind();
 };
 
-const getPathAnnotations = (pointings, pathSizeArcSec, origin) => {
+const getArrowAnnotation = (coord, nextCoord, size, closeArrow, shiftCoord) => {
+  let arrowAnnotation = [];
+  // h and w are just reasonable scale factors for drawing a small arrow. Divide by two so that
+  // the final arrow fits into size
+  let h = size / 2;
+  let w = size / 2;
+  let Ux = (nextCoord.ra - coord.ra) * cosineDeclinationTerm(nextCoord.dec);
+  let Uy = nextCoord.dec - coord.dec;
+  let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
+  Ux /= diffLength;
+  Uy /= diffLength;
+  let shiftedCenter;
+  if (shiftCoord) {
+    shiftedCenter = offsetCoordinate(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
+  } else {
+    shiftedCenter = coord;
+  }
+  arrowAnnotation.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+  arrowAnnotation.push(shiftedCenter);
+  arrowAnnotation.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
+  if (closeArrow) {
+    // Closes off the arrow to make it look like a triangle
+    arrowAnnotation.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+  }
+  return arrowAnnotation;
+};
+
+const getXAnnotation = (coord, size, rotation) => {
+  rotation = rotation || 45;
+  let xAnnotation = [];
+  let origin = { ra: 0, dec: 0 };
+  // Scale the line down even further so that it fits into the container as expected
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: size / 2, dec: 0 }, origin, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: -size / 2, dec: 0 }, origin, rotation)));
+  xAnnotation.push(coord);
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: size / 2 }, origin, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -size / 2 }, origin, rotation)));
+  return xAnnotation;
+};
+
+const getPointingPathAnnotations = (pointings, sizeArcSec, drawMiddleArrows) => {
   // Get a list of lists, where each internal list is a collection of RA/Dec pairs whose progression defines a path. The first pointing
   // in the path is indicated with a triangle, and the last is indicated with an X. Each step along the path is indicated with an arrow
   // that is pointing in the directing of the next step along the path.
   // Arguments:
   //   `pointings`: List of coordinate pairs defining the pointings in the form of [{ ra: '', dec: ''}, ...].
-  //   `pathSizeArcSec`: A size in arcseconds used to scale the arrows, starting triangle, and ending X.
-  //   `origin`: A single { ra: '', dec: ''} pair used to define what to rotate the closing X markers around, to
-  //       be able to draw it rotated with respect to the path.
-  let arrows;
+  //   `sizeArcSec`: The size in arcseconds of the markers/ arrows.
+  //   `drawMiddleArrows`: Whether or not to draw the pointing arrows.
+  if (drawMiddleArrows === undefined) {
+    drawMiddleArrows = true;
+  }
+  let arrow;
   let coord;
   let nextCoord;
   let annotations = [];
   for (let j = 0; j < pointings.length; j++) {
-    arrows = [];
     coord = { ra: pointings[j].ra, dec: pointings[j].dec };
     if (j < pointings.length - 1) {
       nextCoord = { ra: pointings[j + 1].ra, dec: pointings[j + 1].dec };
-      // h and w are just reasonable scale factors for drawing a small arrow
-      let h = (pathSizeArcSec / 10.0) * Math.sqrt(3);
-      let w = pathSizeArcSec / 10.0;
-      let Ux = (nextCoord.ra - coord.ra) * cosineDeclinationTerm(nextCoord.dec);
-      let Uy = nextCoord.dec - coord.dec;
-      let diffLength = Math.sqrt(Math.pow(Ux, 2) + Math.pow(Uy, 2));
-      Ux /= diffLength;
-      Uy /= diffLength;
-      let shiftedCenter;
       if (j === 0) {
-        shiftedCenter = coord;
-      } else {
-        shiftedCenter = offsetCoordinate(coord, { ra: 2 * w * Ux, dec: 2 * w * Uy });
-      }
-      arrows.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
-      arrows.push(shiftedCenter);
-      arrows.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux - w * -Uy, dec: -h * Uy - w * Ux }));
-      if (j === 0) {
-        // Close the arrow to form a triangle for the first position
-        arrows.push(offsetCoordinate(shiftedCenter, { ra: -h * Ux + w * -Uy, dec: -h * Uy + w * Ux }));
+        arrow = getArrowAnnotation(coord, nextCoord, sizeArcSec, true, false);
+      } else if (drawMiddleArrows) {
+        arrow = getArrowAnnotation(coord, nextCoord, sizeArcSec, false, true);
       }
       annotations.push(
-        _.map(arrows, i => {
+        _.map(arrow, i => {
           return [i['ra'], i['dec']];
         })
       );
@@ -169,14 +194,9 @@ const getPathAnnotations = (pointings, pathSizeArcSec, origin) => {
         [nextCoord.ra, nextCoord.dec]
       ]);
     } else {
-      let end = [];
-      end.push(offsetCoordinate(coord, rotateCoordinate({ ra: pathSizeArcSec / 9.0, dec: 0 }, origin, 45)));
-      end.push(offsetCoordinate(coord, rotateCoordinate({ ra: -pathSizeArcSec / 9.0, dec: 0 }, origin, 45)));
-      end.push(coord);
-      end.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: pathSizeArcSec / 9.0 }, origin, 45)));
-      end.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -pathSizeArcSec / 9.0 }, origin, 45)));
+      console.log('plotting last point');
       annotations.push(
-        _.map(end, i => {
+        _.map(getXAnnotation(coord, sizeArcSec), i => {
           return [i['ra'], i['dec']];
         })
       );
@@ -191,7 +211,7 @@ export {
   addScaleBar,
   addCatalog,
   addLegendForCatalog,
-  getPathAnnotations,
+  getPointingPathAnnotations,
   setColorMap,
   addFillBackground,
   removeReticleEventHandlers

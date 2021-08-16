@@ -631,3 +631,9 @@ export default {
   }
 };
 </script>
+<style scoped>
+.mosaic-offset-table {
+  max-height: 200px;
+  overflow-y: scroll;
+}
+</style>

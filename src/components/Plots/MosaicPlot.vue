@@ -33,7 +33,7 @@ import {
   addPolyline,
   addFillBackground,
   addLegendForCatalog,
-  getPathAnnotations,
+  getPointingPathAnnotations,
   setColorMap,
   removeReticleEventHandlers
 } from '@/components/Plots/aladinPlotUtil.js';
@@ -138,16 +138,18 @@ export default {
       }
       return maxFOV;
     },
-    fieldOfView: function() {
+    mosaicRange: function() {
       let decCoords = this.pointingCoordinates.map(coord => coord.dec);
       let raCoords = this.pointingCoordinates.map(coord => coord.ra);
       let cosDec = cosineDeclinationTerm(_.mean(decCoords));
       let raRange = Math.abs(Math.max(...raCoords) - Math.min(...raCoords)) * cosDec;
       let decRange = Math.abs(Math.max(...decCoords) - Math.min(...decCoords));
-      let mosaicRange = Math.max(raRange, decRange) + this.maxInstrumentFieldOfViewDegrees;
+      return Math.max(raRange, decRange);
+    },
+    fieldOfView: function() {
       // Add a little extra to the FOV around the mosaic range to be able to see the full CCD footprints
       // of all the pointings in the mosaic
-      return mosaicRange * 1.3;
+      return (this.mosaicRange + this.maxInstrumentFieldOfViewDegrees) * 1.35;
     },
     CCDFootprints: function() {
       // Get the coordinates of the corners of the CCD for each target. Only draw one footprint for each configuration, using
@@ -184,12 +186,23 @@ export default {
           })
         );
       }
-      let annotations = getPathAnnotations(
+      let sizeCCD = Math.min(halfCCDWidthArcSec, halfCCDHeightArcSec);
+      let sizeMosaic = this.mosaicRange * 3600;
+      let ratioCCDToMosaic = Math.max(sizeCCD / sizeMosaic, 0.0001);
+      // The following equation is just a way to scale the size of the annotations for different scenarios. Derived using the
+      // following numbers:
+      //   - When ratio of CCD to the mosaic range is 0.5 (it takes up a large area), the annotation should be 0.1 * the CCD size. This happens
+      //     when there are a small number of pointings with small overlap, and also when there are many pointings
+      //     with large overlap.
+      //   - When the ratio of CCD to the mosaic range is 0.1 (it takes up a small area), the annotation should be 0.5 * the CCD size. This happens
+      //     when there are many pointings with little overlap.
+      let sizeAnnotation = (0.03 / ratioCCDToMosaic + 0.1) * sizeCCD;
+      let annotations = getPointingPathAnnotations(
         _.map(this.configurations, i => {
           return { ra: i.target.ra, dec: i.target.dec };
         }),
-        halfCCDWidthArcSec,
-        origin
+        sizeAnnotation,
+        true
       );
       return { footprints: footprints, annotations: annotations };
     }
