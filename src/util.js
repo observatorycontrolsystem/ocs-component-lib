@@ -250,7 +250,7 @@ function offsetCoordinate(initial, offset) {
   };
 }
 
-function rotateCoordinate(coordinate, angle, center = { ra: 0, dec: 0} ) {
+function rotateCoordinate(coordinate, angle, center = { ra: 0, dec: 0 }) {
   // Move the target coordinate to the origin. RA goes along the x direction and Declination along the y.
   let coordX = coordinate['ra'] - center['ra'];
   let coordY = coordinate['dec'] - center['dec'];
