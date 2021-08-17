@@ -50,7 +50,7 @@ import {
   addPolyline,
   addScaleBar,
   addCatalog,
-  addLegendForCatalog,
+  addLegend,
   getPointingPathAnnotations,
   setColorMap,
   addFillBackground,
@@ -304,7 +304,7 @@ export default {
       });
       if (this.offsetCoordinates.length >= 1) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        addLegendForCatalog(this.aladinZoomedIn, {
+        addLegend(this.aladinZoomedIn, {
           label: 'Last dither pointing',
           offsetBottom: legendOffsetBottom,
           offsetLeft: this.legendItemsOffsetLeft,
@@ -326,7 +326,7 @@ export default {
       }
       if (this.offsetCoordinates.length >= 2) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        addLegendForCatalog(this.aladinZoomedIn, {
+        addLegend(this.aladinZoomedIn, {
           label: 'First dither pointing',
           offsetBottom: legendOffsetBottom,
           offsetLeft: this.legendItemsOffsetLeft,
@@ -362,7 +362,7 @@ export default {
         drawArrows
       );
       for (let annotation of pathAnnotations) {
-        addPolyline(this.aladinZoomedIn, annotation, { color: this.colors.pattern, lineWidth: 1 });
+        addPolyline(this.aladinZoomedIn, annotation, { color: this.colors.pattern });
       }
       if (!this.isSiderealTarget) {
         addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);

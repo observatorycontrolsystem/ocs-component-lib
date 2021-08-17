@@ -62,7 +62,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_line_overlap_percent', 'desc'],
-                  'The percentage overlap of the pointings in the pattern as a percentage of the FOV in RA (0 - 100)'
+                  'The percentage overlap of the pointings in the pattern as a percentage of the FOV in Right ascension (0 - 100)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
@@ -104,7 +104,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_orientation', 'desc'],
-                  'Angular rotation of the pattern in degrees clockwise East (RA) of North (Declination)'
+                  'Angular rotation of the pattern in degrees clockwise East (Right ascension) of North (Declination)'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
@@ -136,7 +136,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic_num_columns', 'desc'],
-                  'Number of pointings in the grid in the RA / horizontal direction'
+                  'Number of pointings in the grid in the Right ascension / horizontal direction'
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
@@ -195,7 +195,7 @@
                   plot-id="mosaic-plot"
                   :configurations="expansion.expanded"
                   :instruments-info="availableInstruments"
-                  :extra-rotation="mosaicExtraRotation"
+                  :extra-instrument-rotation="mosaicExtraInstrumentRotation"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help
@@ -431,7 +431,7 @@ export default {
         return true;
       }
     },
-    mosaicExtraRotation: {
+    mosaicExtraInstrumentRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: configuration => {
@@ -452,8 +452,8 @@ export default {
       show: true,
       mosaic: {
         fields: [
-          { key: 'ra', label: 'RA (decimal degrees)' },
-          { key: 'dec', label: 'Dec (decimal degrees)' }
+          { key: 'ra', label: 'Right ascension (decimal degrees)' },
+          { key: 'dec', label: 'Declination (decimal degrees)' }
         ],
         pattern: _.get(this.mosaicPatternOptions, [0, 'value'], 'none'),
         centerOptions: [
@@ -595,7 +595,6 @@ export default {
       let parameters = {};
       if (this.mosaic.pattern === 'line') {
         parameters = {
-          line_overlap_percent: this.mosaic.parameters.lineOverlapPercent,
           point_overlap_percent: this.mosaic.parameters.pointOverlapPercent,
           num_points: this.mosaic.parameters.numPoints,
           orientation: this.mosaic.parameters.orientation,

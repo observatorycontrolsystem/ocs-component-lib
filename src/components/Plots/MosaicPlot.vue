@@ -18,7 +18,7 @@
         />
         <div class="text-center font-italic m-auto w-100">
           Mosaic pattern. The field of view (FOV) of {{ instrumentType }} is {{ instrumentTypeFOVArcMin.x | round(1) }} arcminutes by
-          {{ instrumentTypeFOVArcMin.y | round(1) }} arcminutes.
+          {{ instrumentTypeFOVArcMin.y | round(1) }} arcminutes, and it is rotated {{ instrumentRotation | round(1) }} degrees east of north.
         </div>
       </b-col>
     </b-row>
@@ -32,7 +32,7 @@ import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import {
   addPolyline,
   addFillBackground,
-  addLegendForCatalog,
+  addLegend,
   getPointingPathAnnotations,
   setColorMap,
   removeReticleEventHandlers
@@ -60,7 +60,7 @@ export default {
       type: Object,
       required: true
     },
-    extraRotation: {
+    extraInstrumentRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: configuration => {
@@ -79,6 +79,10 @@ export default {
   data: function() {
     let instrumentType = this.configurations[0].instrument_type;
     let instrumentInfo = this.getInstrumentInfo(instrumentType);
+    let instrumentRotation = instrumentInfo.orientation;
+    if (this.configurations.length > 0) {
+      instrumentRotation += this.extraInstrumentRotation(this.configurations[0]);
+    }
     return {
       // These values for height and width are chosen to work well with everything
       // that is drawn on the plots.
@@ -97,6 +101,7 @@ export default {
         transparentBackground: 'rgba(0, 0, 0, 0.4)'
       },
       instrumentType: instrumentType,
+      instrumentRotation: instrumentRotation,
       instrumentTypeFOVArcMin: {
         x: (instrumentInfo.pixelsX * instrumentInfo.arcSecPerPixel) / 60,
         y: (instrumentInfo.pixelsY * instrumentInfo.arcSecPerPixel) / 60
@@ -152,34 +157,33 @@ export default {
       return (this.mosaicRange + this.maxInstrumentFieldOfViewDegrees) * 1.35;
     },
     CCDFootprints: function() {
-      // Get the coordinates of the corners of the CCD for each target. Only draw one footprint for each configuration, using
-      // the first instrument_config in each configuration.
+      // Get the coordinates of the corners of the CCD footprint for each target. Only draw one footprint for each configuration, using
+      // the first instrument_config in each configuration. Also get coordinates for annotations drawing the path through the footprints.
       //
-      // Return an array of arrays, where each internal array is a collection of 5 2-element arrays, where the first
-      // element is the RA and the second is the Dec, and the 5 coordinates come together to draw a polygon.
-      // Rotation is degrees east of north. Pixels y is along the north-south line (declination), and pixels x is perpendicular
-      // to that, along the east-west line (RA).
+      // Return an object in the form of { footprints: [...], annotations: [...] } where each value is an array of arrays, and
+      // each internal array is a collection of 5 2-element arrays, where the first element is the RA and the second is the Declination, and
+      // the 5 coordinates come together to draw a polygon. Rotation is degrees east of north. Pixels y is along the north-south
+      // line (declination), and pixels x is perpendicular to that, along the east-west line (RA).
       let footprints = [];
       let halfCCDWidthArcSec;
       let halfCCDHeightArcSec;
       let instrumentInfo;
       let footprint;
       let coord;
-      let origin = { ra: 0, dec: 0 };
       let rotation;
       for (let configuration of this.configurations) {
         footprint = [];
         coord = { ra: configuration.target.ra, dec: configuration.target.dec };
         instrumentInfo = this.getInstrumentInfo(configuration.instrument_type);
-        rotation = instrumentInfo.orientation + this.extraRotation(configuration);
+        rotation = instrumentInfo.orientation + this.extraInstrumentRotation(configuration);
         halfCCDWidthArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsX) / 2;
         halfCCDHeightArcSec = (instrumentInfo.arcSecPerPixel * instrumentInfo.pixelsY) / 2;
-        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
-        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, origin, rotation)));
-        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, origin, rotation)));
-        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: -halfCCDHeightArcSec }, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: -halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, rotation)));
         // Repeat the first offset to close the loop
-        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, origin, rotation)));
+        footprint.push(offsetCoordinate(coord, rotateCoordinate({ ra: halfCCDWidthArcSec, dec: halfCCDHeightArcSec }, rotation)));
         footprints.push(
           _.map(footprint, i => {
             return [i['ra'], i['dec']];
@@ -264,16 +268,16 @@ export default {
           color: this.colors.green
         });
       }
-      addLegendForCatalog(this.aladin, { label: 'Last pointing', offsetBottom: 35, offsetLeft: 10, shape: 'cross', color: this.colors.green });
-      addLegendForCatalog(this.aladin, { label: 'First pointing', offsetBottom: 55, offsetLeft: 10, shape: 'triangle', color: this.colors.green });
-      addLegendForCatalog(this.aladin, {
+      addLegend(this.aladin, { label: 'Last pointing', offsetBottom: 35, offsetLeft: 10, shape: 'cross', color: this.colors.green });
+      addLegend(this.aladin, { label: 'First pointing', offsetBottom: 55, offsetLeft: 10, shape: 'triangle', color: this.colors.green });
+      addLegend(this.aladin, {
         label: 'Pointing FOV outline',
         offsetBottom: 35,
         offsetLeft: 333,
         shape: 'square',
         color: this.colors.blue
       });
-      addLegendForCatalog(this.aladin, { label: 'Pointing FOV outline', offsetBottom: 55, offsetLeft: 333, shape: 'square', color: this.colors.red });
+      addLegend(this.aladin, { label: 'Pointing FOV outline', offsetBottom: 55, offsetLeft: 333, shape: 'square', color: this.colors.red });
       addFillBackground(this.aladin, this.colors.transparentBackground);
     }
   }

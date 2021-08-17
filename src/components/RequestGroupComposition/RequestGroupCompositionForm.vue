@@ -14,7 +14,7 @@
         :dithering-allowed="ditheringAllowed"
         :mosaic-pattern-options="mosaicPatternOptions"
         :mosaic-allowed="mosaicAllowed"
-        :mosaic-extra-rotation="mosaicExtraRotation"
+        :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
@@ -257,8 +257,9 @@ export default {
         return true;
       }
     },
-    // Function that takes a configuration and returns added rotation orientated east of north defined by e.g. rotator_mode.
-    mosaicExtraRotation: {
+    // Function that takes a configuration and returns added rotation orientated east of north
+    // defined by sky position angle if a rotator_mode is used.
+    mosaicExtraInstrumentRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: configuration => {

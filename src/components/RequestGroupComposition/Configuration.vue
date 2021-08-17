@@ -177,7 +177,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_line_spacing', 'desc'],
-                  'RA / horizontal spacing between offsets in the dither pattern'
+                  'Right ascension / horizontal spacing between offsets in the dither pattern'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'hide'], !ditheringIsAllowed)"
@@ -193,7 +193,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_orientation', 'desc'],
-                  'Angular rotation of the pattern in degrees measured clockwise East (RA) of North (Declination)'
+                  'Angular rotation of the pattern in degrees measured clockwise East (Right ascension) of North (Declination)'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
@@ -209,7 +209,7 @@
                 getFromObject(
                   formConfig,
                   ['configuration', 'dither_num_rows', 'desc'],
-                  'Number of offsets in the grid in the RA / horizontal direction'
+                  'Number of offsets in the grid in the Right ascension / horizontal direction'
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'hide'], !ditheringIsAllowed)"
@@ -510,8 +510,8 @@ export default {
       },
       dither: {
         fields: [
-          { key: 'ra', label: 'RA offset (arcsec)' },
-          { key: 'dec', label: 'Dec offset (arcsec)' },
+          { key: 'ra', label: 'Right ascension offset (arcsec)' },
+          { key: 'dec', label: 'Declination offset (arcsec)' },
           { key: 'exposure_time', label: 'Exposure Time (s)' },
           {
             key: 'optical_elements',
@@ -929,6 +929,8 @@ export default {
           return !_.isEmpty(this.errors);
         })
       ) {
+        // The returned instrument configs do not include any field indicating that they belong to a dither sequence, other than the offset_ra
+        // and offset_dec fields in the extra params so this information might need to be added if it is included in the API response in the future.
         this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configurations/dither/`, this.getDitherParameters(false), response => {
           return response.instrument_configs;
         });

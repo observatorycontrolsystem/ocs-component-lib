@@ -114,7 +114,7 @@
         :dithering-allowed="ditheringAllowed"
         :mosaic-pattern-options="mosaicPatternOptions"
         :mosaic-allowed="mosaicAllowed"
-        :mosaic-extra-rotation="mosaicExtraRotation"
+        :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
@@ -259,7 +259,7 @@ export default {
         return true;
       }
     },
-    mosaicExtraRotation: {
+    mosaicExtraInstrumentRotation: {
       type: Function,
       // eslint-disable-next-line no-unused-vars
       default: configuration => {

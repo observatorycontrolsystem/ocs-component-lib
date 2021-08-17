@@ -6,7 +6,11 @@ import Text from '@/components/Plots/aladinText';
 import Rectangle from '@/components/Plots/aladinRectangle';
 import { cosineDeclinationTerm, offsetCoordinate, rotateCoordinate } from '@/util';
 
-const addText = (aladin, x, y, options) => {
+const addText = (aladin, x, y, options = {}) => {
+  // Add text to the aladin plot.
+  //    `aladin`: Aladin instance.
+  //    `x`: X pixel position where the text starts.
+  //    `y`: Y pixel position where the text starts.
   const label = options['label'] || '';
   const color = options['color'] || 'white';
   const align = options['align'] || 'start';
@@ -16,23 +20,32 @@ const addText = (aladin, x, y, options) => {
   layer.add(new Text(x, y, label, { color: color, align: align, baseline: baseline }));
 };
 
-const addPolyline = (aladin, coordinates, options) => {
+const addPolyline = (aladin, coordinates, options = {}) => {
+  // Draw a polyling on the aladin plot.
+  //    `aladin`: Aladin instance.
+  //    `coordinates`: An array of arrays, where each inner array is an [RA, Declination] pair.
+  //    `options`: Plot options.
   const color = options['color'] || 'red';
   const lineWidth = options['lineWidth'] || 2;
-  let layer = A.graphicOverlay();
+  let layer = A.graphicOverlay({ lineWidth: lineWidth });
   aladin.addOverlay(layer);
-  layer.add(A.polyline(coordinates, { color: color, lineWidth: lineWidth }));
+  layer.add(A.polyline(coordinates, { color: color }));
 };
 
-const addScaleBar = (aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) => {
-  // Draw a horizontal scale bar
-  color = color || 'cyan';
-  textSpacing = textSpacing || 15;
-  lineWidth = lineWidth || 2;
-  const offsetBottom = offsetPixFromEdge['bottom'] || 30;
-  const offsetleft = offsetPixFromEdge['left'] || 30;
+const addScaleBar = (aladin, sizeAsDegrees, label = '', offsetPixels = {}, color = 'cyan', lineWidth = 4, textSpacing = 15) => {
+  // Draw a horizontal scale bar on the bottom left corner of the aladin plot.
+  //    `aladin`: Aladin instance.
+  //    `sizeAsDegrees`: The size of the scale bar in degrees.
+  //    `label`: A label to display next to the scale bar.
+  //    `offsetPixels`: An object with keys `left` and/or `bottom` defining the amount in pixels to offset the scale
+  //        bar from the bottom left corner of the plot.
+  //    `color`: Color of the scale bar.
+  //    `lineWidth`: The stroke width of the scale bar.
+  //    `textSpacing`: The amount in pixels to offset the scale bar label from the end of the scale bar.
+  const offsetBottom = offsetPixels['bottom'] || 30;
+  const offsetleft = offsetPixels['left'] || 30;
   // Aladin viewer pixel position (0,0) is the top left corner of the view
-  let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: 4 });
+  let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: lineWidth });
   aladin.addOverlay(layer);
   const viewSizePix = aladin.getSize();
   const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBottom]; // Bottom left corner
@@ -51,7 +64,10 @@ const addScaleBar = (aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lin
   );
 };
 
-const addLegendForCatalog = (aladin, options) => {
+const addLegend = (aladin, options = {}) => {
+  // Add a legend to the aladin plot.
+  //    `aladin`: Aladin instance.
+  //    `options`: Legend plot options.
   const offsetBottom = options['offsetBottom'] || 30;
   const offsetLeft = options['offsetLeft'] || 30;
   const sourceSize = options['sourceSize'] || 10;
@@ -70,7 +86,12 @@ const addLegendForCatalog = (aladin, options) => {
   layer.add(new Text(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' }));
 };
 
-const addCatalog = (aladin, coordinates, options) => {
+const addCatalog = (aladin, coordinates = [], options = {}) => {
+  // Add a catalog of sources to the aladin instance. Also adds a legend for
+  // the catalog if there is more than one coordinate.
+  //     `aladin`: Aladin instance.
+  //     `coordinates`: Array of [RA, Declination] pairs defining coordinate locations.
+  //     `options`: Catalog display options.
   const label = options['label'] || '';
   const color = options['color'] || 'red';
   const offsetBottom = options['offsetBottom'] || 30;
@@ -86,7 +107,7 @@ const addCatalog = (aladin, coordinates, options) => {
   }
   // Add a legend if there are sources
   if (coordinates.length > 0) {
-    addLegendForCatalog(aladin, {
+    addLegend(aladin, {
       offsetBottom: offsetBottom,
       offsetLeft: offsetLeft,
       color: color,
@@ -97,14 +118,20 @@ const addCatalog = (aladin, coordinates, options) => {
   }
 };
 
-const setColorMap = aladin => {
+const setColorMap = (aladin, colorMap = 'grayscale') => {
+  // Set the color map of the aladin instance.
+  //    `aladin`: Aladin instance.
+  //    `colorMap`: String defining the color map to use. See https://aladin.u-strasbg.fr/AladinLite/doc/API/ for options.
   aladin
     .getBaseImageLayer()
     .getColorMap()
-    .update('grayscale');
+    .update(colorMap);
 };
 
-const addFillBackground = (aladin, color) => {
+const addFillBackground = (aladin, color = 'white') => {
+  // Add a layer filling the entire aladin viewer with a color.
+  //    `aladin`: Aladin instance.
+  //    `color`: The fill color to use.
   let layer = A.graphicOverlay();
   aladin.addOverlay(layer);
   let viewSize = aladin.getSize();
@@ -146,20 +173,18 @@ const getArrowAnnotation = (coord, nextCoord, size, closeArrow, shiftCoord) => {
   return arrowAnnotation;
 };
 
-const getXAnnotation = (coord, size, rotation) => {
-  rotation = rotation || 45;
+const getXAnnotation = (coord, size, rotation = 45) => {
   let xAnnotation = [];
-  let origin = { ra: 0, dec: 0 };
   // Scale the line down even further so that it fits into the container as expected
-  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: size / 2, dec: 0 }, origin, rotation)));
-  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: -size / 2, dec: 0 }, origin, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: size / 2, dec: 0 }, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: -size / 2, dec: 0 }, rotation)));
   xAnnotation.push(coord);
-  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: size / 2 }, origin, rotation)));
-  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -size / 2 }, origin, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: size / 2 }, rotation)));
+  xAnnotation.push(offsetCoordinate(coord, rotateCoordinate({ ra: 0, dec: -size / 2 }, rotation)));
   return xAnnotation;
 };
 
-const getPointingPathAnnotations = (pointings, sizeArcSec, drawMiddleArrows) => {
+const getPointingPathAnnotations = (pointings, sizeArcSec, drawMiddleArrows = true) => {
   // Get a list of lists, where each internal list is a collection of RA/Dec pairs whose progression defines a path. The first pointing
   // in the path is indicated with a triangle, and the last is indicated with an X. Each step along the path is indicated with an arrow
   // that is pointing in the directing of the next step along the path.
@@ -167,9 +192,6 @@ const getPointingPathAnnotations = (pointings, sizeArcSec, drawMiddleArrows) => 
   //   `pointings`: List of coordinate pairs defining the pointings in the form of [{ ra: '', dec: ''}, ...].
   //   `sizeArcSec`: The size in arcseconds of the markers/ arrows.
   //   `drawMiddleArrows`: Whether or not to draw the pointing arrows.
-  if (drawMiddleArrows === undefined) {
-    drawMiddleArrows = true;
-  }
   let arrow;
   let coord;
   let nextCoord;
@@ -209,7 +231,7 @@ export {
   addPolyline,
   addScaleBar,
   addCatalog,
-  addLegendForCatalog,
+  addLegend,
   getPointingPathAnnotations,
   setColorMap,
   addFillBackground,

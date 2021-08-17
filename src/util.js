@@ -128,10 +128,9 @@ function formatDate(date, formatString) {
   }
 }
 
-function formatFloat(value, precision) {
+function formatFloat(value, precision = 0) {
   /* Round a number and format it with the given precision */
   let valueAsNumber = Number(value);
-  precision = precision || 0;
   if (valueAsNumber === 0 || valueAsNumber) {
     const multiplier = Math.pow(10, precision);
     return (Math.round(valueAsNumber * multiplier) / multiplier).toFixed(precision);
@@ -210,7 +209,7 @@ function getFromObject(obj, path, defaultValue) {
   return _.get(obj, path, defaultValue);
 }
 
-function round(value, decimalPlaces) {
+function round(value, decimalPlaces = 1) {
   let factor = Math.pow(10, decimalPlaces);
   return Math.round(value * factor) / factor;
 }
@@ -251,7 +250,7 @@ function offsetCoordinate(initial, offset) {
   };
 }
 
-function rotateCoordinate(coordinate, center, angle) {
+function rotateCoordinate(coordinate, angle, center = { ra: 0, dec: 0} ) {
   // Move the target coordinate to the origin. RA goes along the x direction and Declination along the y.
   let coordX = coordinate['ra'] - center['ra'];
   let coordY = coordinate['dec'] - center['dec'];
