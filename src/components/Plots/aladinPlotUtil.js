@@ -194,7 +194,6 @@ const getPointingPathAnnotations = (pointings, sizeArcSec, drawMiddleArrows) => 
         [nextCoord.ra, nextCoord.dec]
       ]);
     } else {
-      console.log('plotting last point');
       annotations.push(
         _.map(getXAnnotation(coord, sizeArcSec), i => {
           return [i['ra'], i['dec']];
