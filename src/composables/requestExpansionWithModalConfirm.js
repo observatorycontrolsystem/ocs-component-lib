@@ -2,7 +2,7 @@ import $ from 'jquery';
 import Vue from 'vue';
 import { ref } from '@vue/composition-api';
 
-export default function requestExpansionWithModalConfirm(toExpand) {
+export default function requestExpansionWithModalConfirm() {
   // Provide functions to use for a workflow where:
   // 1. User enters parameters triggers a request to the backend to expand part of their observation request
   // 2. A modal displays with details of their expanded observation request
@@ -87,25 +87,18 @@ export default function requestExpansionWithModalConfirm(toExpand) {
     return errors;
   };
 
-  const acceptExpansion = keyToExpand => {
-    // Accept the generated expansion. If the section that will be expanded is under a key in the
-    // `toExpand` object, set `keyToExpand` to that key.
+  const acceptExpansionForKeyOnObject = (obj, key) => {
+    // Accept the generated expansion by setting the `key` of the provided `obj` to the expanded data.
+    // Updating the `key` of `obj` means that the `obj` itself that is passed is updated (pass-by-reference),
+    // so that if it was a reactive variable inside a component, the component will re-render.
     expansion.value.showModal = false;
     // Clear out expanded section before setting it again to allow any existing associated components
     // to re-render so that the mounted hook is entered.
-    if (keyToExpand) {
-      toExpand.value[keyToExpand] = [];
-    } else {
-      toExpand.value = [];
-    }
-    toExpand.value[keyToExpand] = [];
+    obj[key] = [];
     Vue.nextTick(() => {
-      if (keyToExpand) {
-        toExpand.value[keyToExpand] = expansion.value.expanded;
-      } else {
-        toExpand.value = expansion.value.expanded;
-      }
+      obj[key] = expansion.value.expanded;
       expansion.value.expanded = [];
+      return obj;
     });
   };
 
@@ -113,7 +106,7 @@ export default function requestExpansionWithModalConfirm(toExpand) {
     // Data
     expansion,
     // Methods
-    acceptExpansion,
+    acceptExpansionForKeyOnObject,
     cancelExpansion,
     checkReadyToGenerateExpansion,
     generateExpansion,

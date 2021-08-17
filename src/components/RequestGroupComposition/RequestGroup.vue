@@ -156,7 +156,6 @@
 <script>
 import _ from 'lodash';
 import moment from 'moment';
-import { toRef } from '@vue/composition-api';
 
 import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import Request from '@/components/RequestGroupComposition/Request.vue';
@@ -307,19 +306,18 @@ export default {
       cadenceRequestId: -1
     };
   },
-  setup: function(props) {
-    const requestGroup = toRef(props, 'requestGroup');
+  setup: function() {
     const {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
       getExpansionErrors
-    } = requestExpansionWithModalConfirm(requestGroup);
+    } = requestExpansionWithModalConfirm();
     return {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,

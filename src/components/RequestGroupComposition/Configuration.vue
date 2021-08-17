@@ -271,7 +271,7 @@
               header="Generated Dither Pattern"
               :show-accept="expansion.expanded.length > 0"
               @close="cancelExpansion"
-              @submit="acceptExpansion('instrument_configs')"
+              @submit="acceptExpansionForKeyOnObject(configuration, 'instrument_configs')"
             >
               <data-loader
                 :data-loaded="expansion.status.loaded"
@@ -382,7 +382,6 @@
 </template>
 <script>
 import _ from 'lodash';
-import { toRef } from '@vue/composition-api';
 
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
@@ -538,19 +537,18 @@ export default {
       }
     };
   },
-  setup: function(props) {
-    const configuration = toRef(props, 'configuration');
+  setup: function() {
     const {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
       getExpansionErrors
-    } = requestExpansionWithModalConfirm(configuration);
+    } = requestExpansionWithModalConfirm();
     return {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,

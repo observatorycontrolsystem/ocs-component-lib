@@ -177,7 +177,7 @@
               header="Generated Mosaic"
               :show-accept="expansion.expanded.length > 0"
               @close="cancelExpansion"
-              @submit="acceptExpansion('configurations')"
+              @submit="acceptExpansionForKeyOnObject(request, 'configurations')"
             >
               <data-loader
                 :data-loaded="expansion.status.loaded"
@@ -294,7 +294,6 @@
 </template>
 <script>
 import _ from 'lodash';
-import { toRef } from '@vue/composition-api';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -477,19 +476,18 @@ export default {
       }
     };
   },
-  setup: function(props) {
-    const request = toRef(props, 'request');
+  setup: function() {
     const {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
       getExpansionErrors
-    } = requestExpansionWithModalConfirm(request);
+    } = requestExpansionWithModalConfirm();
     return {
       expansion,
-      acceptExpansion,
+      acceptExpansionForKeyOnObject,
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
