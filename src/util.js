@@ -128,10 +128,9 @@ function formatDate(date, formatString) {
   }
 }
 
-function formatFloat(value, precision) {
+function formatFloat(value, precision = 0) {
   /* Round a number and format it with the given precision */
   let valueAsNumber = Number(value);
-  precision = precision || 0;
   if (valueAsNumber === 0 || valueAsNumber) {
     const multiplier = Math.pow(10, precision);
     return (Math.round(valueAsNumber * multiplier) / multiplier).toFixed(precision);
@@ -197,10 +196,10 @@ function generateDurationString(durationSeconds) {
   let duration = moment.duration(durationSeconds, 'seconds');
   let durationString = '';
   if (duration.days() > 0) {
-    durationString = duration.days() + ' days ' + durationString;
+    durationString = duration.days() + ' days ';
   }
   if (duration.hours() > 0) {
-    durationString += duration.hours() + ' hrs ' + durationString;
+    durationString += duration.hours() + ' hrs ';
   }
   durationString += duration.minutes() + ' min ' + duration.seconds() + ' sec';
   return durationString;
@@ -210,26 +209,68 @@ function getFromObject(obj, path, defaultValue) {
   return _.get(obj, path, defaultValue);
 }
 
-function round(value, decimalPlaces) {
+function round(value, decimalPlaces = 1) {
   let factor = Math.pow(10, decimalPlaces);
   return Math.round(value * factor) / factor;
 }
 
-function objAsString(value) {
+function objAsString(obj) {
+  // Get a string representation of a simple object
   let result = '';
-  for (let key in value) {
+  for (let key in obj) {
     if (result) {
-      result += `, ${key}: ${value[key]}`;
+      result += `, ${key}: ${obj[key]}`;
     } else {
       // This is the first key, value pair being printed
-      result += `${key}: ${value[key]}`;
+      result += `${key}: ${obj[key]}`;
     }
   }
   return result;
 }
 
+function cosineDeclinationTerm(declination) {
+  let cosDec = Math.cos((declination * Math.PI) / 180);
+  // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
+  // precise since this is only for visualization purposes and a small shift won't matter.
+  cosDec = Math.max(cosDec, 10e-4);
+  return cosDec;
+}
+
+function offsetCoordinate(initial, offset) {
+  // Calculate coordinates from provided offsets. Equations pulled
+  // from https://www.atnf.csiro.au/computing/software/miriad/doc/offset.html
+  // Takes a object with the initial coordinate and an object with the offsets,
+  // where each object has "ra" and "dec" keys, and outputs an object with the
+  // initial coordinate with the offset applied.
+  const ARC_SEC_PER_DEG = 3600;
+  let finalDec = initial['dec'] + offset['dec'] / ARC_SEC_PER_DEG;
+  return {
+    ra: initial['ra'] + offset['ra'] / ARC_SEC_PER_DEG / cosineDeclinationTerm(finalDec),
+    dec: finalDec
+  };
+}
+
+function rotateCoordinate(coordinate, angle, center = { ra: 0, dec: 0 }) {
+  // Move the target coordinate to the origin. RA goes along the x direction and Declination along the y.
+  let coordX = coordinate['ra'] - center['ra'];
+  let coordY = coordinate['dec'] - center['dec'];
+  // Rotate the target coordinate about the origin. To rotate clockwise, which is east of north,
+  // use the following equations:
+  // xrotated = x * cos(angle) + y * sin(angle)
+  // yrotated = x * -sin(angle) + y * cos(angle)
+  let cosAngle = Math.cos((angle * Math.PI) / 180);
+  let sinAngle = Math.sin((angle * Math.PI) / 180);
+  let coordXRotated = coordX * cosAngle + coordY * sinAngle;
+  let coordYRotated = coordX * -sinAngle + coordY * cosAngle;
+  // Shift the rotated coordinate back so that the center is taken into account
+  let coordXShiftedBack = coordXRotated + center['ra'];
+  let coordYShiftedBack = coordYRotated + center['dec'];
+  return { ra: coordXShiftedBack, dec: coordYShiftedBack };
+}
+
 export {
   copyObject,
+  cosineDeclinationTerm,
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
   defaultDatetimeFormat,
@@ -242,6 +283,8 @@ export {
   generateDurationString,
   getFromObject,
   objAsString,
+  offsetCoordinate,
+  rotateCoordinate,
   round,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,

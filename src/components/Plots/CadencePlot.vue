@@ -41,12 +41,18 @@ export default {
   },
   watch: {
     data: function() {
-      this.timeline.setItems(this.toVis);
-      this.timeline.fit();
+      this.setData();
     }
   },
   mounted: function() {
     this.timeline = new vis.Timeline(this.$el, this.items, this.options);
+    this.setData();
+  },
+  methods: {
+    setData: function() {
+      this.timeline.setItems(this.toVis);
+      this.timeline.fit();
+    }
   }
 };
 </script>

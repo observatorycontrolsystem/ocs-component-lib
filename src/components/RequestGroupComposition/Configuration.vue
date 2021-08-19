@@ -129,7 +129,15 @@
               :options="ditherPatternOptions"
               field="dither-pattern"
               :label="getFromObject(formConfig, ['configuration', 'dither', 'label'], 'Dither')"
-              :desc="getFromObject(formConfig, ['configuration', 'dither', 'desc'], '')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither', 'desc'],
+                  `Optionally select a dither pattern. After selecting a pattern, clicking the 'Generate Dither' button
+                  will generate and display the dither pattern which can then be either accepted or rejected. If accepted, the
+                  configuration will be updated to include dither offsets.`
+                )
+              "
               :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="{}"
@@ -138,9 +146,9 @@
               v-if="dither.pattern === 'line' || dither.pattern === 'spiral'"
               v-model="dither.parameters.numPoints"
               field="dither-num-points"
-              :label="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'label'], 'Number of Points')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumPoints', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_num_points', 'label'], 'Number of Points')"
+              :desc="getFromObject(formConfig, ['configuration', 'dither_num_points', 'desc'], 'Number of points in the pattern')"
+              :hide="getFromObject(formConfig, ['configuration', 'dither_num_points', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -148,9 +156,15 @@
               v-if="dither.pattern === 'line' || dither.pattern === 'grid' || dither.pattern === 'spiral'"
               v-model="dither.parameters.pointSpacing"
               field="dither-point-spacing"
-              :label="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'label'], 'Point Spacing')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherPointSpacing', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'label'], 'Point Spacing')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_point_spacing', 'desc'],
+                  'Declination / vertical spacing between offsets in the dither pattern'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -158,9 +172,15 @@
               v-if="dither.pattern === 'grid'"
               v-model="dither.parameters.lineSpacing"
               field="dither-line-spacing"
-              :label="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'label'], 'Line Spacing')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherLineSpacing', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'label'], 'Line Spacing')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_line_spacing', 'desc'],
+                  'Right ascension / horizontal spacing between offsets in the dither pattern'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -168,9 +188,15 @@
               v-if="dither.pattern === 'line' || dither.pattern === 'grid'"
               v-model="dither.parameters.orientation"
               field="dither-orientation"
-              :label="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'label'], 'Orientation')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherOrientation', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_orientation', 'label'], 'Orientation')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_orientation', 'desc'],
+                  'Angular rotation of the pattern in degrees measured clockwise East (Right ascension) of North (Declination)'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -178,9 +204,15 @@
               v-if="dither.pattern === 'grid'"
               v-model="dither.parameters.numRows"
               field="dither-num-rows"
-              :label="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'label'], 'Number of Rows')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumRows', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'label'], 'Number of Rows')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_num_rows', 'desc'],
+                  'Number of offsets in the grid in the Right ascension / horizontal direction'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -188,9 +220,15 @@
               v-if="dither.pattern === 'grid'"
               v-model="dither.parameters.numColumns"
               field="dither-num-columns"
-              :label="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'label'], 'Number of Columns')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherNumColumns', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_num_columns', 'label'], 'Number of Columns')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_num_columns', 'desc'],
+                  'Number of offsets in the grid in the Declination / vertical direction'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_num_columns', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -199,9 +237,15 @@
               v-model="dither.parameters.center"
               :options="dither.centerOptions"
               field="dither-center"
-              :label="getFromObject(formConfig, ['configuration', 'ditherCenter', 'label'], 'Center')"
-              :desc="getFromObject(formConfig, ['configuration', 'ditherCenter', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['configuration', 'ditherCenter', 'hide'], !ditheringIsAllowed)"
+              :label="getFromObject(formConfig, ['configuration', 'dither_center', 'label'], 'Center')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['configuration', 'dither_center', 'desc'],
+                  'If True, the pattern is centered on the initial target. If False, the pattern begins at the initial target'
+                )
+              "
+              :hide="getFromObject(formConfig, ['configuration', 'dither_center', 'hide'], !ditheringIsAllowed)"
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -213,27 +257,32 @@
               label=""
               label-for="dither-button"
             >
-              <b-button id="dither-button" block variant="outline-primary" @click="generateDitherPattern">
+              <b-button
+                :id="'dither-button-' + position.requestIndex + position.configurationIndex"
+                block
+                variant="outline-primary"
+                @click="generateDitherPattern"
+              >
                 Generate Dither
               </b-button>
             </b-form-group>
             <custom-modal
-              :show="dither.showDitherModal"
+              :show="expansion.showModal"
               header="Generated Dither Pattern"
-              :show-accept="dither.expandedInstrumentConfigs.length > 0"
-              @close="cancelDitherPattern"
-              @submit="acceptDitherPattern"
+              :show-accept="expansion.expanded.length > 0"
+              @close="cancelExpansion"
+              @submit="acceptExpansionForKeyOnObject(configuration, 'instrument_configs')"
             >
               <data-loader
-                :data-loaded="dither.status.loaded"
-                :data-not-found="dither.status.notFound"
-                :data-load-error="dither.status.error"
+                :data-loaded="expansion.status.loaded"
+                :data-not-found="expansion.status.notFound"
+                :data-load-error="expansion.status.error"
                 not-found-message="There are no points in the generated dither pattern. Please update your dither parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate dither pattern</p>
                   <ul class="pl-5">
-                    <li v-for="errorMsg in getDitherErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
+                    <li v-for="errorMsg in getExpansionErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
                 <dither-pattern-plot
@@ -245,6 +294,7 @@
                   :instrument-arc-sec-per-pixel="instrumentInfo.arcSecPerPixel"
                   :instrument-type="configuration.instrument_type"
                   :is-sidereal-target="configuration.target.type === 'ICRS'"
+                  :pattern-type="dither.pattern"
                   :aladin-script-location="aladinScriptLocation"
                   :aladin-style-location="aladinStyleLocation"
                   show-help
@@ -332,7 +382,6 @@
 </template>
 <script>
 import _ from 'lodash';
-import $ from 'jquery';
 
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
@@ -346,6 +395,7 @@ import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, defaultTooltipConfig, objAsString } from '@/util';
+import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 
 export default {
   name: 'Configuration',
@@ -459,8 +509,8 @@ export default {
       },
       dither: {
         fields: [
-          { key: 'ra', label: 'RA offset (arcsec)' },
-          { key: 'dec', label: 'Dec offset (arcsec)' },
+          { key: 'ra', label: 'Right ascension offset (arcsec)' },
+          { key: 'dec', label: 'Declination offset (arcsec)' },
           { key: 'exposure_time', label: 'Exposure Time (s)' },
           {
             key: 'optical_elements',
@@ -475,7 +525,6 @@ export default {
           { text: 'True', value: true },
           { text: 'False', value: false }
         ],
-        showDitherModal: false,
         parameters: {
           numPoints: 3,
           pointSpacing: 1,
@@ -484,15 +533,26 @@ export default {
           center: false,
           numRows: 3,
           numColumns: 3
-        },
-        status: {
-          notFound: false,
-          error: false,
-          loaded: false,
-          errorResponse: {}
-        },
-        expandedInstrumentConfigs: []
+        }
       }
+    };
+  },
+  setup: function() {
+    const {
+      expansion,
+      acceptExpansionForKeyOnObject,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
+    } = requestExpansionWithModalConfirm();
+    return {
+      expansion,
+      acceptExpansionForKeyOnObject,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
     };
   },
   computed: {
@@ -594,7 +654,7 @@ export default {
     },
     ditherPatternOffsets: function() {
       let offsets = [];
-      for (let instrumentConfig of this.dither.expandedInstrumentConfigs) {
+      for (let instrumentConfig of this.expansion.expanded) {
         offsets.push({
           ra: instrumentConfig.extra_params.offset_ra,
           dec: instrumentConfig.extra_params.offset_dec,
@@ -862,64 +922,17 @@ export default {
       return parameters;
     },
     generateDitherPattern: function() {
-      if (!_.isEmpty(this.errors)) {
-        alert('Please make sure your configuration is valid before generating a dither pattern for it');
-        return false;
-      }
-      this.dither.showDitherModal = true;
-      this.dither.status.loaded = false;
-      this.dither.status.error = false;
-      this.dither.status.notFound = false;
-      this.dither.status.errorResponse = {};
-      $.ajax({
-        method: 'POST',
-        url: `${this.observationPortalApiBaseUrl}/api/configuration/dither/`,
-        data: JSON.stringify(this.getDitherParameters(false)),
-        contentType: 'application/json'
-      })
-        .done(response => {
-          if (response.instrument_configs.length < 1) {
-            this.dither.status.notFound = true;
-          } else {
-            this.dither.expandedInstrumentConfigs = response.instrument_configs;
-          }
+      if (
+        this.checkReadyToGenerateExpansion('Please make sure your configuration is valid before generating a dither pattern for it', () => {
+          return !_.isEmpty(this.errors);
         })
-        .fail(response => {
-          this.dither.status.errorResponse = response.responseJSON;
-          this.dither.status.error = true;
-        })
-        .always(() => {
-          this.dither.status.loaded = true;
+      ) {
+        // The returned instrument configs do not include any field indicating that they belong to a dither sequence, other than the offset_ra
+        // and offset_dec fields in the extra params so this information might need to be added if it is included in the API response in the future.
+        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configurations/dither/`, this.getDitherParameters(false), response => {
+          return response.instrument_configs;
         });
-    },
-    cancelDitherPattern: function() {
-      this.dither.showDitherModal = false;
-      this.dither.expandedInstrumentConfigs = [];
-    },
-    getDitherErrors: function() {
-      let errors = [];
-      for (let field in this.dither.status.errorResponse) {
-        if (field === 'non_field_errors') {
-          for (let msg of this.dither.status.errorResponse[field]) {
-            errors.push(msg);
-          }
-        } else {
-          for (let msg of this.dither.status.errorResponse[field]) {
-            errors.push(`${field}: ${msg}`);
-          }
-        }
       }
-      return errors;
-    },
-    acceptDitherPattern: function() {
-      this.dither.showDitherModal = false;
-      // Clear out instrument configs before setting them again to allow any existing instrument
-      // configs to re-render so that the mounted hook is entered.
-      this.configuration.instrument_configs = [];
-      this.$nextTick(() => {
-        this.configuration.instrument_configs = this.dither.expandedInstrumentConfigs;
-        this.dither.expandedInstrumentConfigs = [];
-      });
     }
   }
 };

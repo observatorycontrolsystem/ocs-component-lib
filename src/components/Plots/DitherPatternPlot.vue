@@ -43,12 +43,20 @@
 </template>
 <script>
 /* global A */
-import $ from 'jquery';
+import _ from 'lodash';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
-import Text from '@/components/Plots/aladinText';
-import Rectangle from '@/components/Plots/aladinRectangle';
-import { round } from '@/util';
+import {
+  addPolyline,
+  addScaleBar,
+  addCatalog,
+  addLegend,
+  getPointingPathAnnotations,
+  setColorMap,
+  addFillBackground,
+  removeReticleEventHandlers
+} from '@/components/Plots/aladinPlotUtil.js';
+import { round, offsetCoordinate, cosineDeclinationTerm } from '@/util';
 
 export default {
   name: 'DitherPatternPlot',
@@ -95,6 +103,10 @@ export default {
     isSiderealTarget: {
       type: Boolean
     },
+    patternType: {
+      type: String,
+      required: true
+    },
     aladinScriptLocation: {
       type: String,
       default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
@@ -118,7 +130,7 @@ export default {
       legendItemsOffsetBottom: 30,
       legendItemsOffsetLeft: 30,
       legendSourceSize: 10,
-      patternSourceSize: 15,
+      patternSourceSize: 10,
       targetMarkerSourceSize: 50,
       arcSecPerDeg: 3600,
       minScaleBarSizeFactor: 1 / 200,
@@ -133,11 +145,7 @@ export default {
   },
   computed: {
     cosDec: function() {
-      let cosDec = Math.cos((this.centerDec * Math.PI) / 180);
-      // If the cosine dec ends up being 0, offset it slightly so that there are no divisions by zero. It doesn't need to be that
-      // precise since this is only for visualization purposes and a small shift won't matter.
-      cosDec = Math.max(cosDec, 10e-4);
-      return cosDec;
+      return cosineDeclinationTerm(this.centerDec);
     },
     offsetCoordinates: function() {
       // Calculate list of coordinates from provided offsets. Equations pulled
@@ -146,11 +154,13 @@ export default {
       // for that offset so that the same pointing is not plotted twice.
       let coords = [];
       let lastOffset;
+      let finalCoordinate;
       let isSameOffset = false;
       for (let offset of this.offsets) {
         isSameOffset = lastOffset && offset['ra'] === lastOffset['ra'] && offset['dec'] === lastOffset['dec'];
         if (!isSameOffset) {
-          coords.push([this.centerRa + offset['ra'] / this.arcSecPerDeg / this.cosDec, this.centerDec + offset['dec'] / this.arcSecPerDeg]);
+          finalCoordinate = offsetCoordinate({ ra: this.centerRa, dec: this.centerDec }, offset);
+          coords.push([finalCoordinate['ra'], finalCoordinate['dec']]);
         }
         lastOffset = { ra: offset['ra'], dec: offset['dec'] };
       }
@@ -194,12 +204,6 @@ export default {
     round: function(value, decimalPlaces) {
       return round(value, decimalPlaces);
     },
-    removeReticleEventHandlers: function() {
-      // There are event handlers to allow a user to drag the aladin view around, and also
-      // zoom in and out of the view. Disable those event handlers since we do not want to
-      // allow either of those actions
-      $('.aladin-reticleCanvas').unbind();
-    },
     getAladinOptions: function(ra, dec) {
       return {
         survey: 'P/DSS2/color',
@@ -220,8 +224,8 @@ export default {
       this.aladinZoomedIn.on('positionChanged', () => {
         this.addZoomedInAnnotations();
       });
-      this.setColorMap(this.aladinZoomedIn);
-      this.removeReticleEventHandlers();
+      setColorMap(this.aladinZoomedIn);
+      removeReticleEventHandlers();
     },
     onZoomedOutPlotLoaded: function() {
       this.aladinZoomedOut = A.aladin(`#${this.aladinZoomedOutPlotId}`, this.getAladinOptions(this.centerRa, this.centerDec));
@@ -230,8 +234,8 @@ export default {
       this.aladinZoomedOut.on('positionChanged', () => {
         this.addZoomedOutAnnotations();
       });
-      this.setColorMap(this.aladinZoomedOut);
-      this.removeReticleEventHandlers();
+      setColorMap(this.aladinZoomedOut);
+      removeReticleEventHandlers();
     },
     addZoomedOutAnnotations: function() {
       this.aladinZoomedOut.removeLayers();
@@ -239,7 +243,7 @@ export default {
       let range = Math.max(this.ditherRange, this.instrumentFieldOfViewDegrees * this.minScaleBarSizeFactor);
       let legendOffsetBottom = this.legendItemsOffsetBottom;
       if (this.ditherRangeInstrumentPercentage < this.maxScaleBarSizePercentage) {
-        this.addScaleBar(
+        addScaleBar(
           this.aladinZoomedOut,
           range,
           `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
@@ -248,7 +252,7 @@ export default {
         );
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
       }
-      this.addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
+      addCatalog(this.aladinZoomedOut, [[this.centerRa, this.centerDec]], {
         offsetLeft: this.legendItemsOffsetLeft,
         offsetBottom: legendOffsetBottom,
         color: this.colors.info,
@@ -257,30 +261,21 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
-      this.addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground);
+      addFillBackground(this.aladinZoomedOut, this.colors.transparentBackground);
     },
     addZoomedInAnnotations: function() {
       this.aladinZoomedIn.removeLayers();
-      // Categorize all offset pointings so that they can be displayed independently on the plot
-      let firstPointingSources = [];
-      let lastPointingSources = [];
       let middlePointingsSources = [];
       for (let offsetIndex in this.offsetCoordinates) {
-        if (offsetIndex == 0) {
-          // This is the first pointing, use an X marker
-          firstPointingSources.push(this.offsetCoordinates[offsetIndex]);
-        } else if (offsetIndex == this.offsetCoordinates.length - 1) {
-          // This is the last pointing, use a triangle marker
-          lastPointingSources.push(this.offsetCoordinates[offsetIndex]);
-        } else {
-          // This is a pointing somewhere in the middles, use a dot
+        if (offsetIndex != 0 && offsetIndex != this.offsetCoordinates.length - 1) {
+          // This is a pointing somewhere in the middle of the pattern, will draw those on the plot separately
           middlePointingsSources.push(this.offsetCoordinates[offsetIndex]);
         }
       }
       let legendOffsetBottom = this.legendItemsOffsetBottom;
       // Make sure the dither range scale bar is at least big enough to be able to be seen on the plot
       let range = Math.max(this.ditherRange, this.zoomedInFieldOfView * this.minScaleBarSizeFactor);
-      this.addScaleBar(
+      addScaleBar(
         this.aladinZoomedIn,
         range,
         `Dither range (${this.round(this.ditherRange * this.arcSecPerDeg, 1)}")`,
@@ -290,7 +285,7 @@ export default {
       legendOffsetBottom += this.legendItemVerticalSpacingPix;
       // Make sure the pixel scale bar is at least big enough to be seen on the graph is at least big enough to be able to be seen on the plot
       let pixelScaleBar = Math.max(this.instrumentArcSecPerPixel / this.arcSecPerDeg, this.zoomedInFieldOfView / 100);
-      this.addScaleBar(
+      addScaleBar(
         this.aladinZoomedIn,
         pixelScaleBar,
         `${this.instrumentType} pixel size (${this.instrumentArcSecPerPixel}"/pix)`,
@@ -298,7 +293,7 @@ export default {
         this.colors.info
       );
       legendOffsetBottom += this.legendItemVerticalSpacingPix;
-      this.addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
+      addCatalog(this.aladinZoomedIn, [[this.centerRa, this.centerDec]], {
         offsetLeft: this.legendItemsOffsetLeft,
         offsetBottom: legendOffsetBottom,
         color: this.colors.info,
@@ -307,21 +302,19 @@ export default {
         legendSourceSize: this.legendSourceSize,
         label: 'Target'
       });
-      if (firstPointingSources.length > 0) {
+      if (this.offsetCoordinates.length >= 1) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, firstPointingSources, {
-          offsetLeft: this.legendItemsOffsetLeft,
+        addLegend(this.aladinZoomedIn, {
+          label: 'Last dither pointing',
           offsetBottom: legendOffsetBottom,
-          color: this.colors.pattern,
+          offsetLeft: this.legendItemsOffsetLeft,
           shape: 'cross',
-          sourceSize: this.patternSourceSize,
-          legendSourceSize: this.legendSourceSize,
-          label: 'First dither pointing'
+          color: this.colors.pattern
         });
       }
       if (middlePointingsSources.length > 0) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, middlePointingsSources, {
+        addCatalog(this.aladinZoomedIn, middlePointingsSources, {
           offsetLeft: this.legendItemsOffsetLeft,
           offsetBottom: legendOffsetBottom,
           color: this.colors.pattern,
@@ -331,122 +324,51 @@ export default {
           label: 'Dither pointing'
         });
       }
-      if (lastPointingSources.length > 0) {
+      if (this.offsetCoordinates.length >= 2) {
         legendOffsetBottom += this.legendItemVerticalSpacingPix;
-        this.addCatalog(this.aladinZoomedIn, lastPointingSources, {
-          offsetLeft: this.legendItemsOffsetLeft,
+        addLegend(this.aladinZoomedIn, {
+          label: 'First dither pointing',
           offsetBottom: legendOffsetBottom,
-          color: this.colors.pattern,
+          offsetLeft: this.legendItemsOffsetLeft,
           shape: 'triangle',
-          sourceSize: this.patternSourceSize,
-          legendSourceSize: this.legendSourceSize,
-          label: 'Last dither pointing'
+          color: this.colors.pattern
         });
       }
-      this.addPolyline(this.aladinZoomedIn, this.offsetCoordinates, { color: this.colors.pattern, lineWidth: 1 });
-      if (!this.isSiderealTarget) {
-        this.addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
-      } else {
-        this.addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground);
+      // If the graph starts to look too crowded, don't draw the arrows from the path annotations. These were decided visually.
+      let drawArrows = true;
+      if (this.patternType === 'line') {
+        if (this.offsetCoordinates.length > 6) {
+          drawArrows = false;
+        }
+      } else if (this.patternType === 'grid') {
+        if (Math.sqrt(this.offsetCoordinates.length) > 6) {
+          drawArrows = false;
+        }
+      } else if (this.patternType === 'spiral') {
+        if (this.offsetCoordinates.length > 10) {
+          drawArrows = false;
+        }
       }
-    },
-    setColorMap: function(aladin) {
-      aladin
-        .getBaseImageLayer()
-        .getColorMap()
-        .update('grayscale');
-    },
-    addFillBackground: function(aladin, color) {
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      let viewSize = aladin.getSize();
-      layer.add(new Rectangle(0, 0, viewSize[0], viewSize[1], { color: color, globalCompositeOperation: 'destination-over' }));
-    },
-    addText: function(aladin, x, y, options) {
-      const label = options['label'] || '';
-      const color = options['color'] || 'white';
-      const align = options['align'] || 'start';
-      const baseline = options['baseline'] || 'middle';
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      layer.add(new Text(x, y, label, { color: color, align: align, baseline: baseline }));
-    },
-    addPolyline: function(aladin, coordinates, options) {
-      const color = options['color'] || 'red';
-      const lineWidth = options['lineWidth'] || 2;
-      let layer = A.graphicOverlay();
-      aladin.addOverlay(layer);
-      layer.add(A.polyline(coordinates, { color: color, lineWidth: lineWidth }));
-    },
-    addScaleBar: function(aladin, sizeAsDegrees, label, offsetPixFromEdge, color, lineWidth, textSpacing) {
-      // Draw a horizontal scale bar
-      color = color || this.colors.pattern;
-      textSpacing = textSpacing || 15;
-      lineWidth = lineWidth || 2;
-      const offsetBottom = offsetPixFromEdge['bottom'] || this.legendItemsOffsetBottom;
-      const offsetleft = offsetPixFromEdge['left'] || this.legendItemsOffsetLeft;
-      // Aladin viewer pixel position (0,0) is the top left corner of the view
-      let layer = A.graphicOverlay({ name: 'scale bar', color: color, lineWidth: 4 });
-      aladin.addOverlay(layer);
-      const viewSizePix = aladin.getSize();
-      const scaleBarStartPix = [offsetleft, viewSizePix[1] - offsetBottom]; // Bottom left corner
-      const scaleBarSizeInPix = (sizeAsDegrees / aladin.getFov()[0]) * viewSizePix[0];
-      const scaleBarEndPix = [scaleBarStartPix[0] + scaleBarSizeInPix, scaleBarStartPix[1]];
-      const scaleBarStart = aladin.pix2world(scaleBarStartPix[0], scaleBarStartPix[1]);
-      const scaleBarEnd = aladin.pix2world(scaleBarEndPix[0], scaleBarEndPix[1]);
-      const scaleBarLength = Math.abs(scaleBarEndPix[0] - scaleBarStartPix[0]);
-      layer.add(A.polyline([scaleBarStart, scaleBarEnd], { color: color, lineWidth: lineWidth }));
-      layer.add(
-        new Text(scaleBarStartPix[0] + scaleBarLength + textSpacing, scaleBarStartPix[1], label, {
-          color: color,
-          align: 'start',
-          baseline: 'middle'
-        })
+      // Set the size of the arrows and markers in the path annotations
+      let arrowSize = 0.1 * this.ditherRange * this.arcSecPerDeg;
+      if (arrowSize == 0) {
+        arrowSize = (this.zoomedInFieldOfView / 20) * this.arcSecPerDeg;
+      }
+      let pathAnnotations = getPointingPathAnnotations(
+        _.map(this.offsetCoordinates, i => {
+          return { ra: i[0], dec: i[1] };
+        }),
+        arrowSize,
+        drawArrows
       );
-    },
-    addCatalog: function(aladin, coordinates, options) {
-      const label = options['label'] || '';
-      const color = options['color'] || 'red';
-      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
-      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
-      const shape = options['shape'] || 'circle';
-      const sourceSize = options['sourceSize'] || this.patternSourceSize;
-      const legendSourceSize = options['legendSourceSize'] || this.legendSourceSize;
-      // Create a catalog and sources to it
-      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
-      aladin.addCatalog(catalog);
-      for (let coordinate of coordinates) {
-        catalog.addSources(A.source(coordinate[0], coordinate[1]));
+      for (let annotation of pathAnnotations) {
+        addPolyline(this.aladinZoomedIn, annotation, { color: this.colors.pattern });
       }
-      // Add a legend if there are sources
-      if (coordinates.length > 0) {
-        this.addLegendForCatalog(aladin, {
-          offsetBottom: offsetBottom,
-          offsetLeft: offsetLeft,
-          color: color,
-          label: label,
-          sourceSize: legendSourceSize,
-          shape: shape
-        });
+      if (!this.isSiderealTarget) {
+        addFillBackground(this.aladinZoomedIn, this.colors.nonSiderealBackground);
+      } else {
+        addFillBackground(this.aladinZoomedIn, this.colors.transparentBackground);
       }
-    },
-    addLegendForCatalog: function(aladin, options) {
-      const offsetBottom = options['offsetBottom'] || this.legendOffsetBottom;
-      const offsetLeft = options['offsetLeft'] || this.legendItemsOffsetLeft;
-      const sourceSize = options['sourceSize'] || this.legendSourceSize;
-      const color = options['color'] || 'red';
-      const label = options['label'] || '';
-      const shape = options['shape'] || 'circle';
-      const textSpacingLeft = 15;
-      let catalog = A.catalog({ color: color, sourceSize: sourceSize, shape: shape });
-      aladin.addCatalog(catalog);
-      const viewSizePix = aladin.getSize();
-      const legendSourcePix = [offsetLeft + Math.floor(sourceSize / 2), viewSizePix[1] - offsetBottom]; // Bottom left corner
-      const legendSource = aladin.pix2world(legendSourcePix[0], legendSourcePix[1]);
-      catalog.addSources(A.source(legendSource[0], legendSource[1]));
-      let layer = A.graphicOverlay({ color: color, lineWidth: 2 });
-      aladin.addOverlay(layer);
-      layer.add(new Text(legendSourcePix[0] + textSpacingLeft, legendSourcePix[1], label, { color: color, align: 'start', baseline: 'middle' }));
     }
   }
 };

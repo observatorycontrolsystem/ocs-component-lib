@@ -1,12 +1,16 @@
 import {
+  cosineDeclinationTerm,
   decimalRaToSexigesimal,
   decimalDecToSexigesimal,
   formatValue,
   formatField,
   formatFloat,
   formatDate,
+  objAsString,
+  offsetCoordinate,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
+  rotateCoordinate,
   stateToBsClass,
   stateToIcon,
   timeFromNow
@@ -132,6 +136,74 @@ describe('formatFloat', () => {
     let value = '0';
     let result = formatFloat(value, 1);
     let expected = '0.0';
+    expect(result).toEqual(expected);
+  });
+});
+
+describe('rotateCoordinates', () => {
+  it('does nothing when rotation 0', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, 0, { ra: 0, dec: 0 });
+    let expected = { ra: 1, dec: 0 };
+    expect(result.ra).toEqual(expected.ra);
+    expect(result.dec).toEqual(expected.dec);
+  });
+
+  it('rotates positive rotation', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, -90, { ra: 0, dec: 0 });
+    let expected = { ra: 0, dec: 1 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+
+  it('rotates negative rotation', () => {
+    let coordinate = { ra: 1, dec: 0 };
+    let result = rotateCoordinate(coordinate, 90, { ra: 0, dec: 0 });
+    let expected = { ra: 0, dec: -1 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+
+  it('rotates around a point that is not the origin', () => {
+    let coordinate = { ra: 2, dec: 2 };
+    let result = rotateCoordinate(coordinate, -90, { ra: 1, dec: 1 });
+    let expected = { ra: 0, dec: 2 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+});
+
+describe('offsetCoordinate', () => {
+  it('offsets coordinate', () => {
+    let coordinate = { ra: 0, dec: 0 };
+    let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
+    let expected = { ra: 1, dec: 1 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toEqual(expected.dec, 1);
+  });
+
+  it('offsets coordinate close to pole', () => {
+    let coordinate = { ra: 0, dec: 89 };
+    let result = offsetCoordinate(coordinate, { ra: 3600, dec: 3600 });
+    let cosDec = cosineDeclinationTerm(coordinate.dec + 1.0);
+    let expected = { ra: 1.0 / cosDec, dec: 90 };
+    expect(result.ra).toBeCloseTo(expected.ra, 1);
+    expect(result.dec).toBeCloseTo(expected.dec, 1);
+  });
+});
+
+describe('objAsString', () => {
+  it('returns object string', () => {
+    let obj = { apples: 12, bananas: 4, pineapples: 1 };
+    let result = objAsString(obj);
+    let expected = 'apples: 12, bananas: 4, pineapples: 1';
+    expect(result).toEqual(expected);
+  });
+  it('returns object string for empty object', () => {
+    let obj = {};
+    let result = objAsString(obj);
+    let expected = '';
     expect(result).toEqual(expected);
   });
 });

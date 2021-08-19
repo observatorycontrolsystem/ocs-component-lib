@@ -73,28 +73,29 @@
     </b-container>
     <div v-for="(request, idx) in requestGroup.requests" :key="'request' + idx">
       <custom-modal
-        :show="showCadence"
+        :show="expansion.showModal"
         header="Generated Cadence"
-        :show-accept="cadenceRequests.length > 0"
+        :show-accept="expansion.expanded.length > 0"
         @close="cancelCadence"
         @submit="acceptCadence"
       >
-        <p>
-          The blocks below represent the windows of the requests that will be generated if the cadence is accepted. These requests will replace the
-          current request.
-        </p>
-        <p>Press Cancel to discard the cadence.</p>
-        <p>Press Ok to accept the cadence. Once a cadence is accepted, the individual generated requests may be edited.</p>
-        <cadence-plot :data="cadenceRequests" />
-
-        <!-- TODO: Differentiate between loading data and no cadence found -->
-
-        <p v-if="cadenceRequests.length < 1">
-          <strong>
-            A valid cadence could not be generated. Please try adjusting the jitter or period and make sure your target is visible within the selected
-            window.
-          </strong>
-        </p>
+        <data-loader
+          :data-loaded="expansion.status.loaded"
+          :data-not-found="expansion.status.notFound"
+          :data-load-error="expansion.status.error"
+          not-found-message="A valid cadence could not be generated. Please try adjusting the jitter or period and make sure your target is visible within the selected window."
+        >
+          <template #data-load-error>
+            <p>Unable to generate cadence. Please try adjusting your parameters and try again.</p>
+          </template>
+          <p>
+            The blocks below represent the windows of the requests that will be generated if the cadence is accepted. These requests will replace the
+            current request.
+          </p>
+          <p>Press Cancel to discard the cadence.</p>
+          <p>Press Ok to accept the cadence. Once a cadence is accepted, the individual generated requests may be edited.</p>
+          <cadence-plot :data="expansion.expanded" />
+        </data-loader>
       </custom-modal>
       <request
         :index="idx"
@@ -111,6 +112,9 @@
         :instrument-category-to-name="instrumentCategoryToName"
         :dither-pattern-options="ditherPatternOptions"
         :dithering-allowed="ditheringAllowed"
+        :mosaic-pattern-options="mosaicPatternOptions"
+        :mosaic-allowed="mosaicAllowed"
+        :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
@@ -150,7 +154,6 @@
   </form-panel>
 </template>
 <script>
-import $ from 'jquery';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -161,7 +164,9 @@ import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
+import DataLoader from '@/components/Util/DataLoader.vue';
 import { generateDurationString, getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
+import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 
 export default {
   name: 'RequestGroup',
@@ -170,6 +175,7 @@ export default {
     CustomModal,
     CustomField,
     CustomSelect,
+    DataLoader,
     FormPanel,
     CustomAlert,
     CadencePlot
@@ -235,6 +241,30 @@ export default {
         return true;
       }
     },
+    mosaicPatternOptions: {
+      type: Array,
+      default: () => {
+        return [
+          { text: 'None', value: 'none' },
+          { text: 'Line', value: 'line' },
+          { text: 'Grid', value: 'grid' }
+        ];
+      }
+    },
+    mosaicAllowed: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: (request, requestIndex) => {
+        return true;
+      }
+    },
+    mosaicExtraInstrumentRotation: {
+      type: Function,
+      // eslint-disable-next-line no-unused-vars
+      default: configuration => {
+        return 0;
+      }
+    },
     observationTypeOptions: {
       type: Array,
       default: () => {
@@ -273,9 +303,25 @@ export default {
   data: function() {
     return {
       show: true,
-      showCadence: false,
-      cadenceRequests: [],
       cadenceRequestId: -1
+    };
+  },
+  setup: function() {
+    const {
+      expansion,
+      acceptExpansionForKeyOnObject,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
+    } = requestExpansionWithModalConfirm();
+    return {
+      expansion,
+      acceptExpansionForKeyOnObject,
+      cancelExpansion,
+      checkReadyToGenerateExpansion,
+      generateExpansion,
+      getExpansionErrors
     };
   },
   computed: {
@@ -346,53 +392,46 @@ export default {
       return _.get(this.errors, ['requests', idx], {});
     },
     expandCadence: function(data) {
-      // TODO: Use a modal and not an alert
-
-      if (!_.isEmpty(this.errors)) {
-        alert('Please make sure your request is valid before generating a cadence');
-        return false;
-      }
-      this.cadenceRequestId = data.id;
-      let payload = _.cloneDeep(this.requestGroup);
-      payload.requests = [_.cloneDeep(data.request)];
-      payload.requests[0].windows = [];
-      payload.requests[0].cadence = data.cadence;
-      let that = this;
-      $.ajax({
-        type: 'POST',
-        url: `${this.observationPortalApiBaseUrl}/api/requestgroups/cadence/`,
-        data: JSON.stringify(payload),
-        contentType: 'application/json',
-        success: function(data) {
-          for (let r in data.requests) {
-            that.cadenceRequests.push(data.requests[r]);
+      if (
+        this.checkReadyToGenerateExpansion('Please make sure your entire observing request is valid before generating a cadence', () => {
+          return !_.isEmpty(this.errors);
+        })
+      ) {
+        this.cadenceRequestId = data.id;
+        let payload = _.cloneDeep(this.requestGroup);
+        payload.requests = [_.cloneDeep(data.request)];
+        payload.requests[0].windows = [];
+        payload.requests[0].cadence = data.cadence;
+        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/requestgroups/cadence/`, payload, response => {
+          let requests = [];
+          for (let r in response.requests) {
+            requests.push(response.requests[r]);
           }
-        }
-      });
-      this.showCadence = true;
+          return requests;
+        });
+      }
     },
     cancelCadence: function() {
-      this.cadenceRequests = [];
+      this.cancelExpansion();
       this.cadenceRequestId = -1;
-      this.showCadence = false;
     },
     acceptCadence: function() {
       // this is a bit hacky because the UI representation of a request doesnt match what the api expects/returns
       let that = this;
-      for (let r in this.cadenceRequests) {
+      for (let r in this.expansion.expanded) {
         // all that changes in the cadence is the window, so instead of parsing what is returned we just copy the request
         // that the cadence was generated from and replace the window from what is returned.
         let newRequest = _.cloneDeep(that.requestGroup.requests[that.cadenceRequestId]);
-        newRequest.windows = that.cadenceRequests[r].windows;
+        newRequest.windows = that.expansion.expanded[r].windows;
         delete newRequest.cadence;
         that.requestGroup.requests.push(newRequest);
       }
       // finally we remove the original request
       this.removeRequest(that.cadenceRequestId);
       if (this.requestGroup.requests.length > 1) this.requestGroup.operator = 'MANY';
-      this.cadenceRequests = [];
+      this.expansion.expanded = [];
       this.cadenceRequestId = -1;
-      this.showCadence = false;
+      this.expansion.showModal = false;
       this.update();
     }
   }
