@@ -509,7 +509,7 @@ export default {
   },
   data: function() {
     return {
-      show: this.index === 0 ? this.parentShow : false,
+      show: this.parentShow,
       selectedInstrumentCategory: this.getInstrumentCategory(),
       position: {
         requestIndex: this.requestIndex,

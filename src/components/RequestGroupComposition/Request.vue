@@ -200,13 +200,13 @@
               header="Generated Mosaic"
               :show-accept="expansion.expanded.length > 0"
               @close="cancelExpansion"
-              @submit="acceptExpansionForKeyOnObject(request, 'configurations')"
+              @submit="acceptMosaic()"
             >
               <data-loader
                 :data-loaded="expansion.status.loaded"
                 :data-not-found="expansion.status.notFound"
                 :data-load-error="expansion.status.error"
-                not-found-message="There are no pointing in the generated mosaic. Please update your mosaic parameters and try again."
+                not-found-message="There are no pointings in the generated mosaic. Please update your mosaic parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate mosaic</p>
@@ -234,6 +234,7 @@
                     <div class="mosaic-offset-table">
                       <b-table-lite :items="mosaicTableItems" :fields="mosaic.fields" small></b-table-lite>
                     </div>
+                    <p class="float-right px-3 mt-1 mb-4 font-weight-bolder">{{ mosaicTableItems.length }} pointings</p>
                     <br />
                   </template>
                 </mosaic-plot>
@@ -246,6 +247,7 @@
     </b-container>
     <configuration
       v-for="(configuration, idx) in request.configurations"
+      ref="configurations"
       :key="'configuration' + idx"
       :index="idx"
       :request-index="index"
@@ -317,6 +319,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import Vue from 'vue';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -662,6 +665,19 @@ export default {
           return response.configurations;
         });
       }
+    },
+    acceptMosaic: function() {
+      this.acceptExpansionForKeyOnObject(this.request, 'configurations', () => {
+        Vue.nextTick(() => {
+          // Collapse all configurations within the expanded mosaic other than the first one
+          // so as not to overwhelm the webpage with too many new things to render.
+          for (let configuration of this.$refs.configurations) {
+            if (configuration.position.configurationIndex !== 0) {
+              configuration.show = false;
+            }
+          }
+        });
+      });
     }
   }
 };

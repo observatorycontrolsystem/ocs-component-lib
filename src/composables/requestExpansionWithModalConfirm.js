@@ -87,7 +87,7 @@ export default function requestExpansionWithModalConfirm() {
     return errors;
   };
 
-  const acceptExpansionForKeyOnObject = (obj, key) => {
+  const acceptExpansionForKeyOnObject = (obj, key, onDone) => {
     // Accept the generated expansion by setting the `key` of the provided `obj` to the expanded data.
     // Updating the `key` of `obj` means that the `obj` itself that is passed is updated (pass-by-reference),
     // so that if it was a reactive variable inside a component, the component will re-render.
@@ -98,6 +98,9 @@ export default function requestExpansionWithModalConfirm() {
     Vue.nextTick(() => {
       obj[key] = expansion.value.expanded;
       expansion.value.expanded = [];
+      if (onDone) {
+        onDone();
+      }
       return obj;
     });
   };
