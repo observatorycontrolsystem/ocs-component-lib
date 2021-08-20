@@ -501,7 +501,7 @@ export default {
   },
   data: function() {
     return {
-      show: true,
+      show: this.index === 0 ? this.parentShow : false,
       selectedInstrumentCategory: this.getInstrumentCategory(),
       position: {
         requestIndex: this.requestIndex,

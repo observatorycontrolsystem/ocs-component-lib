@@ -98,7 +98,7 @@ export default {
   },
   data: function() {
     return {
-      show: true,
+      show: this.parentShow,
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.configurationIndex

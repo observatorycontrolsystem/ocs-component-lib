@@ -298,7 +298,7 @@ export default {
     delete siderealTargetParams['name'];
     delete siderealTargetParams['type'];
     return {
-      show: true,
+      show: this.parentShow,
       nonSiderealTargetParams: nonSiderealTargetParams,
       siderealTargetParams: siderealTargetParams,
       targetTypeOptions: [
