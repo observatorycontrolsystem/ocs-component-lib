@@ -115,6 +115,7 @@
         :mosaic-pattern-options="mosaicPatternOptions"
         :mosaic-allowed="mosaicAllowed"
         :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
+        :mosaic-max-num-pointings="mosaicMaxNumPointings"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :datetime-format="datetimeFormat"
@@ -264,6 +265,10 @@ export default {
       default: configuration => {
         return 0;
       }
+    },
+    mosaicMaxNumPointings: {
+      type: Number,
+      default: 100
     },
     observationTypeOptions: {
       type: Array,

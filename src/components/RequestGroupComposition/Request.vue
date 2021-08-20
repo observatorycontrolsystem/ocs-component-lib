@@ -165,10 +165,25 @@
               label-size="sm"
               label-align-sm="right"
               label-cols-sm="4"
-              label=""
+              :label="getFromObject(formConfig, ['request', 'mosaic', 'label'], '')"
               label-for="mosaic-button"
+              :invalid-feedback="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic', 'invalid_parameters_feedback'],
+                  `The limit to the number of mosaic pointings that can be generated is ${mosaicMaxNumPointings}. Please
+                  update your parameters before generating a mosaic.`
+                )
+              "
+              :state="!tooManyMosaicPointings"
             >
-              <b-button :id="'mosaic-button-' + position.requestIndex" block variant="outline-primary" @click="generateMosaicPattern">
+              <b-button
+                :id="'mosaic-button-' + position.requestIndex"
+                block
+                variant="outline-primary"
+                :disabled="tooManyMosaicPointings"
+                @click="generateMosaicPattern"
+              >
                 Generate Mosaic
               </b-button>
             </b-form-group>
@@ -437,6 +452,10 @@ export default {
         return 0;
       }
     },
+    mosaicMaxNumPointings: {
+      type: Number,
+      default: 100
+    },
     aladinScriptLocation: {
       type: String,
       default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
@@ -507,6 +526,17 @@ export default {
         });
       }
       return pointings;
+    },
+    tooManyMosaicPointings: function() {
+      if (this.mosaic.pattern === 'grid') {
+        let numColumns = _.get(this.mosaic.parameters, ['numColumns'], 0);
+        let numRows = _.get(this.mosaic.parameters, ['numRows'], 0);
+        return numColumns * numRows > this.mosaicMaxNumPointings;
+      } else if (this.mosaic.pattern === 'line') {
+        let numPoints = _.get(this.mosaic.parameters, ['numPoints'], 0);
+        return numPoints > this.mosaicMaxNumPointings;
+      }
+      return false;
     }
   },
   methods: {

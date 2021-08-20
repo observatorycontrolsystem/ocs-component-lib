@@ -15,6 +15,7 @@
         :mosaic-pattern-options="mosaicPatternOptions"
         :mosaic-allowed="mosaicAllowed"
         :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
+        :mosaic-max-num-pointings="mosaicMaxNumPointings"
         :aladin-script-location="aladinScriptLocation"
         :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
@@ -265,6 +266,11 @@ export default {
       default: configuration => {
         return 0;
       }
+    },
+    // Limit the number of pointings for performance and plotting purposes.
+    mosaicMaxNumPointings: {
+      type: Number,
+      default: 100
     },
     // Location from which to load the aladin JavaScript https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
     aladinScriptLocation: {
