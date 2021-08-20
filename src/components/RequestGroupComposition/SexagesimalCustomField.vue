@@ -9,7 +9,7 @@
     :tooltip-config="tooltipConfig"
     @blur="update($event)"
   >
-    <div v-if="value" slot="extra-help-text">
+    <div v-if="show && value" slot="extra-help-text">
       {{ helpText }}
     </div>
   </custom-field>

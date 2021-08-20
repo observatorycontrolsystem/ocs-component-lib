@@ -50,6 +50,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="{}"
             />
@@ -66,6 +67,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -82,6 +84,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -92,6 +95,7 @@
               :label="getFromObject(formConfig, ['request', 'mosaic_num_points', 'label'], 'Number of Points')"
               :desc="getFromObject(formConfig, ['request', 'mosaic_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_points', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -108,6 +112,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -124,6 +129,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -140,6 +146,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -157,6 +164,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_center', 'hide'], !mosaicIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />

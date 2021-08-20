@@ -65,6 +65,7 @@
               :label="getFromObject(formConfig, ['window', 'cadence', 'label'], 'Cadence')"
               :desc="getFromObject(formConfig, ['window', 'cadence', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'cadence', 'hide'], false)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :options="[
                 { text: 'None', value: 'none' },

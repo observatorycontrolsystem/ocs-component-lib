@@ -33,7 +33,7 @@
       :errors="errors.mode"
       @input="update"
     />
-    <div v-for="opticalElementGroup in availableOpticalElementGroups" :key="opticalElementGroup.type">
+    <div v-for="opticalElementGroup in availableOpticalElementGroups" :key="opticalElementGroup.type" class="d-inline">
       <custom-select
         v-model="instrumentConfig.optical_elements[opticalElementGroup.type]"
         :field="opticalElementGroup.type"
@@ -47,7 +47,7 @@
         @input="updateOpticalElement"
       />
     </div>
-    <div v-if="rotatorModeOptions.length > 0">
+    <div v-if="rotatorModeOptions.length > 0" class="d-inline">
       <custom-select
         v-model="instrumentConfig.rotator_mode"
         field="rotator_mode"

@@ -1,7 +1,7 @@
 <template>
   <span v-if="!hide">
     <b-form-group
-      v-show="$parent.show"
+      v-if="$parent.show"
       :id="field + '-datetimegroup-' + $parent.id"
       label-size="sm"
       label-align-sm="right"
@@ -30,7 +30,7 @@
         {{ error }}
       </span>
     </b-form-group>
-    <span v-show="!$parent.show" class="mr-4">
+    <span v-if="!hideWhenCollapsed && !$parent.show" class="mr-4" :class="collapsedValidationStyle">
       {{ label }}: <strong>{{ value || '...' }}</strong>
     </span>
   </span>
@@ -69,6 +69,10 @@ export default {
     hide: {
       type: Boolean
     },
+    // Hide this field when collapsed
+    hideWhenCollapsed: {
+      type: Boolean
+    },
     errors: {
       validator: function(value) {
         return value === undefined || value === null || typeof value === 'object';
@@ -89,6 +93,11 @@ export default {
   computed: {
     hasErrors: function() {
       return !_.isEmpty(this.errors);
+    },
+    collapsedValidationStyle: function() {
+      return {
+        'text-danger': this.hasErrors
+      };
     }
   },
   methods: {

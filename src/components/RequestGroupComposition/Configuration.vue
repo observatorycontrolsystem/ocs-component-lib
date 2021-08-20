@@ -139,6 +139,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="{}"
             />
@@ -149,6 +150,7 @@
               :label="getFromObject(formConfig, ['configuration', 'dither_num_points', 'label'], 'Number of Points')"
               :desc="getFromObject(formConfig, ['configuration', 'dither_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_points', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -165,6 +167,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -181,6 +184,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -197,6 +201,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -213,6 +218,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -229,6 +235,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_columns', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
@@ -246,6 +253,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_center', 'hide'], !ditheringIsAllowed)"
+              hide-when-collapsed
               :tooltip-config="tooltipConfig"
               :errors="null"
             />
