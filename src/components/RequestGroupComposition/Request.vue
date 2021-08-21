@@ -253,6 +253,7 @@
       :request-index="index"
       :configuration="configuration"
       :parent-show="show"
+      :initial-show="initialConfigurationShow"
       :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :available-instruments="availableInstruments"
       :instrument-category-to-name="instrumentCategoryToName"
@@ -479,6 +480,7 @@ export default {
   data: function() {
     return {
       show: true,
+      initialConfigurationShow: true,
       mosaic: {
         fields: [
           { key: 'ra', label: 'Right ascension (decimal degrees)' },
@@ -667,15 +669,21 @@ export default {
       }
     },
     acceptMosaic: function() {
+      // Initialize the new configurations to be collapsed. Do this to keep rendering from taking a long time
+      // for large mosaic patterns.
+      this.initialConfigurationShow = false;
       this.acceptExpansionForKeyOnObject(this.request, 'configurations', () => {
+        // Expand the first configuration so that it looks nice.
         Vue.nextTick(() => {
-          // Collapse all configurations within the expanded mosaic other than the first one
-          // so as not to overwhelm the webpage with too many new things to render.
           for (let configuration of this.$refs.configurations) {
-            if (configuration.position.configurationIndex !== 0) {
-              configuration.show = false;
+            if (configuration.position.configurationIndex === 0) {
+              configuration.show = true;
             }
           }
+        });
+        // Then, set configurations back to initially expand again.
+        Vue.nextTick(() => {
+          this.initialConfigurationShow = true;
         });
       });
     }

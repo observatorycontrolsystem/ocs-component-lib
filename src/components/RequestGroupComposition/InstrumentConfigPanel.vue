@@ -93,7 +93,7 @@ export default {
     ditheringIsAllowed: {
       type: Boolean
     },
-    show: {
+    parentShow: {
       type: Boolean
     },
     tooltipConfig: {
@@ -111,6 +111,7 @@ export default {
   },
   data: function() {
     return {
+      show: this.parentShow,
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.configurationIndex,

@@ -456,6 +456,10 @@ export default {
     parentShow: {
       type: Boolean
     },
+    initialShow: {
+      type: Boolean,
+      default: true
+    },
     durationData: {
       type: Object,
       required: true
@@ -509,7 +513,7 @@ export default {
   },
   data: function() {
     return {
-      show: this.parentShow,
+      show: this.initialShow,
       selectedInstrumentCategory: this.getInstrumentCategory(),
       position: {
         requestIndex: this.requestIndex,
