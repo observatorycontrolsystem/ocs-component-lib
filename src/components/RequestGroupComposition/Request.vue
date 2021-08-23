@@ -320,7 +320,6 @@
 </template>
 <script>
 import _ from 'lodash';
-import Vue from 'vue';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -674,7 +673,7 @@ export default {
       this.initialConfigurationShow = false;
       this.acceptExpansionForKeyOnObject(this.request, 'configurations', () => {
         // Expand the first configuration so that it looks nice.
-        Vue.nextTick(() => {
+        this.$nextTick(() => {
           for (let configuration of this.$refs.configurations) {
             if (configuration.position.configurationIndex === 0) {
               configuration.show = true;
@@ -682,7 +681,7 @@ export default {
           }
         });
         // Then, set configurations back to initially expand again.
-        Vue.nextTick(() => {
+        this.$nextTick(() => {
           this.initialConfigurationShow = true;
         });
       });

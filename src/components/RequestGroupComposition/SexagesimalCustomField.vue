@@ -7,6 +7,7 @@
     :hide="hide"
     :errors="errors"
     :tooltip-config="tooltipConfig"
+    :hide-when-collapsed="hideWhenCollapsed"
     @blur="update($event)"
   >
     <div v-if="show && value" slot="extra-help-text">
@@ -47,6 +48,10 @@ export default {
     },
     // Whether to collaspe field to just display the value.
     collapse: {
+      type: Boolean
+    },
+    // Hide this field when collapsed
+    hideWhenCollapsed: {
       type: Boolean
     },
     label: {
