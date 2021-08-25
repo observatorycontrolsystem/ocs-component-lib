@@ -1,3 +1,6 @@
+import $ from 'jquery';
+import flushPromises from 'flush-promises';
+
 import {
   cosineDeclinationTerm,
   decimalRaToSexigesimal,
@@ -6,6 +9,7 @@ import {
   formatField,
   formatFloat,
   formatDate,
+  mostRecentRequest,
   objAsString,
   offsetCoordinate,
   sexagesimalDecToDecimal,
@@ -15,6 +19,10 @@ import {
   stateToIcon,
   timeFromNow
 } from '@/util';
+
+// Mock out remote network calls
+jest.mock('jquery');
+const { Deferred } = jest.requireActual('jquery');
 
 describe('sexagesimalDecToDecimal', () => {
   it('converts positive decimal right ascension to sexagesimal correctly', () => {
@@ -205,5 +213,103 @@ describe('objAsString', () => {
     let result = objAsString(obj);
     let expected = '';
     expect(result).toEqual(expected);
+  });
+});
+
+describe('mostRecentRequest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sends single request runs done callback', async () => {
+    let result;
+    let alwaysRan = false;
+    let failRan = false;
+    let successResult = 1;
+    $.ajax.mockReturnValueOnce(Deferred().resolve(successResult));
+    const myMostRecentRequest = new mostRecentRequest(
+      () => {
+        return $.ajax({
+          url: 'http://localhost'
+        });
+      },
+      data => {
+        result = data;
+      },
+      () => {
+        failRan = true;
+      },
+      () => {
+        alwaysRan = true;
+      }
+    );
+    myMostRecentRequest.send();
+    await flushPromises();
+    expect(result).toBe(successResult);
+    expect(alwaysRan).toBe(true);
+    expect(failRan).toBe(false);
+  });
+
+  it('sends single request runs fail callback', async () => {
+    let result;
+    let alwaysRan = false;
+    let failRan = false;
+    let successResult = 1;
+    $.ajax.mockReturnValueOnce(Deferred().reject());
+    const myMostRecentRequest = new mostRecentRequest(
+      () => {
+        return $.ajax({
+          url: 'http://localhost'
+        });
+      },
+      data => {
+        result = data;
+      },
+      () => {
+        failRan = true;
+      },
+      () => {
+        alwaysRan = true;
+      }
+    );
+    myMostRecentRequest.send();
+    await flushPromises();
+    expect(result).not.toBe(successResult);
+    expect(alwaysRan).toBe(true);
+    expect(failRan).toBe(true);
+  });
+
+  it('sends two requests and only saves the most recent request', async () => {
+    let result;
+    let alwaysRan = false;
+    let failRan = false;
+    let successResultFirst = 1;
+    let successResultSecond = 2;
+    $.ajax.mockReturnValueOnce(Deferred().resolve(successResultFirst)).mockReturnValueOnce(Deferred().resolve(successResultSecond));
+    const myMostRecentRequest = new mostRecentRequest(
+      () => {
+        return $.ajax({
+          url: 'http://localhost'
+        });
+      },
+      data => {
+        result = data;
+      },
+      () => {
+        failRan = true;
+      },
+      () => {
+        alwaysRan = true;
+      }
+    );
+    let firstRequest = myMostRecentRequest.send();
+    let secondRequest = myMostRecentRequest.send();
+    await flushPromises();
+    expect(myMostRecentRequest.isCurrent(firstRequest)).toBe(false);
+    expect(myMostRecentRequest.isCurrent(secondRequest)).toBe(true);
+    expect(firstRequest.number).toBeLessThan(secondRequest.number);
+    expect(result).toBe(successResultSecond);
+    expect(alwaysRan).toBe(true);
+    expect(failRan).toBe(false);
   });
 });
