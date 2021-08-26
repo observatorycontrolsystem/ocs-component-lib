@@ -283,7 +283,7 @@ const mostRecentRequestManager = class mostRecentRequestManager {
   // 2. Request B is sent
   // 3. Response from Request B arrives
   // 4. Response from Request A arrives
-  // In this case, the order that the reponses arrive are swapped, which is a problem if you rely on recieving
+  // In this case, the order that the reponses arrive are swapped, which is a problem if you rely on receiving
   // them in order.
   #request;
   #onDone;
