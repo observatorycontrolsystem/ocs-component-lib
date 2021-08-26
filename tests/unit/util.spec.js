@@ -9,7 +9,7 @@ import {
   formatField,
   formatFloat,
   formatDate,
-  mostRecentRequest,
+  mostRecentRequestManager,
   objAsString,
   offsetCoordinate,
   sexagesimalDecToDecimal,
@@ -216,7 +216,7 @@ describe('objAsString', () => {
   });
 });
 
-describe('mostRecentRequest', () => {
+describe('mostRecentRequestManager', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -227,7 +227,7 @@ describe('mostRecentRequest', () => {
     let failRan = false;
     let successResult = 1;
     $.ajax.mockReturnValueOnce(Deferred().resolve(successResult));
-    const myMostRecentRequest = new mostRecentRequest(
+    const myMostRecentRequest = new mostRecentRequestManager(
       () => {
         return $.ajax({
           url: 'http://localhost'
@@ -256,7 +256,7 @@ describe('mostRecentRequest', () => {
     let failRan = false;
     let successResult = 1;
     $.ajax.mockReturnValueOnce(Deferred().reject());
-    const myMostRecentRequest = new mostRecentRequest(
+    const myMostRecentRequest = new mostRecentRequestManager(
       () => {
         return $.ajax({
           url: 'http://localhost'
@@ -286,7 +286,7 @@ describe('mostRecentRequest', () => {
     let successResultFirst = 1;
     let successResultSecond = 2;
     $.ajax.mockReturnValueOnce(Deferred().resolve(successResultFirst)).mockReturnValueOnce(Deferred().resolve(successResultSecond));
-    const myMostRecentRequest = new mostRecentRequest(
+    const myMostRecentRequest = new mostRecentRequestManager(
       () => {
         return $.ajax({
           url: 'http://localhost'

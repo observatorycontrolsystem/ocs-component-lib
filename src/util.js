@@ -268,7 +268,7 @@ function rotateCoordinate(coordinate, angle, center = { ra: 0, dec: 0 }) {
   return { ra: coordXShiftedBack, dec: coordYShiftedBack };
 }
 
-const mostRecentRequest = class mostRecentRequest {
+const mostRecentRequestManager = class mostRecentRequestManager {
   // Simple wrapper class used to manage a JQuery AJAX request when only the result from the most recently
   // sent request should be used.
   //
@@ -346,7 +346,7 @@ export {
   offsetCoordinate,
   rotateCoordinate,
   round,
-  mostRecentRequest,
+  mostRecentRequestManager,
   sexagesimalDecToDecimal,
   sexagesimalRaToDecimal,
   stateToBsClass,

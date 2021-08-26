@@ -79,7 +79,7 @@ import $ from 'jquery';
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
 import { confirmMixin } from '@/mixins/confirmMixins.js';
-import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, mostRecentRequest } from '@/util';
+import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, mostRecentRequestManager } from '@/util';
 
 export default {
   name: 'RequestGroupCompositionForm',
@@ -335,7 +335,7 @@ export default {
       draftId: this.loadedDraftId,
       requestGroupErrors: {},
       durationData: {},
-      runningValidate: new mostRecentRequest(this.getValidationRequest, this.onValidationSuccess)
+      validateRequestManager: new mostRecentRequestManager(this.getValidationRequest, this.onValidationSuccess)
     };
   },
   computed: {
@@ -372,7 +372,7 @@ export default {
       this.durationData = data.request_durations;
     },
     validate: _.debounce(function() {
-      this.runningValidate.send();
+      this.validateRequestManager.send();
     }, 200),
     getDurationString: function() {
       return generateDurationString(this.durationData.duration);
