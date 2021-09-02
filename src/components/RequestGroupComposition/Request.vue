@@ -662,28 +662,36 @@ export default {
           return !_.isEmpty(this.errors);
         })
       ) {
-        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/requests/mosaic/`, this.getMosaicParameters(false), response => {
-          return response.configurations;
-        });
+        this.generateExpansion(
+          `${this.observationPortalApiBaseUrl}/api/requests/mosaic/`,
+          this.getMosaicParameters(false),
+          response => {
+            return response.configurations;
+          },
+          { saveExtraInfo: true }
+        );
       }
     },
     acceptMosaic: function() {
       // Initialize the new configurations to be collapsed. Do this to keep rendering from taking a long time
       // for large mosaic patterns.
       this.initialConfigurationShow = false;
-      this.acceptExpansionForKeyOnObject(this.request, 'configurations', () => {
-        // Expand the first configuration so that it looks nice.
-        this.$nextTick(() => {
-          for (let configuration of this.$refs.configurations) {
-            if (configuration.position.configurationIndex === 0) {
-              configuration.show = true;
+      this.acceptExpansionForKeyOnObject(this.request, 'configurations', {
+        onDone: () => {
+          // Expand the first configuration so that it looks nice.
+          this.$nextTick(() => {
+            for (let configuration of this.$refs.configurations) {
+              if (configuration.position.configurationIndex === 0) {
+                configuration.show = true;
+              }
             }
-          }
-        });
-        // Then, set configurations back to initially expand again.
-        this.$nextTick(() => {
-          this.initialConfigurationShow = true;
-        });
+          });
+          // Then, set configurations back to initially expand again.
+          this.$nextTick(() => {
+            this.initialConfigurationShow = true;
+          });
+        },
+        addExtraInfo: true
       });
     }
   }

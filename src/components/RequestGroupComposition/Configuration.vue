@@ -279,7 +279,7 @@
               header="Generated Dither Pattern"
               :show-accept="expansion.expanded.length > 0"
               @close="cancelExpansion"
-              @submit="acceptExpansionForKeyOnObject(configuration, 'instrument_configs')"
+              @submit="acceptExpansionForKeyOnObject(configuration, 'instrument_configs', { addExtraInfo: true })"
             >
               <data-loader
                 :data-loaded="expansion.status.loaded"
@@ -941,9 +941,14 @@ export default {
       ) {
         // The returned instrument configs do not include any field indicating that they belong to a dither sequence, other than the offset_ra
         // and offset_dec fields in the extra params so this information might need to be added if it is included in the API response in the future.
-        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/configurations/dither/`, this.getDitherParameters(false), response => {
-          return response.instrument_configs;
-        });
+        this.generateExpansion(
+          `${this.observationPortalApiBaseUrl}/api/configurations/dither/`,
+          this.getDitherParameters(false),
+          response => {
+            return response.instrument_configs;
+          },
+          { saveExtraInfo: true }
+        );
       }
     }
   }
