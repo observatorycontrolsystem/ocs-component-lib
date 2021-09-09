@@ -9,7 +9,6 @@
     :errors="errors"
     :show="show"
     :index="index"
-    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @copy="$emit('copy')"
     @show="show = $event"
@@ -43,8 +42,6 @@
               :label="getFromObject(formConfig, ['window', 'start', 'label'], 'Start')"
               :desc="getFromObject(formConfig, ['window', 'start', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'start', 'hide'], false)"
-              :datetime-format="datetimeFormat"
-              :tooltip-config="tooltipConfig"
               :errors="errors.start"
               @input="update"
             />
@@ -54,8 +51,6 @@
               :label="getFromObject(formConfig, ['window', 'end', 'label'], 'End')"
               :desc="getFromObject(formConfig, ['window', 'end', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'end', 'hide'], false)"
-              :datetime-format="datetimeFormat"
-              :tooltip-config="tooltipConfig"
               :errors="errors.end"
               @input="update"
             />
@@ -66,7 +61,6 @@
               :desc="getFromObject(formConfig, ['window', 'cadence', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'cadence', 'hide'], false)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :options="[
                 { text: 'None', value: 'none' },
                 { text: 'Simple Period', value: 'simple' }
@@ -79,7 +73,6 @@
               :label="getFromObject(formConfig, ['window', 'period', 'label'], 'Period')"
               :desc="getFromObject(formConfig, ['window', 'period', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'period', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.period"
               @input="update"
             />
@@ -90,7 +83,6 @@
               :label="getFromObject(formConfig, ['window', 'jitter', 'label'], 'Jitter')"
               :desc="getFromObject(formConfig, ['window', 'jitter', 'desc'], '')"
               :hide="getFromObject(formConfig, ['window', 'jitter', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.jitter"
               @input="update"
             />
@@ -123,7 +115,7 @@ import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue'
 import CustomDatetime from '@/components/RequestGroupComposition/CustomDatetime.vue';
 import AirmassPlot from '@/components/Plots/AirmassPlot.vue';
 
-import { extractTopLevelErrors, getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util.js';
+import { extractTopLevelErrors, getFromObject } from '@/util.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 
 export default {
@@ -173,16 +165,6 @@ export default {
     },
     parentShow: {
       type: Boolean
-    },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     },
     observationType: {
       type: String,

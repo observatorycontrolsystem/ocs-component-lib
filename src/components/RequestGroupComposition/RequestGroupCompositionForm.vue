@@ -6,18 +6,8 @@
         :duration-data="durationData"
         :request-group="requestGroup"
         :profile="profile"
-        :datetime-format="datetimeFormat"
-        :tooltip-config="tooltipConfig"
         :observation-portal-api-base-url="observationPortalApiBaseUrl"
         :observation-type-options="observationTypeOptions"
-        :dither-pattern-options="ditherPatternOptions"
-        :dithering-allowed="ditheringAllowed"
-        :mosaic-pattern-options="mosaicPatternOptions"
-        :mosaic-allowed="mosaicAllowed"
-        :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
-        :mosaic-max-num-pointings="mosaicMaxNumPointings"
-        :aladin-script-location="aladinScriptLocation"
-        :aladin-style-location="aladinStyleLocation"
         :available-instruments="availableInstruments"
         :site-code-to-color="siteCodeToColor"
         :site-code-to-name="siteCodeToName"
@@ -76,11 +66,12 @@
 <script>
 import _ from 'lodash';
 import $ from 'jquery';
+import { provide } from '@vue/composition-api';
 
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
 import { confirmMixin } from '@/mixins/confirmMixins.js';
-import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
+import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, defaultAladinScriptLocation, defaultAladinStyleLocation } from '@/util';
 
 export default {
   name: 'RequestGroupCompositionForm',
@@ -275,12 +266,12 @@ export default {
     // Location from which to load the aladin JavaScript https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
     aladinScriptLocation: {
       type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
+      default: defaultAladinScriptLocation
     },
     // Location from which to load the aladin CSS https://aladin.u-strasbg.fr/AladinLite/doc/#embedding
     aladinStyleLocation: {
       type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
+      default: defaultAladinStyleLocation
     },
     // Object containing configuration for form panels and form fields. Top level fields are keys
     // referencing a panel, and map to an object that can contain a `panel` key to configure panel
@@ -335,6 +326,18 @@ export default {
       type: Number,
       default: -1
     }
+  },
+  setup: function(props) {
+    provide('mosaicMaxNumPointings', props.mosaicMaxNumPointings);
+    provide('mosaicExtraInstrumentRotation', props.mosaicExtraInstrumentRotation);
+    provide('mosaicPatternOptions', props.mosaicPatternOptions);
+    provide('mosaicAllowed', props.mosaicAllowed);
+    provide('ditherPatternOptions', props.ditherPatternOptions);
+    provide('ditheringAllowed', props.ditheringAllowed);
+    provide('aladinScriptLocation', props.aladinScriptLocation);
+    provide('aladinStyleLocation', props.aladinStyleLocation);
+    provide('tooltipConfig', props.tooltipConfig);
+    provide('datetimeFormat', props.datetimeFormat);
   },
   data: function() {
     return {

@@ -64,6 +64,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import { defaultTooltipConfig } from '@/util';
 import { confirmMixin } from '@/mixins/confirmMixins';
@@ -103,13 +104,17 @@ export default {
     index: {
       type: Number,
       default: 0
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     }
+  },
+  setup: function() {
+    const tooltipConfig = inject(
+      'tooltipConfig',
+      () => {
+        return defaultTooltipConfig;
+      },
+      true
+    );
+    return { tooltipConfig };
   },
   computed: {
     hasError: function() {

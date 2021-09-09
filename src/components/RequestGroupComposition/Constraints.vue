@@ -8,7 +8,6 @@
     :can-remove="false"
     :errors="errors"
     :show="show"
-    :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
@@ -27,7 +26,6 @@
               :label="getFromObject(formConfig, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
               :desc="getFromObject(formConfig, ['constraints', 'max_airmass', 'desc'], '')"
               :hide="getFromObject(formConfig, ['constraints', 'max_airmass', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.max_airmass"
               @input="update"
             />
@@ -37,7 +35,6 @@
               :label="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
               :desc="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'desc'], '')"
               :hide="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.min_lunar_distance"
               @input="update"
             />
@@ -53,7 +50,7 @@ import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig } from '@/util';
+import { getFromObject } from '@/util';
 
 export default {
   name: 'Constraints',
@@ -79,12 +76,6 @@ export default {
     errors: {
       type: Object,
       required: true
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     },
     parentShow: {
       type: Boolean

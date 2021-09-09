@@ -12,8 +12,6 @@
           :plot-height="plotHeight"
           :plot-width="plotWidth"
           class="aladin-responsive"
-          :aladin-script-location="aladinScriptLocation"
-          :aladin-style-location="aladinStyleLocation"
           @aladin-loaded="onAladinLoaded"
         />
         <div class="text-center font-italic m-auto w-100">
@@ -27,6 +25,7 @@
 <script>
 /* global A */
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import AladinPlot from '@/components/Plots/AladinPlot.vue';
 import {
@@ -59,22 +58,13 @@ export default {
     instrumentsInfo: {
       type: Object,
       required: true
-    },
-    extraInstrumentRotation: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: configuration => {
-        return 0;
-      }
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
+  },
+  setup: function() {
+    const extraInstrumentRotation = inject('mosaicExtraInstrumentRotation');
+    return {
+      extraInstrumentRotation
+    };
   },
   data: function() {
     let instrumentType = this.configurations[0].instrument_type;

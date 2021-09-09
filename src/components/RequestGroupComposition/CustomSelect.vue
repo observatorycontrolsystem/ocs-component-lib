@@ -39,6 +39,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import { defaultTooltipConfig } from '@/util';
 
@@ -95,13 +96,17 @@ export default {
     // Setting this to `true` will ensure that all string options that are passed in are lowercased
     lowerOptions: {
       type: Boolean
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     }
+  },
+  setup: function() {
+    const tooltipConfig = inject(
+      'tooltipConfig',
+      () => {
+        return defaultTooltipConfig;
+      },
+      true
+    );
+    return { tooltipConfig };
   },
   computed: {
     hasErrors: function() {

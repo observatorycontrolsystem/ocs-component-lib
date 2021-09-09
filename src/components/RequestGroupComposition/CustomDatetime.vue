@@ -39,6 +39,7 @@
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+import { inject } from '@vue/composition-api';
 
 import { defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
 
@@ -55,10 +56,6 @@ export default {
     label: {
       type: String,
       default: ''
-    },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
     },
     field: {
       type: String,
@@ -82,13 +79,18 @@ export default {
     desc: {
       type: String,
       default: ''
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     }
+  },
+  setup: function() {
+    const tooltipConfig = inject(
+      'tooltipConfig',
+      () => {
+        return defaultTooltipConfig;
+      },
+      true
+    );
+    const datetimeFormat = inject('datetimeFormat', defaultDatetimeFormat);
+    return { tooltipConfig, datetimeFormat };
   },
   computed: {
     hasErrors: function() {

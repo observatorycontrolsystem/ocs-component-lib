@@ -16,6 +16,9 @@
 </template>
 <script>
 import $ from 'jquery';
+import { inject } from '@vue/composition-api';
+
+import { defaultAladinScriptLocation, defaultAladinStyleLocation } from '@/util';
 
 export default {
   name: 'AladinPlot',
@@ -32,15 +35,12 @@ export default {
     plotHeight: {
       type: String,
       default: '400px'
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
+  },
+  setup: function() {
+    const aladinScriptLocation = inject('aladinScriptLocation', defaultAladinScriptLocation);
+    const aladinStyleLocation = inject('aladinStyleLocation', defaultAladinStyleLocation);
+    return { aladinScriptLocation, aladinStyleLocation };
   },
   data: function() {
     return {

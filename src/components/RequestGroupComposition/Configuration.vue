@@ -9,7 +9,6 @@
     :errors="errors"
     :show="show"
     :index="index"
-    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @copy="$emit('copy')"
     @show="show = $event"
@@ -31,7 +30,6 @@
               :desc="getFromObject(formConfig, ['configuration', 'instrument_category', 'desc'], '')"
               :hide="getFromObject(formConfig, ['configuration', 'instrument_category', 'hide'], false)"
               :options="instrumentCategoryOptions"
-              :tooltip-config="tooltipConfig"
               :errors="{}"
               @change="onInstrumentCategoryChange"
             />
@@ -42,7 +40,6 @@
               :desc="getFromObject(formConfig, ['configuration', 'instrument_type', 'desc'], '')"
               :hide="getFromObject(formConfig, ['configuration', 'instrument_type', 'hide'], false)"
               :errors="errors.instrument_type"
-              :tooltip-config="tooltipConfig"
               :options="availableInstrumentOptions"
               @change="onInstrumentTypeChange"
             />
@@ -53,7 +50,6 @@
               :desc="getFromObject(formConfig, ['guidingConfig', 'mode', 'desc'], '')"
               :hide="getFromObject(formConfig, ['guidingConfig', 'mode', 'hide'], false)"
               :errors="{}"
-              :tooltip-config="tooltipConfig"
               :options="guideModeOptions"
               @input="update"
             >
@@ -77,7 +73,6 @@
               :desc="getFromObject(formConfig, ['configuration', 'type', 'desc'], '')"
               :hide="getFromObject(formConfig, ['configuration', 'type', 'hide'], false)"
               :errors="errors.type"
-              :tooltip-config="tooltipConfig"
               :options="configurationTypeOptions"
               @input="update"
             />
@@ -88,7 +83,6 @@
                 :label="getFromObject(formConfig, ['configuration', 'repeat_duration', 'label'], 'Duration')"
                 :desc="getFromObject(formConfig, ['configuration', 'repeat_duration', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['configuration', 'repeat_duration', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.repeat_duration"
                 @input="update"
               >
@@ -106,7 +100,6 @@
               :label="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'label'], 'Acquire Mode')"
               :desc="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'desc'], '')"
               :hide="getFromObject(formConfig, ['acquisitionConfig', 'mode', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="{}"
               :options="acquireModeOptions"
               @input="update"
@@ -119,7 +112,6 @@
               :label="getFromObject(formConfig, ['acquisitionConfig', field, 'label'], field)"
               :desc="getFromObject(formConfig, ['acquisitionConfig', field, 'desc'], '')"
               :hide="getFromObject(formConfig, ['acquisitionConfig', field, 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="null"
               @input="updateAcquisitionConfigExtraParam($event, field)"
             />
@@ -140,7 +132,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="{}"
             />
             <custom-field
@@ -151,7 +142,6 @@
               :desc="getFromObject(formConfig, ['configuration', 'dither_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_points', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -168,7 +158,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_point_spacing', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -185,7 +174,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_line_spacing', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -202,7 +190,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_orientation', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -219,7 +206,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_rows', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -236,7 +222,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_num_columns', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-select
@@ -254,7 +239,6 @@
               "
               :hide="getFromObject(formConfig, ['configuration', 'dither_center', 'hide'], !ditheringIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <b-form-group
@@ -303,8 +287,6 @@
                   :instrument-type="configuration.instrument_type"
                   :is-sidereal-target="configuration.target.type === 'ICRS'"
                   :pattern-type="dither.pattern"
-                  :aladin-script-location="aladinScriptLocation"
-                  :aladin-style-location="aladinStyleLocation"
                   show-help
                 >
                   <template #help>
@@ -343,7 +325,6 @@
       :dithering-is-allowed="ditheringIsAllowed"
       :errors="getFromObject(errors, ['instrument_configs', idx], {})"
       :form-config="formConfig"
-      :tooltip-config="tooltipConfig"
       @remove="removeInstrumentConfiguration(idx)"
       @copy="addInstrumentConfiguration(idx)"
       @instrumentconfigupdate="instumentConfigurationUpdated"
@@ -362,7 +343,6 @@
       :parent-show="show"
       :errors="getFromObject(errors, 'target', {})"
       :form-config="formConfig"
-      :tooltip-config="tooltipConfig"
       @target-updated="targetUpdated"
     >
       <template #target-help="data">
@@ -378,7 +358,6 @@
       :constraints="configuration.constraints"
       :parent-show="show"
       :form-config="formConfig"
-      :tooltip-config="tooltipConfig"
       :errors="getFromObject(errors, 'constraints', {})"
       @constraintsupdate="constraintsUpdated"
     >
@@ -390,6 +369,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
@@ -402,7 +382,7 @@ import Target from '@/components/RequestGroupComposition/Target.vue';
 import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig, objAsString } from '@/util';
+import { getFromObject, objAsString } from '@/util';
 import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 
 export default {
@@ -470,45 +450,11 @@ export default {
         return {};
       }
     },
-    ditherPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' },
-          { text: 'Spiral', value: 'spiral' }
-        ];
-      }
-    },
-    // `ditheringAllowed` is a function that takes the configuration data, the request index, and the configuration index,
-    // and returns a boolean indicating whether dithering is allowed.
-    ditheringAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (configuration, requestIndex, configurationIndex) => {
-        return true;
-      }
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
     formConfig: {
       type: Object,
       default: () => {
         return {};
       }
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
@@ -550,6 +496,8 @@ export default {
     };
   },
   setup: function() {
+    const ditherPatternOptions = inject('ditherPatternOptions');
+    const ditheringAllowed = inject('ditheringAllowed');
     const {
       expansion,
       acceptExpansionForKeyOnObject,
@@ -564,7 +512,9 @@ export default {
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
-      getExpansionErrors
+      getExpansionErrors,
+      ditherPatternOptions,
+      ditheringAllowed
     };
   },
   computed: {

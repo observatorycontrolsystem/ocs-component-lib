@@ -6,7 +6,6 @@
     :desc="desc"
     :hide="hide"
     :errors="errors"
-    :tooltip-config="tooltipConfig"
     :hide-when-collapsed="hideWhenCollapsed"
     @blur="update($event)"
   >
@@ -17,7 +16,7 @@
 </template>
 <script>
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
-import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal, defaultTooltipConfig } from '@/util';
+import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal } from '@/util';
 
 export default {
   name: 'SexagesimalCustomField',
@@ -61,12 +60,6 @@ export default {
     desc: {
       type: String,
       default: ''
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     },
     errors: {
       validator: function(value) {

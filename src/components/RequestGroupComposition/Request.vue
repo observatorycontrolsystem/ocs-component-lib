@@ -9,7 +9,6 @@
     :errors="errors"
     :show="show"
     :index="index"
-    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @show="show = $event"
     @copy="$emit('copy')"
@@ -30,7 +29,6 @@
               :label="getFromObject(formConfig, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
               :desc="getFromObject(formConfig, ['request', 'acceptability_threshold', 'desc'], '')"
               :hide="getFromObject(formConfig, ['request', 'acceptability_threshold', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.acceptability_threshold"
               @input="update"
             />
@@ -51,7 +49,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="{}"
             />
             <custom-field
@@ -68,7 +65,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -85,7 +81,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -96,7 +91,6 @@
               :desc="getFromObject(formConfig, ['request', 'mosaic_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_points', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -113,7 +107,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -130,7 +123,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-field
@@ -147,7 +139,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <custom-select
@@ -165,7 +156,6 @@
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_center', 'hide'], !mosaicIsAllowed)"
               hide-when-collapsed
-              :tooltip-config="tooltipConfig"
               :errors="null"
             />
             <b-form-group
@@ -214,15 +204,7 @@
                     <li v-for="errorMsg in getExpansionErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
-                <mosaic-plot
-                  plot-id="mosaic-plot"
-                  :configurations="expansion.expanded"
-                  :instruments-info="availableInstruments"
-                  :extra-instrument-rotation="mosaicExtraInstrumentRotation"
-                  :aladin-script-location="aladinScriptLocation"
-                  :aladin-style-location="aladinStyleLocation"
-                  show-help
-                >
+                <mosaic-plot plot-id="mosaic-plot" :configurations="expansion.expanded" :instruments-info="availableInstruments" show-help>
                   <template #help>
                     <p>
                       This is your generated <em>{{ mosaic.pattern }}</em> mosaic. Click <em>Ok</em> to accept the mosaic and <em>Cancel</em> to
@@ -260,11 +242,6 @@
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
       :form-config="formConfig"
-      :tooltip-config="tooltipConfig"
-      :dither-pattern-options="ditherPatternOptions"
-      :dithering-allowed="ditheringAllowed"
-      :aladin-script-location="aladinScriptLocation"
-      :aladin-style-location="aladinStyleLocation"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -304,8 +281,6 @@
       :site-code-to-color="siteCodeToColor"
       :site-code-to-name="siteCodeToName"
       :show-airmass-plot="showAirmassPlot"
-      :datetime-format="datetimeFormat"
-      :tooltip-config="tooltipConfig"
       :form-config="formConfig"
       @remove="removeWindow(idx)"
       @window-updated="windowUpdated"
@@ -320,6 +295,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -332,7 +308,7 @@ import MosaicPlot from '@/components/Plots/MosaicPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat, objAsString } from '@/util';
+import { getFromObject, objAsString } from '@/util';
 
 export default {
   name: 'Request',
@@ -399,16 +375,6 @@ export default {
       type: String,
       required: true
     },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
     formConfig: {
       type: Object,
       default: () => {
@@ -420,60 +386,6 @@ export default {
       default: () => {
         return {};
       }
-    },
-    ditherPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' },
-          { text: 'Spiral', value: 'spiral' }
-        ];
-      }
-    },
-    ditheringAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (configuration, requestIndex, configurationIndex) => {
-        return true;
-      }
-    },
-    mosaicPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' }
-        ];
-      }
-    },
-    mosaicAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (request, requestIndex) => {
-        return true;
-      }
-    },
-    mosaicExtraInstrumentRotation: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: configuration => {
-        return 0;
-      }
-    },
-    mosaicMaxNumPointings: {
-      type: Number,
-      default: 100
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
@@ -508,6 +420,9 @@ export default {
     };
   },
   setup: function() {
+    const mosaicMaxNumPointings = inject('mosaicMaxNumPointings');
+    const mosaicPatternOptions = inject('mosaicPatternOptions');
+    const mosaicAllowed = inject('mosaicAllowed');
     const {
       expansion,
       acceptExpansionForKeyOnObject,
@@ -522,7 +437,10 @@ export default {
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
-      getExpansionErrors
+      getExpansionErrors,
+      mosaicMaxNumPointings,
+      mosaicPatternOptions,
+      mosaicAllowed
     };
   },
   computed: {
