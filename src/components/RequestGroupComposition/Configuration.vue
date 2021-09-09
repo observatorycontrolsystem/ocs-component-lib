@@ -939,8 +939,6 @@ export default {
           return !_.isEmpty(this.errors);
         })
       ) {
-        // The returned instrument configs do not include any field indicating that they belong to a dither sequence, other than the offset_ra
-        // and offset_dec fields in the extra params so this information might need to be added if it is included in the API response in the future.
         this.generateExpansion(
           `${this.observationPortalApiBaseUrl}/api/configurations/dither/`,
           this.getDitherParameters(false),

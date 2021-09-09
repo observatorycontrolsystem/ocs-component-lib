@@ -179,7 +179,7 @@
                 getFromObject(
                   formConfig,
                   ['request', 'mosaic', 'invalid_parameters_feedback'],
-                  `The limit to the number of mosaic pointings that can be generated is ${mosaicMaxNumPointings}. Please
+                  `The limit to the number of mosaic pointings that can be generated in the frontend is ${mosaicMaxNumPointings}. Please
                   update your parameters before generating a mosaic.`
                 )
               "
