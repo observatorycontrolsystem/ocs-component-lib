@@ -71,7 +71,14 @@ import { provide } from '@vue/composition-api';
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
 import { confirmMixin } from '@/mixins/confirmMixins.js';
-import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, defaultAladinScriptLocation, defaultAladinStyleLocation, mostRecentRequestManager } from '@/util';
+import {
+  generateDurationString,
+  defaultTooltipConfig,
+  defaultDatetimeFormat,
+  defaultAladinScriptLocation,
+  defaultAladinStyleLocation,
+  mostRecentRequestManager
+} from '@/util';
 
 export default {
   name: 'RequestGroupCompositionForm',
