@@ -71,7 +71,7 @@ import { provide } from '@vue/composition-api';
 import RequestGroup from '@/components/RequestGroupComposition/RequestGroup.vue';
 import RequestGroupSideNav from '@/components/RequestGroupComposition/RequestGroupSideNav.vue';
 import { confirmMixin } from '@/mixins/confirmMixins.js';
-import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, defaultAladinScriptLocation, defaultAladinStyleLocation } from '@/util';
+import { generateDurationString, defaultTooltipConfig, defaultDatetimeFormat, defaultAladinScriptLocation, defaultAladinStyleLocation, mostRecentRequestManager } from '@/util';
 
 export default {
   name: 'RequestGroupCompositionForm',
@@ -343,7 +343,8 @@ export default {
     return {
       draftId: this.loadedDraftId,
       requestGroupErrors: {},
-      durationData: {}
+      durationData: {},
+      validateRequestManager: new mostRecentRequestManager(this.getValidationRequest, this.onValidationSuccess)
     };
   },
   computed: {
@@ -367,16 +368,20 @@ export default {
     }
   },
   methods: {
-    validate: _.debounce(function() {
-      $.ajax({
+    getValidationRequest: function() {
+      return $.ajax({
         type: 'POST',
         url: `${this.observationPortalApiBaseUrl}/api/requestgroups/validate/`,
         data: JSON.stringify(this.requestGroup),
         contentType: 'application/json'
-      }).done(data => {
-        this.requestGroupErrors = data.errors;
-        this.durationData = data.request_durations;
       });
+    },
+    onValidationSuccess: function(data) {
+      this.requestGroupErrors = data.errors;
+      this.durationData = data.request_durations;
+    },
+    validate: _.debounce(function() {
+      this.validateRequestManager.send();
     }, 200),
     getDurationString: function() {
       return generateDurationString(this.durationData.duration);
