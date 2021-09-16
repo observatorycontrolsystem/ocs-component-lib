@@ -18,6 +18,33 @@
       :errors="errors.min_lunar_distance"
       @input="update"
     />
+    <custom-field
+      v-model="constraints.max_lunar_phase"
+      field="max_lunar_phase"
+      :label="getFromObject(formConfig, ['constraints', 'max_lunar_phase', 'label'], 'Maximum Lunar Phase')"
+      :desc="getFromObject(formConfig, ['constraints', 'max_lunar_phase', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['constraints', 'max_lunar_phase', 'hide'], false)"
+      :errors="errors.max_lunar_phase"
+      @input="update"
+    />
+    <custom-field
+      v-model="constraints.max_seeing"
+      field="max_seeing"
+      :label="getFromObject(formConfig, ['constraints', 'max_seeing', 'label'], 'Maximum Seeing')"
+      :desc="getFromObject(formConfig, ['constraints', 'max_seeing', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['constraints', 'max_seeing', 'hide'], false)"
+      :errors="errors.max_seeing"
+      @input="update"
+    />
+    <custom-field
+      v-model="constraints.min_transparency"
+      field="min_transparency"
+      :label="getFromObject(formConfig, ['constraints', 'min_transparency', 'label'], 'Minimum Transparency')"
+      :desc="getFromObject(formConfig, ['constraints', 'min_transparency', 'desc'], '')"
+      :hide="getFromObject(formConfig, ['constraints', 'min_transparency', 'hide'], false)"
+      :errors="errors.min_transparency"
+      @input="update"
+    />
   </b-form>
 </template>
 <script>

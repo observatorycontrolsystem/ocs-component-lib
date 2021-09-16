@@ -163,7 +163,10 @@ export default {
                   },
                   constraints: {
                     max_airmass: 1.6,
-                    min_lunar_distance: 30.0
+                    min_lunar_distance: 30.0,
+                    max_lunar_phase: null,
+                    max_seeing: null,
+                    min_transparency: null
                   }
                 }
               ],
