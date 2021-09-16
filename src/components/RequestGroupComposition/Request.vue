@@ -263,6 +263,9 @@
       <template #constraints-help="data">
         <slot name="constraints-help" :data="data.data"></slot>
       </template>
+      <template #constraints-form="data">
+        <slot name="constraints-form" :data="data.data" :update="data.update"></slot>
+      </template>
     </configuration>
     <window
       v-for="(window, idx) in request.windows"
