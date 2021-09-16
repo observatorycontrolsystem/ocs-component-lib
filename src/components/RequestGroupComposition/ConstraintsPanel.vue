@@ -8,7 +8,6 @@
     :can-remove="false"
     :errors="errors"
     :show="show"
-    :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
@@ -20,28 +19,16 @@
           <slot name="constraints-help" :data="{ constraints: constraints, position: position }"></slot>
         </b-col>
         <b-col :md="show ? 6 : 12">
-          <b-form>
-            <custom-field
-              v-model="constraints.max_airmass"
-              field="max_airmass"
-              :label="getFromObject(formConfig, ['constraints', 'max_airmass', 'label'], 'Maximum Airmass')"
-              :desc="getFromObject(formConfig, ['constraints', 'max_airmass', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['constraints', 'max_airmass', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
-              :errors="errors.max_airmass"
-              @input="update"
+          <slot name="constraints-form" :update="update" :data="{ constraints: constraints, errors: errors, show: show, position: position }">
+            <constraints-form
+              :id="'constraints-form' + position.requestIndex + position.configurationIndex"
+              :show="show"
+              :constraints="constraints"
+              :errors="errors"
+              :form-config="formConfig"
+              @constraints-update="update"
             />
-            <custom-field
-              v-model="constraints.min_lunar_distance"
-              field="min_lunar_distance"
-              :label="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'label'], 'Minimum Lunar Separation')"
-              :desc="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'desc'], '')"
-              :hide="getFromObject(formConfig, ['constraints', 'min_lunar_distance', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
-              :errors="errors.min_lunar_distance"
-              @input="update"
-            />
-          </b-form>
+          </slot>
         </b-col>
       </b-row>
     </b-container>
@@ -49,18 +36,16 @@
 </template>
 <script>
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
-import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
-import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
+import ConstraintsForm from '@/components/RequestGroupComposition/ConstraintsForm.vue';
 
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig } from '@/util';
+import { getFromObject } from '@/util';
 
 export default {
   name: 'Constraints',
   components: {
-    CustomField,
     FormPanel,
-    CustomAlert
+    ConstraintsForm
   },
   mixins: [collapseMixin],
   props: {
@@ -80,12 +65,6 @@ export default {
       type: Object,
       required: true
     },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
     parentShow: {
       type: Boolean
     },
@@ -98,7 +77,7 @@ export default {
   },
   data: function() {
     return {
-      show: true,
+      show: this.parentShow,
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.configurationIndex
@@ -110,7 +89,7 @@ export default {
       return getFromObject(obj, path, defaultValue);
     },
     update: function() {
-      this.$emit('constraintsupdate');
+      this.$emit('constraints-update');
     }
   }
 };

@@ -146,6 +146,9 @@
         <template #constraints-help="data">
           <slot name="constraints-help" :data="data.data"></slot>
         </template>
+        <template #constraints-form="data">
+          <slot name="constraints-form" :data="data.data" :update="data.update"></slot>
+        </template>
         <template #window-help="data">
           <slot name="window-help" :data="data.data"></slot>
         </template>
