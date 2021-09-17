@@ -352,19 +352,22 @@
         <slot name="target-name-field" :data="data.data" :update="data.update"></slot>
       </template>
     </target>
-    <constraints
+    <constraints-panel
       :configuration-index="index"
       :request-index="requestIndex"
       :constraints="configuration.constraints"
       :parent-show="show"
       :form-config="formConfig"
       :errors="getFromObject(errors, 'constraints', {})"
-      @constraintsupdate="constraintsUpdated"
+      @constraints-update="constraintsUpdated"
     >
       <template #constraints-help="data">
         <slot name="constraints-help" :data="data.data"></slot>
       </template>
-    </constraints>
+      <template #constraints-form="data">
+        <slot name="constraints-form" :data="data.data" :update="data.update"></slot>
+      </template>
+    </constraints-panel>
   </form-panel>
 </template>
 <script>
@@ -377,7 +380,7 @@ import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import InstrumentConfigPanel from '@/components/RequestGroupComposition/InstrumentConfigPanel.vue';
-import Constraints from '@/components/RequestGroupComposition/Constraints.vue';
+import ConstraintsPanel from '@/components/RequestGroupComposition/ConstraintsPanel.vue';
 import Target from '@/components/RequestGroupComposition/Target.vue';
 import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
@@ -396,7 +399,7 @@ export default {
     CustomAlert,
     InstrumentConfigPanel,
     DitherPatternPlot,
-    Constraints,
+    ConstraintsPanel,
     Target
   },
   filters: {

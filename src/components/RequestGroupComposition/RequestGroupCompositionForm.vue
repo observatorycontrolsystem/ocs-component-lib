@@ -40,6 +40,9 @@
         <template #constraints-help="data">
           <slot name="constraints-help" :data="data.data"></slot>
         </template>
+        <template #constraints-form="data">
+          <slot name="constraints-form" :data="data.data" :update="data.update"></slot>
+        </template>
         <template #window-help="data">
           <slot name="window-help" :data="data.data"></slot>
         </template>
@@ -159,7 +162,10 @@ export default {
                   },
                   constraints: {
                     max_airmass: 1.6,
-                    min_lunar_distance: 30.0
+                    min_lunar_distance: 30.0,
+                    max_lunar_phase: null,
+                    max_seeing: null,
+                    min_transparency: null
                   }
                 }
               ],
