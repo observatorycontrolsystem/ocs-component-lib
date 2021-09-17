@@ -6,17 +6,17 @@
     :desc="desc"
     :hide="hide"
     :errors="errors"
-    :tooltip-config="tooltipConfig"
+    :hide-when-collapsed="hideWhenCollapsed"
     @blur="update($event)"
   >
-    <div v-if="value" slot="extra-help-text">
+    <div v-if="show && value" slot="extra-help-text">
       {{ helpText }}
     </div>
   </custom-field>
 </template>
 <script>
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
-import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal, defaultTooltipConfig } from '@/util';
+import { decimalRaToSexigesimal, decimalDecToSexigesimal, sexagesimalRaToDecimal, sexagesimalDecToDecimal } from '@/util';
 
 export default {
   name: 'SexagesimalCustomField',
@@ -49,6 +49,10 @@ export default {
     collapse: {
       type: Boolean
     },
+    // Hide this field when collapsed
+    hideWhenCollapsed: {
+      type: Boolean
+    },
     label: {
       type: String,
       required: true
@@ -56,12 +60,6 @@ export default {
     desc: {
       type: String,
       default: ''
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     },
     errors: {
       validator: function(value) {

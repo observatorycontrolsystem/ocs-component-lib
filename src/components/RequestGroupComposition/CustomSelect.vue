@@ -1,10 +1,10 @@
 <template>
   <span v-if="!hide">
-    <span class="text-right font-italic extra-help-text">
+    <span v-if="$parent.show" class="text-right font-italic extra-help-text">
       <slot name="extra-help-text" />
     </span>
     <b-form-group
-      v-show="$parent.show"
+      v-if="$parent.show"
       :id="field + '-fieldgroup-' + $parent.id"
       label-size="sm"
       label-align-sm="right"
@@ -32,13 +32,14 @@
         {{ error }}
       </span>
     </b-form-group>
-    <span v-show="!$parent.show" class="mr-4">
+    <span v-if="!hideWhenCollapsed && !$parent.show" class="mr-4" :class="collapsedValidationStyle">
       {{ label }}: <strong>{{ value || '...' }}</strong>
     </span>
   </span>
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import { defaultTooltipConfig } from '@/util';
 
@@ -88,16 +89,24 @@ export default {
       type: String,
       default: ''
     },
+    // Hide this field when collapsed
+    hideWhenCollapsed: {
+      type: Boolean
+    },
     // Setting this to `true` will ensure that all string options that are passed in are lowercased
     lowerOptions: {
       type: Boolean
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     }
+  },
+  setup: function() {
+    const tooltipConfig = inject(
+      'tooltipConfig',
+      () => {
+        return defaultTooltipConfig;
+      },
+      true
+    );
+    return { tooltipConfig };
   },
   computed: {
     hasErrors: function() {
@@ -112,6 +121,11 @@ export default {
       } else {
         return null;
       }
+    },
+    collapsedValidationStyle: function() {
+      return {
+        'text-danger': this.validationState === null ? false : true
+      };
     },
     selectOptions: function() {
       if (this.lowerOptions) {

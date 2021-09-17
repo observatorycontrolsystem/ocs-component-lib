@@ -15,7 +15,8 @@ export default function requestExpansionWithModalConfirm() {
       loaded: false,
       errorResponse: {}
     },
-    expanded: []
+    expanded: [],
+    expansionExtraInfo: {}
   });
 
   const checkReadyToGenerateExpansion = (errorMessage, errorCheck) => {
@@ -31,11 +32,26 @@ export default function requestExpansionWithModalConfirm() {
     }
   };
 
-  const generateExpansion = (url, parameters, getExpandedFromResponse) => {
+  const generateExpansion = (
+    url,
+    parameters,
+    getExpandedFromResponse,
+    {
+      saveExtraInfo = false,
+      getExtraInfoFromResponse = response => {
+        return response.extra_params || {};
+      }
+    } = {}
+  ) => {
     // Generate the expansion
     // `url` is the endpoint that generates the expansion
     // `parameters` is an object containing the POST data to sent along with the HTTP request
-    // `getExpandedFromResponse` is a function that returns the section of the response that is the expanded section
+    // `getExpandedFromResponse` is a function that returns the section of the response that is the expanded section. Expected
+    //      to return an array.
+    // `saveExtraInfo` is a boolean indicating whether to save extra information about the request.
+    // `getExtraInfoFromResponse` is a function that returns the section of the response that contains extra information about
+    //      the expansion if `saveExtraInfo` is `true`. Expected to return an object. By default it saves the `extra_params` field
+    //      of the response.
     expansion.value.showModal = true;
     expansion.value.status.loaded = false;
     expansion.value.status.error = false;
@@ -53,6 +69,9 @@ export default function requestExpansionWithModalConfirm() {
           expansion.value.status.notFound = true;
         } else {
           expansion.value.expanded = expanded;
+          if (saveExtraInfo) {
+            expansion.value.expansionExtraInfo = getExtraInfoFromResponse(response);
+          }
         }
       })
       .fail(response => {
@@ -68,6 +87,7 @@ export default function requestExpansionWithModalConfirm() {
     // Clear out the expansion.
     expansion.value.showModal = false;
     expansion.value.expanded = [];
+    expansion.value.expansionExtraInfo = {};
   };
 
   const getExpansionErrors = () => {
@@ -87,17 +107,23 @@ export default function requestExpansionWithModalConfirm() {
     return errors;
   };
 
-  const acceptExpansionForKeyOnObject = (obj, key) => {
+  const acceptExpansionForKeyOnObject = (obj, key, { addExtraInfo = false, onDone = () => {}, extraInfoKey = 'extra_params' } = {}) => {
     // Accept the generated expansion by setting the `key` of the provided `obj` to the expanded data.
     // Updating the `key` of `obj` means that the `obj` itself that is passed is updated (pass-by-reference),
-    // so that if it was a reactive variable inside a component, the component will re-render.
+    // so that if it was a reactive variable inside a component, the component will re-render. To add the
+    // saved extra expansion information onto the object, set `addExtraInfo` to `true`.
     expansion.value.showModal = false;
     // Clear out expanded section before setting it again to allow any existing associated components
     // to re-render so that the mounted hook is entered.
     obj[key] = [];
     Vue.nextTick(() => {
       obj[key] = expansion.value.expanded;
+      if (addExtraInfo) {
+        obj[extraInfoKey] = expansion.value.expansionExtraInfo;
+      }
       expansion.value.expanded = [];
+      expansion.value.expansionExtraInfo = {};
+      onDone();
       return obj;
     });
   };

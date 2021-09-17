@@ -11,6 +11,9 @@ const defaultTooltipConfig = {
 
 const defaultDatetimeFormat = 'YYYY-MM-DD HH:mm:ss';
 
+const defaultAladinScriptLocation = 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js';
+const defaultAladinStyleLocation = 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css';
+
 function zPadFloat(num) {
   return num.toLocaleString(undefined, { minimumIntegerDigits: 2, maximumFractionDigits: 4 });
 }
@@ -333,6 +336,8 @@ export {
   cosineDeclinationTerm,
   decimalDecToSexigesimal,
   decimalRaToSexigesimal,
+  defaultAladinScriptLocation,
+  defaultAladinStyleLocation,
   defaultDatetimeFormat,
   defaultTooltipConfig,
   extractTopLevelErrors,

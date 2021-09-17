@@ -4,7 +4,6 @@
     id="general"
     :title="getFromObject(formConfig, ['requestGroup', 'panel', 'title'], 'Request Group')"
     :icon="getFromObject(formConfig, ['requestGroup', 'panel', 'icon'], 'fas fa-address-card')"
-    :tooltip-config="tooltipConfig"
     :can-remove="false"
     :can-copy="false"
     :errors="errors"
@@ -28,7 +27,6 @@
               :label="getFromObject(formConfig, ['requestGroup', 'name', 'label'], 'Name')"
               :desc="getFromObject(formConfig, ['requestGroup', 'name', 'desc'], '')"
               :hide="getFromObject(formConfig, ['requestGroup', 'name', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.name"
               @input="update"
             />
@@ -38,7 +36,6 @@
               :label="getFromObject(formConfig, ['requestGroup', 'proposal', 'label'], 'Proposal')"
               :desc="getFromObject(formConfig, ['requestGroup', 'proposal', 'desc'], '')"
               :hide="getFromObject(formConfig, ['requestGroup', 'proposal', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.proposal"
               :options="proposalOptions"
               @input="update"
@@ -49,7 +46,6 @@
               :label="getFromObject(formConfig, ['requestGroup', 'observation_type', 'label'], 'Observation Type')"
               :desc="getFromObject(formConfig, ['requestGroup', 'observation_type', 'desc'], '')"
               :hide="getFromObject(formConfig, ['requestGroup', 'observation_type', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.observation_type"
               :options="observationTypeOptions"
               @input="update"
@@ -60,7 +56,6 @@
               :label="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'label'], 'IPP Factor')"
               :desc="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'desc'], '')"
               :hide="getFromObject(formConfig, ['requestGroup', 'ipp_value', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.ipp_value"
               @input="update"
             />
@@ -110,16 +105,7 @@
         :site-code-to-name="siteCodeToName"
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
-        :dither-pattern-options="ditherPatternOptions"
-        :dithering-allowed="ditheringAllowed"
-        :mosaic-pattern-options="mosaicPatternOptions"
-        :mosaic-allowed="mosaicAllowed"
-        :mosaic-extra-instrument-rotation="mosaicExtraInstrumentRotation"
-        :aladin-script-location="aladinScriptLocation"
-        :aladin-style-location="aladinStyleLocation"
-        :datetime-format="datetimeFormat"
         :form-config="formConfig"
-        :tooltip-config="tooltipConfig"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
         @request-updated="requestUpdated"
@@ -159,6 +145,7 @@
 <script>
 import _ from 'lodash';
 import moment from 'moment';
+import { inject } from '@vue/composition-api';
 
 import CustomModal from '@/components/RequestGroupComposition/CustomModal.vue';
 import Request from '@/components/RequestGroupComposition/Request.vue';
@@ -168,7 +155,7 @@ import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
-import { generateDurationString, getFromObject, defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
+import { generateDurationString, getFromObject, defaultDatetimeFormat } from '@/util';
 import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 
 export default {
@@ -226,48 +213,6 @@ export default {
         return {};
       }
     },
-    ditherPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' },
-          { text: 'Spiral', value: 'spiral' }
-        ];
-      }
-    },
-    ditheringAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (configuration, requestIndex, configurationIndex) => {
-        return true;
-      }
-    },
-    mosaicPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' }
-        ];
-      }
-    },
-    mosaicAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (request, requestIndex) => {
-        return true;
-      }
-    },
-    mosaicExtraInstrumentRotation: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: configuration => {
-        return 0;
-      }
-    },
     observationTypeOptions: {
       type: Array,
       default: () => {
@@ -283,24 +228,6 @@ export default {
       default: () => {
         return {};
       }
-    },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
@@ -310,6 +237,7 @@ export default {
     };
   },
   setup: function() {
+    const datetimeFormat = inject('datetimeFormat', defaultDatetimeFormat);
     const {
       expansion,
       acceptExpansionForKeyOnObject,
@@ -324,7 +252,8 @@ export default {
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
-      getExpansionErrors
+      getExpansionErrors,
+      datetimeFormat
     };
   },
   computed: {

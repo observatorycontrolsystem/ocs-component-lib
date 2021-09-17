@@ -9,7 +9,6 @@
     :errors="errors"
     :show="show"
     :index="index"
-    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @show="show = $event"
     @copy="$emit('copy')"
@@ -30,7 +29,6 @@
               :label="getFromObject(formConfig, ['request', 'acceptability_threshold', 'label'], 'Acceptability Threshold')"
               :desc="getFromObject(formConfig, ['request', 'acceptability_threshold', 'desc'], '')"
               :hide="getFromObject(formConfig, ['request', 'acceptability_threshold', 'hide'], false)"
-              :tooltip-config="tooltipConfig"
               :errors="errors.acceptability_threshold"
               @input="update"
             />
@@ -50,7 +48,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="{}"
             />
             <custom-field
@@ -66,7 +64,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_line_overlap_percent', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-field
@@ -82,7 +80,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_point_overlap_percent', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-field
@@ -92,7 +90,7 @@
               :label="getFromObject(formConfig, ['request', 'mosaic_num_points', 'label'], 'Number of Points')"
               :desc="getFromObject(formConfig, ['request', 'mosaic_num_points', 'desc'], 'Number of points in the pattern')"
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_points', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-field
@@ -108,7 +106,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_orientation', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-field
@@ -124,7 +122,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_rows', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-field
@@ -140,7 +138,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_num_columns', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <custom-select
@@ -157,7 +155,7 @@
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'mosaic_center', 'hide'], !mosaicIsAllowed)"
-              :tooltip-config="tooltipConfig"
+              hide-when-collapsed
               :errors="null"
             />
             <b-form-group
@@ -165,10 +163,25 @@
               label-size="sm"
               label-align-sm="right"
               label-cols-sm="4"
-              label=""
+              :label="getFromObject(formConfig, ['request', 'mosaic', 'label'], '')"
               label-for="mosaic-button"
+              :invalid-feedback="
+                getFromObject(
+                  formConfig,
+                  ['request', 'mosaic', 'invalid_parameters_feedback'],
+                  `The limit to the number of mosaic pointings that can be generated in the frontend is ${mosaicMaxNumPointings}. Please
+                  update your parameters before generating a mosaic.`
+                )
+              "
+              :state="!tooManyMosaicPointings"
             >
-              <b-button :id="'mosaic-button-' + position.requestIndex" block variant="outline-primary" @click="generateMosaicPattern">
+              <b-button
+                :id="'mosaic-button-' + position.requestIndex"
+                block
+                variant="outline-primary"
+                :disabled="tooManyMosaicPointings"
+                @click="generateMosaicPattern"
+              >
                 Generate Mosaic
               </b-button>
             </b-form-group>
@@ -177,13 +190,13 @@
               header="Generated Mosaic"
               :show-accept="expansion.expanded.length > 0"
               @close="cancelExpansion"
-              @submit="acceptExpansionForKeyOnObject(request, 'configurations')"
+              @submit="acceptMosaic()"
             >
               <data-loader
                 :data-loaded="expansion.status.loaded"
                 :data-not-found="expansion.status.notFound"
                 :data-load-error="expansion.status.error"
-                not-found-message="There are no pointing in the generated mosaic. Please update your mosaic parameters and try again."
+                not-found-message="There are no pointings in the generated mosaic. Please update your mosaic parameters and try again."
               >
                 <template #data-load-error>
                   <p>Unable to generate mosaic</p>
@@ -191,15 +204,7 @@
                     <li v-for="errorMsg in getExpansionErrors()" :key="errorMsg" class="text-danger">{{ errorMsg }}</li>
                   </ul>
                 </template>
-                <mosaic-plot
-                  plot-id="mosaic-plot"
-                  :configurations="expansion.expanded"
-                  :instruments-info="availableInstruments"
-                  :extra-instrument-rotation="mosaicExtraInstrumentRotation"
-                  :aladin-script-location="aladinScriptLocation"
-                  :aladin-style-location="aladinStyleLocation"
-                  show-help
-                >
+                <mosaic-plot plot-id="mosaic-plot" :configurations="expansion.expanded" :instruments-info="availableInstruments" show-help>
                   <template #help>
                     <p>
                       This is your generated <em>{{ mosaic.pattern }}</em> mosaic. Click <em>Ok</em> to accept the mosaic and <em>Cancel</em> to
@@ -211,6 +216,7 @@
                     <div class="mosaic-offset-table">
                       <b-table-lite :items="mosaicTableItems" :fields="mosaic.fields" small></b-table-lite>
                     </div>
+                    <p class="float-right px-3 mt-1 mb-4 font-weight-bolder">{{ mosaicTableItems.length }} pointings</p>
                     <br />
                   </template>
                 </mosaic-plot>
@@ -223,22 +229,19 @@
     </b-container>
     <configuration
       v-for="(configuration, idx) in request.configurations"
+      ref="configurations"
       :key="'configuration' + idx"
       :index="idx"
       :request-index="index"
       :configuration="configuration"
       :parent-show="show"
+      :initial-show="initialConfigurationShow"
       :observation-portal-api-base-url="observationPortalApiBaseUrl"
       :available-instruments="availableInstruments"
       :instrument-category-to-name="instrumentCategoryToName"
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
       :form-config="formConfig"
-      :tooltip-config="tooltipConfig"
-      :dither-pattern-options="ditherPatternOptions"
-      :dithering-allowed="ditheringAllowed"
-      :aladin-script-location="aladinScriptLocation"
-      :aladin-style-location="aladinStyleLocation"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -281,8 +284,6 @@
       :site-code-to-color="siteCodeToColor"
       :site-code-to-name="siteCodeToName"
       :show-airmass-plot="showAirmassPlot"
-      :datetime-format="datetimeFormat"
-      :tooltip-config="tooltipConfig"
       :form-config="formConfig"
       @remove="removeWindow(idx)"
       @window-updated="windowUpdated"
@@ -297,6 +298,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { inject } from '@vue/composition-api';
 
 import Configuration from '@/components/RequestGroupComposition/Configuration.vue';
 import Window from '@/components/RequestGroupComposition/Window.vue';
@@ -309,7 +311,7 @@ import MosaicPlot from '@/components/Plots/MosaicPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
 import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig, defaultDatetimeFormat, objAsString } from '@/util';
+import { getFromObject, objAsString } from '@/util';
 
 export default {
   name: 'Request',
@@ -376,16 +378,6 @@ export default {
       type: String,
       required: true
     },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
     formConfig: {
       type: Object,
       default: () => {
@@ -397,61 +389,12 @@ export default {
       default: () => {
         return {};
       }
-    },
-    ditherPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' },
-          { text: 'Spiral', value: 'spiral' }
-        ];
-      }
-    },
-    ditheringAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (configuration, requestIndex, configurationIndex) => {
-        return true;
-      }
-    },
-    mosaicPatternOptions: {
-      type: Array,
-      default: () => {
-        return [
-          { text: 'None', value: 'none' },
-          { text: 'Line', value: 'line' },
-          { text: 'Grid', value: 'grid' }
-        ];
-      }
-    },
-    mosaicAllowed: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: (request, requestIndex) => {
-        return true;
-      }
-    },
-    mosaicExtraInstrumentRotation: {
-      type: Function,
-      // eslint-disable-next-line no-unused-vars
-      default: configuration => {
-        return 0;
-      }
-    },
-    aladinScriptLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js'
-    },
-    aladinStyleLocation: {
-      type: String,
-      default: 'https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css'
     }
   },
   data: function() {
     return {
       show: true,
+      initialConfigurationShow: true,
       mosaic: {
         fields: [
           { key: 'ra', label: 'Right ascension (decimal degrees)' },
@@ -480,6 +423,9 @@ export default {
     };
   },
   setup: function() {
+    const mosaicMaxNumPointings = inject('mosaicMaxNumPointings');
+    const mosaicPatternOptions = inject('mosaicPatternOptions');
+    const mosaicAllowed = inject('mosaicAllowed');
     const {
       expansion,
       acceptExpansionForKeyOnObject,
@@ -494,7 +440,10 @@ export default {
       cancelExpansion,
       checkReadyToGenerateExpansion,
       generateExpansion,
-      getExpansionErrors
+      getExpansionErrors,
+      mosaicMaxNumPointings,
+      mosaicPatternOptions,
+      mosaicAllowed
     };
   },
   computed: {
@@ -510,6 +459,17 @@ export default {
         });
       }
       return pointings;
+    },
+    tooManyMosaicPointings: function() {
+      if (this.mosaic.pattern === 'grid') {
+        let numColumns = _.get(this.mosaic.parameters, ['numColumns'], 0);
+        let numRows = _.get(this.mosaic.parameters, ['numRows'], 0);
+        return numColumns * numRows > this.mosaicMaxNumPointings;
+      } else if (this.mosaic.pattern === 'line') {
+        let numPoints = _.get(this.mosaic.parameters, ['numPoints'], 0);
+        return numPoints > this.mosaicMaxNumPointings;
+      }
+      return false;
     }
   },
   methods: {
@@ -623,10 +583,37 @@ export default {
           return !_.isEmpty(this.errors);
         })
       ) {
-        this.generateExpansion(`${this.observationPortalApiBaseUrl}/api/requests/mosaic/`, this.getMosaicParameters(false), response => {
-          return response.configurations;
-        });
+        this.generateExpansion(
+          `${this.observationPortalApiBaseUrl}/api/requests/mosaic/`,
+          this.getMosaicParameters(false),
+          response => {
+            return response.configurations;
+          },
+          { saveExtraInfo: true }
+        );
       }
+    },
+    acceptMosaic: function() {
+      // Initialize the new configurations to be collapsed. Do this to keep rendering from taking a long time
+      // for large mosaic patterns.
+      this.initialConfigurationShow = false;
+      this.acceptExpansionForKeyOnObject(this.request, 'configurations', {
+        onDone: () => {
+          // Expand the first configuration so that it looks nice.
+          this.$nextTick(() => {
+            for (let configuration of this.$refs.configurations) {
+              if (configuration.position.configurationIndex === 0) {
+                configuration.show = true;
+              }
+            }
+          });
+          // Then, set configurations back to initially expand again.
+          this.$nextTick(() => {
+            this.initialConfigurationShow = true;
+          });
+        },
+        addExtraInfo: true
+      });
     }
   }
 };

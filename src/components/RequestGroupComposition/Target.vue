@@ -8,7 +8,6 @@
     :can-remove="false"
     :show="show"
     :errors="errors"
-    :tooltip-config="tooltipConfig"
     @show="show = $event"
   >
     <custom-alert v-for="error in errors.non_field_errors" :key="error" alert-class="danger" :dismissible="false">
@@ -31,7 +30,6 @@
               :desc="getFromObject(formConfig, ['target', 'type', 'desc'], '')"
               :hide="getFromObject(formConfig, ['target', 'type', 'hide'], false)"
               :errors="errors.type"
-              :tooltip-config="tooltipConfig"
               :options="targetTypeOptions"
               @input="update"
             />
@@ -43,7 +41,6 @@
                 :label="getFromObject(formConfig, ['target', 'ra', 'label'], 'Right Ascension')"
                 :desc="getFromObject(formConfig, ['target', 'ra', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'ra', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :collapse="!show"
                 :errors="errors.ra"
                 @input="update"
@@ -55,7 +52,6 @@
                 :label="getFromObject(formConfig, ['target', 'dec', 'label'], 'Declination')"
                 :desc="getFromObject(formConfig, ['target', 'dec', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'dec', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :collapse="!show"
                 :errors="errors.dec"
                 @input="update"
@@ -66,7 +62,6 @@
                 :label="getFromObject(formConfig, ['target', 'proper_motion_ra', 'label'], 'Proper Motion RA')"
                 :desc="getFromObject(formConfig, ['target', 'proper_motion_ra', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'proper_motion_ra', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.proper_motion_ra"
                 @input="update"
               />
@@ -76,7 +71,6 @@
                 :label="getFromObject(formConfig, ['target', 'proper_motion_dec', 'label'], 'Proper Motion Dec')"
                 :desc="getFromObject(formConfig, ['target', 'proper_motion_dec', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'proper_motion_dec', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.proper_motion_dec"
                 @input="update"
               />
@@ -86,7 +80,6 @@
                 :label="getFromObject(formConfig, ['target', 'epoch', 'label'], 'Epoch')"
                 :desc="getFromObject(formConfig, ['target', 'epoch', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'epoch', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.epoch"
                 @input="update"
               />
@@ -96,7 +89,6 @@
                 :label="getFromObject(formConfig, ['target', 'parallax', 'label'], 'Parallax')"
                 :desc="getFromObject(formConfig, ['target', 'parallax', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'parallax', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.parallax"
                 @input="update"
               />
@@ -108,7 +100,6 @@
                 :label="getFromObject(formConfig, ['target', 'scheme', 'label'], 'Scheme')"
                 :desc="getFromObject(formConfig, ['target', 'scheme', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'scheme', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.scheme"
                 :options="nonSiderealSchemeOptions"
                 @input="update"
@@ -119,7 +110,6 @@
                 :label="getFromObject(formConfig, ['target', 'epochofel', 'label'], 'Epoch of Elements')"
                 :desc="getFromObject(formConfig, ['target', 'epochofel', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'epochofel', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.epochofel"
                 @input="update"
               />
@@ -129,7 +119,6 @@
                 :label="getFromObject(formConfig, ['target', 'orbinc', 'label'], 'Orbital Inclination')"
                 :desc="getFromObject(formConfig, ['target', 'orbinc', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'orbinc', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.orbinc"
                 @input="update"
               />
@@ -139,7 +128,6 @@
                 :label="getFromObject(formConfig, ['target', 'longascnode', 'label'], 'Longitude of Ascending Node')"
                 :desc="getFromObject(formConfig, ['target', 'longascnode', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'longascnode', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.longascnode"
                 @input="update"
               />
@@ -149,7 +137,6 @@
                 :label="getFromObject(formConfig, ['target', 'argofperih', 'label'], 'Argument of Perihelion')"
                 :desc="getFromObject(formConfig, ['target', 'argofperih', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'argofperih', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.argofperih"
                 @input="update"
               />
@@ -159,7 +146,6 @@
                 :label="getFromObject(formConfig, ['target', 'eccentricity', 'label'], 'Eccentricity')"
                 :desc="getFromObject(formConfig, ['target', 'eccentricity', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'eccentricity', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.eccentricity"
                 @input="update"
               />
@@ -171,7 +157,6 @@
                 :label="getFromObject(formConfig, ['target', 'meandist', 'label'], 'Semimajor Axis')"
                 :desc="getFromObject(formConfig, ['target', 'meandist', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'meandist', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.meandist"
                 @input="update"
               />
@@ -181,7 +166,6 @@
                 :label="getFromObject(formConfig, ['target', 'meananom', 'label'], 'Mean Anomaly')"
                 :desc="getFromObject(formConfig, ['target', 'meananom', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'meananom', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.meananom"
                 @input="update"
               />
@@ -193,7 +177,6 @@
                 :label="getFromObject(formConfig, ['target', 'dailymot', 'label'], 'Daily Motion')"
                 :desc="getFromObject(formConfig, ['target', 'dailymot', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'dailymot', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.dailymot"
                 @input="update"
               />
@@ -205,7 +188,6 @@
                 :label="getFromObject(formConfig, ['target', 'perihdist', 'label'], 'Perihelion Distance')"
                 :desc="getFromObject(formConfig, ['target', 'perihdist', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'perihdist', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.perihdist"
                 @input="update"
               />
@@ -215,7 +197,6 @@
                 :label="getFromObject(formConfig, ['target', 'epochofperih', 'label'], 'Epoch of Perihelion')"
                 :desc="getFromObject(formConfig, ['target', 'epochofperih', 'desc'], '')"
                 :hide="getFromObject(formConfig, ['target', 'epochofperih', 'hide'], false)"
-                :tooltip-config="tooltipConfig"
                 :errors="errors.epochofperih"
                 @input="update"
               />
@@ -235,7 +216,7 @@ import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import SexagesimalCustomField from '@/components/RequestGroupComposition/SexagesimalCustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
-import { getFromObject, defaultTooltipConfig } from '@/util';
+import { getFromObject } from '@/util';
 
 export default {
   name: 'Target',
@@ -269,12 +250,6 @@ export default {
     parentShow: {
       type: Boolean
     },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
-    },
     formConfig: {
       type: Object,
       default: () => {
@@ -298,7 +273,7 @@ export default {
     delete siderealTargetParams['name'];
     delete siderealTargetParams['type'];
     return {
-      show: true,
+      show: this.parentShow,
       nonSiderealTargetParams: nonSiderealTargetParams,
       siderealTargetParams: siderealTargetParams,
       targetTypeOptions: [

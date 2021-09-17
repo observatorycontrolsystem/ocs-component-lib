@@ -9,7 +9,6 @@
     :errors="errors"
     :show="show"
     :index="index"
-    :tooltip-config="tooltipConfig"
     @remove="$emit('remove')"
     @copy="$emit('copy')"
     @show="show = $event"
@@ -36,7 +35,6 @@
               :selected-instrument="selectedInstrument"
               :available-instruments="availableInstruments"
               :errors="errors"
-              :tooltip-config="tooltipConfig"
               :form-config="formConfig"
               @instrument-config-update="update"
             />
@@ -50,7 +48,7 @@
 import InstrumentConfigForm from '@//components/RequestGroupComposition/InstrumentConfigForm.vue';
 import FormPanel from '@/components/RequestGroupComposition/FormPanel.vue';
 import CustomAlert from '@/components/RequestGroupComposition/CustomAlert.vue';
-import { extractTopLevelErrors, getFromObject, defaultTooltipConfig } from '@/util';
+import { extractTopLevelErrors, getFromObject } from '@/util';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 
 export default {
@@ -93,14 +91,8 @@ export default {
     ditheringIsAllowed: {
       type: Boolean
     },
-    show: {
+    parentShow: {
       type: Boolean
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     },
     formConfig: {
       type: Object,
@@ -111,6 +103,7 @@ export default {
   },
   data: function() {
     return {
+      show: this.parentShow,
       position: {
         requestIndex: this.requestIndex,
         configurationIndex: this.configurationIndex,

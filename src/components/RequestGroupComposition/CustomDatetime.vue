@@ -1,7 +1,7 @@
 <template>
   <span v-if="!hide">
     <b-form-group
-      v-show="$parent.show"
+      v-if="$parent.show"
       :id="field + '-datetimegroup-' + $parent.id"
       label-size="sm"
       label-align-sm="right"
@@ -30,7 +30,7 @@
         {{ error }}
       </span>
     </b-form-group>
-    <span v-show="!$parent.show" class="mr-4">
+    <span v-if="!hideWhenCollapsed && !$parent.show" class="mr-4" :class="collapsedValidationStyle">
       {{ label }}: <strong>{{ value || '...' }}</strong>
     </span>
   </span>
@@ -39,6 +39,7 @@
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+import { inject } from '@vue/composition-api';
 
 import { defaultTooltipConfig, defaultDatetimeFormat } from '@/util';
 
@@ -56,10 +57,6 @@ export default {
       type: String,
       default: ''
     },
-    datetimeFormat: {
-      type: String,
-      default: defaultDatetimeFormat
-    },
     field: {
       type: String,
       default: function() {
@@ -67,6 +64,10 @@ export default {
       }
     },
     hide: {
+      type: Boolean
+    },
+    // Hide this field when collapsed
+    hideWhenCollapsed: {
       type: Boolean
     },
     errors: {
@@ -78,17 +79,27 @@ export default {
     desc: {
       type: String,
       default: ''
-    },
-    tooltipConfig: {
-      type: Object,
-      default: () => {
-        return defaultTooltipConfig;
-      }
     }
+  },
+  setup: function() {
+    const tooltipConfig = inject(
+      'tooltipConfig',
+      () => {
+        return defaultTooltipConfig;
+      },
+      true
+    );
+    const datetimeFormat = inject('datetimeFormat', defaultDatetimeFormat);
+    return { tooltipConfig, datetimeFormat };
   },
   computed: {
     hasErrors: function() {
       return !_.isEmpty(this.errors);
+    },
+    collapsedValidationStyle: function() {
+      return {
+        'text-danger': this.hasErrors
+      };
     }
   },
   methods: {
