@@ -709,8 +709,8 @@ export default {
       let defaultConfigurationType = _.get(this.availableInstruments, [this.configuration.instrument_type, 'default_configuration_type'], '');
       let options = this.configurationTypeOptions;
       let defaultIndex = 0;
-      options.forEach(function (configurationType, i){
-        if (configurationType.value === defaultConfigurationType){
+      options.forEach(function(configurationType, i) {
+        if (configurationType.value === defaultConfigurationType) {
           defaultIndex = i;
         }
       });
