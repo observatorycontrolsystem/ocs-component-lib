@@ -654,7 +654,7 @@ export default {
     },
     configurationTypeOptions: function(options) {
       if (this.configuration.type === '') {
-        this.configuration.type = _.get(options, [0, 'value'], '');
+        this.configuration.type = _.get(options, [this.defaultConfigurationTypeIndex(), 'value'], '');
       }
     },
     guideModeOptions: function(options) {
@@ -705,13 +705,24 @@ export default {
     getFromObject(obj, path, defaultValue) {
       return getFromObject(obj, path, defaultValue);
     },
+    defaultConfigurationTypeIndex: function() {
+      let defaultConfigurationType = _.get(this.availableInstruments, [this.configuration.instrument_type, 'default_configuration_type'], '');
+      let options = this.configurationTypeOptions;
+      let defaultIndex = 0;
+      options.forEach(function(configurationType, i) {
+        if (configurationType.value === defaultConfigurationType) {
+          defaultIndex = i;
+        }
+      });
+      return defaultIndex;
+    },
     onInstrumentCategoryChange: function() {
       this.configuration.instrument_type = _.get(this.availableInstrumentOptions, [0, 'value'], '');
-      this.configuration.type = _.get(this.configurationTypeOptions, [0, 'value'], '');
+      this.configuration.type = _.get(this.configurationTypeOptions, [this.defaultConfigurationTypeIndex(), 'value'], '');
       this.update();
     },
     onInstrumentTypeChange: function() {
-      this.configuration.type = _.get(this.configurationTypeOptions, [0, 'value'], '');
+      this.configuration.type = _.get(this.configurationTypeOptions, [this.defaultConfigurationTypeIndex(), 'value'], '');
       this.update();
     },
     getConfigurationTypeToInstrumentCategoriesArray: function() {
