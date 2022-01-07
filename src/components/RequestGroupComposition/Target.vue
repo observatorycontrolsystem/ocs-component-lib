@@ -201,8 +201,7 @@
                 @input="update"
               />
             </span>
-            <slot name="target-fields-footer" :update="update" :data="{ target: target, errors: errors.name, position: position }">
-            </slot>
+            <slot name="target-fields-footer" :update="update" :data="{ target: target, errors: errors.name, position: position }"></slot>
           </b-form>
         </b-col>
       </b-row>
