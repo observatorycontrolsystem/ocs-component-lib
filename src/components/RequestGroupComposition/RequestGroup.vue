@@ -129,6 +129,9 @@
         <template #target-name-field="data">
           <slot name="target-name-field" :data="data.data" :update="data.update"></slot>
         </template>
+        <template #target-fields-footer="data">
+          <slot name="target-fields-footer" :data="data.data" :update="data.update"></slot>
+        </template>
         <template #constraints-help="data">
           <slot name="constraints-help" :data="data.data"></slot>
         </template>

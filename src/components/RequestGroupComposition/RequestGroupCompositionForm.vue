@@ -37,6 +37,9 @@
         <template #target-name-field="data">
           <slot name="target-name-field" :data="data.data" :update="data.update"></slot>
         </template>
+        <template #target-fields-footer="data">
+          <slot name="target-fields-footer" :data="data.data" :update="data.update"></slot>
+        </template>
         <template #constraints-help="data">
           <slot name="constraints-help" :data="data.data"></slot>
         </template>
@@ -158,7 +161,8 @@ export default {
                     proper_motion_ra: 0.0,
                     proper_motion_dec: 0.0,
                     epoch: 2000,
-                    parallax: 0
+                    parallax: 0,
+                    extra_params: {}
                   },
                   constraints: {
                     max_airmass: 1.6,

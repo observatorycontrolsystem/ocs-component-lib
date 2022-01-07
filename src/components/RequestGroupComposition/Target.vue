@@ -201,6 +201,8 @@
                 @input="update"
               />
             </span>
+            <slot name="target-fields-footer" :update="update" :data="{ target: target, errors: errors.name, position: position }">
+            </slot>
           </b-form>
         </b-col>
       </b-row>
@@ -267,7 +269,8 @@ export default {
       meandist: null,
       meananom: null,
       perihdist: null,
-      epochofperih: null
+      epochofperih: null,
+      extra_params: {}
     };
     let siderealTargetParams = _.cloneDeep(this.target);
     delete siderealTargetParams['name'];
