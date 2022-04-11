@@ -32,6 +32,15 @@
               :errors="errors.acceptability_threshold"
               @input="update"
             />
+            <custom-field
+              v-model="request.configuration_repeats"
+              field="configuration_repeats"
+              :label="getFromObject(formConfig, ['request', 'configuration_repeats', 'label'], 'Configuration Repeats')"
+              :desc="getFromObject(formConfig, ['request', 'configuration_repeats', 'desc'], '')"
+              :hide="getFromObject(formConfig, ['request', 'configuration_repeats', 'hide'], false)"
+              :errors="errors.configuration_repeats"
+              @input="update"
+            />
             <!-- Begin mosaic fields -->
             <custom-select
               v-model="mosaic.pattern"

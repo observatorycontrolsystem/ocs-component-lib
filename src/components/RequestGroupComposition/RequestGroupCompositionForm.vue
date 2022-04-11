@@ -125,6 +125,7 @@ export default {
           requests: [
             {
               acceptability_threshold: '',
+              configuration_repeats: 1,
               configurations: [
                 {
                   type: 'EXPOSE',

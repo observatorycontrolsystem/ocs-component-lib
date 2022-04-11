@@ -51,6 +51,7 @@ const profileData = {
 const requestFactory = (state = 'PENDING') => {
   return {
     acceptability_threshold: 90,
+    configuration_repeats: 1,
     state: state,
     configurations: [
       {
