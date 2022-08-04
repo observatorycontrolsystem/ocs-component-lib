@@ -13,6 +13,7 @@ enableAutoDestroy(afterEach);
 const requestFactory = (state = 'PENDING') => {
   return {
     acceptability_threshold: 90,
+    optimization_type: 'TIME',
     configuration_repeats: 1,
     state: state,
     configurations: [

@@ -121,6 +121,7 @@ const observationFactory = (state, id) => {
       observation_note: '',
       state: state,
       acceptability_threshold: 90.0,
+      optimization_type: 'TIME',
       configuration_repeats: 1,
       modified: '2021-03-10T23:23:13.765578Z',
       duration: 308,
