@@ -50,8 +50,8 @@
                 getFromObject(
                   formConfig,
                   ['request', 'optimization_type', 'desc'],
-                  `Optimization emphasis when scheduling. TIME emphasizes occuring earlier within the visibility window,
-                  AIRMASS emphasizes occuring at optimal airmass.`
+                  `Optimization to use when scheduling. TIME favors placing requests earlier in their window.
+                  AIRMASS favors placing requests at lower airmass (higher altitude).`
                 )
               "
               :hide="getFromObject(formConfig, ['request', 'optimization_type', 'hide'], false)"
