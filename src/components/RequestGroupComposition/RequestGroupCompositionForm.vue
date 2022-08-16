@@ -125,6 +125,7 @@ export default {
           requests: [
             {
               acceptability_threshold: '',
+              optimization_type: 'TIME',
               configuration_repeats: 1,
               configurations: [
                 {

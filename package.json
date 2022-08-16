@@ -1,13 +1,14 @@
 {
   "name": "ocs-component-lib",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "private": false,
   "description": "Component library for an astronomical observatory control system frontend",
   "scripts": {
     "build": "vue-cli-service build --target lib --name ocs-component-lib ./src/main.js",
     "test:unit": "vue-cli-service test:unit",
     "lint:check": "vue-cli-service lint --no-fix --max-errors 0 --max-warnings 0",
-    "lint:fix": "vue-cli-service lint"
+    "lint:fix": "vue-cli-service lint",
+    "prepare": "npm run build"
   },
   "main": "dist/ocs-component-lib.umd.min.js",
   "unpkg": "dist/ocs-component-lib.umd.min.js",

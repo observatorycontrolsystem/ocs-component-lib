@@ -41,6 +41,23 @@
               :errors="errors.configuration_repeats"
               @input="update"
             />
+            <custom-select
+              v-model="request.optimization_type"
+              :options="optimizationTypeOptions"
+              field="optimization_type"
+              :label="getFromObject(formConfig, ['request', 'optimization_type', 'label'], 'Optimization Type')"
+              :desc="
+                getFromObject(
+                  formConfig,
+                  ['request', 'optimization_type', 'desc'],
+                  `Optimization to use when scheduling. TIME favors placing requests earlier in their window.
+                  AIRMASS favors placing requests at lower airmass (higher altitude).`
+                )
+              "
+              :hide="getFromObject(formConfig, ['request', 'optimization_type', 'hide'], false)"
+              :errors="errors.optimization_type"
+              @input="update"
+            />
             <!-- Begin mosaic fields -->
             <custom-select
               v-model="mosaic.pattern"
@@ -407,6 +424,10 @@ export default {
     return {
       show: true,
       initialConfigurationShow: true,
+      optimizationTypeOptions: [
+        { value: 'TIME', text: 'Time' },
+        { value: 'AIRMASS', text: 'Airmass' }
+      ],
       mosaic: {
         fields: [
           { key: 'ra', label: 'Right ascension (decimal degrees)' },

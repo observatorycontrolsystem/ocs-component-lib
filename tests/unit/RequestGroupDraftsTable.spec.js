@@ -29,6 +29,7 @@ const requestGroupDraftFactory = draftArgs => {
       requests: [
         {
           acceptability_threshold: 90,
+          optimization_type: 'TIME',
           configuration_repeats: 1,
           configurations: [
             {

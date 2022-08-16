@@ -14,6 +14,7 @@ const requestFactory = (state = 'PENDING') => {
   return {
     id: 12345,
     acceptability_threshold: 90,
+    optimization_type: 'TIME',
     configuration_repeats: 1,
     duration: 137,
     state: state,
