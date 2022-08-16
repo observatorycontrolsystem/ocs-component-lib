@@ -148,6 +148,7 @@ const observationFactory = (state, id) => {
           constraints: {
             max_airmass: 2.0,
             min_lunar_distance: 0.0,
+            max_lunar_phase: 1.0,
             extra_params: {}
           },
           acquisition_config: {

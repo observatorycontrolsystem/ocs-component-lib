@@ -66,7 +66,8 @@ const requestGroupDraftFactory = draftArgs => {
               },
               constraints: {
                 max_airmass: 2,
-                min_lunar_distance: 30
+                min_lunar_distance: 30,
+                max_lunar_phase: 1.0
               }
             }
           ],
