@@ -26,6 +26,7 @@
               :constraints="constraints"
               :errors="errors"
               :form-config="formConfig"
+              :available-seeing-options="availableSeeingOptions"
               @constraints-update="update"
             />
           </slot>
@@ -72,6 +73,12 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
       }
     }
   },
