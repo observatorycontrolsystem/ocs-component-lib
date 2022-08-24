@@ -468,7 +468,7 @@ export default {
       default: () => {
         return [];
       }
-    },
+    }
   },
   data: function() {
     return {

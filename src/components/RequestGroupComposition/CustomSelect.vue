@@ -1,4 +1,4 @@
- <template>
+<template>
   <span v-if="!hide">
     <span v-if="$parent.show" class="text-right font-italic extra-help-text">
       <slot name="extra-help-text" />
