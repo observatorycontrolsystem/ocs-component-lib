@@ -46,19 +46,26 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
   const rotatorModeOptions = computed(() => {
     let options = [];
     let requiredModeFields = [];
+    let defaultValues = {};
     if (hasModes('rotator')) {
       let modes = _.get(availableInstruments.value, [selectedInstrument.value, 'modes', 'rotator', 'modes'], []);
       for (let i in modes) {
         requiredModeFields = [];
+        defaultValues = {};
         if ('extra_params' in modes[i].validation_schema) {
           for (let j in modes[i].validation_schema.extra_params.schema) {
+            let extraParam = modes[i].validation_schema.extra_params.schema[j];
+            if ('default' in extraParam) {
+              defaultValues[j] = extraParam.default
+            }
             requiredModeFields.push(j);
           }
         }
         options.push({
           value: modes[i].code,
           text: modes[i].name,
-          requiredFields: requiredModeFields
+          requiredFields: requiredModeFields,
+          requiredFieldsDefaultValues: defaultValues
         });
       }
     }
@@ -73,6 +80,21 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     }
     return [];
   });
+
+  const defaultRequiredRotatorModeFieldValue = mode => {
+    const defaultRequiredFieldValue = 0;
+    for (let i in rotatorModeOptions.value) {
+      if (rotatorModeOptions.value[i].value == instrumentConfig.value.rotator_mode) {
+        if (mode in rotatorModeOptions.value[i].requiredFieldsDefaultValues) {
+          return rotatorModeOptions.value[i].requiredFieldsDefaultValues[mode];
+        }
+        else {
+          return defaultRequiredFieldValue;
+        }
+      }
+    }
+    return defaultRequiredFieldValue;
+  };
 
   const availableOpticalElementGroups = computed(() => {
     if (selectedInstrument.value in availableInstruments.value) {
@@ -123,12 +145,11 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
 
   watch(requiredRotatorModeFields, (newValue, oldValue) => {
     // TODO: Implement rotator mode and required rotator mode fields history
-    const defaultRequiredFieldValue = 0;
     for (let idx in oldValue) {
       instrumentConfig.value.extra_params[oldValue[idx]] = undefined;
     }
     for (let idx in newValue) {
-      instrumentConfig.value.extra_params[newValue[idx]] = defaultRequiredFieldValue;
+      instrumentConfig.value.extra_params[newValue[idx]] = defaultRequiredRotatorModeFieldValue(newValue[idx]);
     }
     update();
   });
