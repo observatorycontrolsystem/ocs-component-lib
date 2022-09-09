@@ -106,6 +106,7 @@
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
         :form-config="formConfig"
+        :available-seeing-options="availableSeeingOptions"
         @remove="removeRequest(idx)"
         @copy="addRequest(idx)"
         @request-updated="requestUpdated"
@@ -214,6 +215,12 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
       }
     },
     observationTypeOptions: {

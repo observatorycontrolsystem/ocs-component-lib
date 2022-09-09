@@ -14,6 +14,7 @@
         :show-airmass-plot="showAirmassPlot"
         :instrument-category-to-name="instrumentCategoryToName"
         :form-config="formConfig"
+        :available-seeing-options="availableSeeingOptions"
         @request-group-updated="requestGroupUpdated"
       >
         <template #request-group-help="data">
@@ -337,6 +338,12 @@ export default {
       type: Object,
       default: () => {
         return defaultTooltipConfig;
+      }
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
       }
     },
     // If the requestGroup prop that is passed in is associated with a draft, pass the ID in so

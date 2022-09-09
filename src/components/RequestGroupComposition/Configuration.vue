@@ -361,6 +361,7 @@
       :constraints="configuration.constraints"
       :parent-show="show"
       :form-config="formConfig"
+      :available-seeing-options="availableSeeingOptions"
       :errors="getFromObject(errors, 'constraints', {})"
       @constraints-update="constraintsUpdated"
     >
@@ -460,6 +461,12 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
       }
     }
   },

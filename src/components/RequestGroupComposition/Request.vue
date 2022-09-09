@@ -268,6 +268,7 @@
       :errors="getFromObject(errors, ['configurations', idx], {})"
       :duration-data="getFromObject(durationData, ['configurations', idx], { duration: 0 })"
       :form-config="formConfig"
+      :available-seeing-options="availableSeeingOptions"
       @remove="removeConfiguration(idx)"
       @copy="addConfiguration(idx)"
       @configuration-updated="configurationUpdated"
@@ -411,6 +412,12 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
       }
     },
     instrumentCategoryToName: {

@@ -27,12 +27,13 @@
       :errors="errors.max_lunar_phase"
       @input="update"
     />
-    <custom-field
+    <custom-select
       v-model="constraints.max_seeing"
       field="max_seeing"
       :label="getFromObject(formConfig, ['constraints', 'max_seeing', 'label'], 'Maximum Seeing')"
       :desc="getFromObject(formConfig, ['constraints', 'max_seeing', 'desc'], '')"
       :hide="getFromObject(formConfig, ['constraints', 'max_seeing', 'hide'], false)"
+      :options="availableSeeingOptions"
       :errors="errors.max_seeing"
       @input="update"
     />
@@ -49,13 +50,15 @@
 </template>
 <script>
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
+import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
 import baseConstraints from '@/composables/baseConstraints.js';
 import { getFromObject } from '@/util';
 
 export default {
   name: 'Constraints',
   components: {
-    CustomField
+    CustomField,
+    CustomSelect
   },
   props: {
     id: {
@@ -72,6 +75,12 @@ export default {
     },
     show: {
       type: Boolean
+    },
+    availableSeeingOptions: {
+      type: Array,
+      default: () => {
+        return [];
+      }
     },
     formConfig: {
       type: Object,
