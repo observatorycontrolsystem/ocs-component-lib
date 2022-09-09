@@ -56,7 +56,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
           for (let j in modes[i].validation_schema.extra_params.schema) {
             let extraParam = modes[i].validation_schema.extra_params.schema[j];
             if ('default' in extraParam) {
-              defaultValues[j] = extraParam.default
+              defaultValues[j] = extraParam.default;
             }
             requiredModeFields.push(j);
           }
@@ -87,8 +87,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
       if (rotatorModeOptions.value[i].value == instrumentConfig.value.rotator_mode) {
         if (mode in rotatorModeOptions.value[i].requiredFieldsDefaultValues) {
           return rotatorModeOptions.value[i].requiredFieldsDefaultValues[mode];
-        }
-        else {
+        } else {
           return defaultRequiredFieldValue;
         }
       }
