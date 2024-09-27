@@ -307,6 +307,14 @@
               </data-loader>
             </custom-modal>
             <!-- End dither fields -->
+            <extra-params-fields
+              :extra-params.sync="configuration.extra_params"
+              :validation-schema="extraParamsValidationSchema"
+              :errors="getFromObject(errors, 'extra_params', {})"
+              :parent-show="show"
+              @extraparamsupdate="update"
+            >
+            </extra-params-fields>
           </b-form>
         </b-col>
       </b-row>
@@ -388,6 +396,7 @@ import ConstraintsPanel from '@/components/RequestGroupComposition/ConstraintsPa
 import Target from '@/components/RequestGroupComposition/Target.vue';
 import DitherPatternPlot from '@/components/Plots/DitherPatternPlot.vue';
 import DataLoader from '@/components/Util/DataLoader.vue';
+import ExtraParamsFields from '@/components/RequestGroupComposition/ExtraParamsFields.vue';
 import { collapseMixin } from '@/mixins/collapseMixins.js';
 import { getFromObject, objAsString } from '@/util';
 import requestExpansionWithModalConfirm from '@/composables/requestExpansionWithModalConfirm.js';
@@ -403,6 +412,7 @@ export default {
     CustomAlert,
     InstrumentConfigPanel,
     DitherPatternPlot,
+    ExtraParamsFields,
     ConstraintsPanel,
     Target
   },
@@ -623,6 +633,9 @@ export default {
         }
       }
       return _.sortBy(options, 'text');
+    },
+    extraParamsValidationSchema: function() {
+      return _.get(this.availableInstruments, [this.configuration.instrument_type, 'validation_schema', 'extra_params'], {});
     },
     ditheringIsAllowed: function() {
       return this.ditheringAllowed(this.configuration, this.requestIndex, this.index);

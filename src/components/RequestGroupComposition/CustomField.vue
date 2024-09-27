@@ -23,9 +23,11 @@
           :value="value"
           :state="validationState"
           :type="type"
+          :list="field + '-field-' + $parent.id + '-list'"
           @input="update($event)"
           @blur="blur($event)"
         />
+        <b-form-datalist v-if="list" :id="field + '-field-' + $parent.id + '-list'" :options="list"></b-form-datalist>
         <slot name="inline-input" />
       </b-input-group>
       <span v-for="error in errors" :key="error" class="errors text-danger">
@@ -67,6 +69,13 @@ export default {
       type: String,
       default: function() {
         return _.kebabCase(this.label);
+      }
+    },
+    list: {
+      // For adding a datalist of options to the form field
+      type: Array,
+      default: function() {
+        return null;
       }
     },
     errors: {

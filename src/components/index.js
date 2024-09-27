@@ -8,6 +8,7 @@ import {
   CustomField,
   CustomModal,
   CustomSelect,
+  ExtraParamsFields,
   FormPanel,
   RequestGroupCompositionForm,
   SexagesimalCustomField
@@ -27,6 +28,7 @@ export {
   CustomSelect,
   DataLoader,
   DitherPatternPlot,
+  ExtraParamsFields,
   FormPanel,
   ObservationDetail,
   ObservationsTable,

@@ -84,6 +84,14 @@
       :errors="null"
       @input="update"
     />
+    <extra-params-fields
+      :extra-params.sync="instrumentConfig.extra_params"
+      :validation-schema="extraParamsValidationSchema"
+      :errors="getFromObject(errors, 'extra_params', {})"
+      :parent-show="show"
+      @extraparamsupdate="update"
+    >
+    </extra-params-fields>
   </b-form>
 </template>
 <script>
@@ -92,13 +100,15 @@ import { toRef } from '@vue/composition-api';
 import baseInstrumentConfig from '@/composables/baseInstrumentConfig.js';
 import CustomField from '@/components/RequestGroupComposition/CustomField.vue';
 import CustomSelect from '@/components/RequestGroupComposition/CustomSelect.vue';
+import ExtraParamsFields from '@/components/RequestGroupComposition/ExtraParamsFields.vue';
 import { getFromObject } from '@/util';
 
 export default {
   name: 'InstrumentConfigForm',
   components: {
     CustomField,
-    CustomSelect
+    CustomSelect,
+    ExtraParamsFields
   },
   props: {
     id: {
@@ -148,6 +158,7 @@ export default {
       rotatorModeOptions,
       requiredRotatorModeFields,
       availableOpticalElementGroups,
+      extraParamsValidationSchema,
       update,
       updateOpticalElement,
       updateInstrumentConfigExtraParam
@@ -162,6 +173,7 @@ export default {
       rotatorModeOptions,
       requiredRotatorModeFields,
       availableOpticalElementGroups,
+      extraParamsValidationSchema,
       // Methods
       update,
       updateOpticalElement,
