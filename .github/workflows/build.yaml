@@ -10,6 +10,9 @@ on:
   # Run this workflow for pull requests
   pull_request:
 
+env:
+  NODE_OPTIONS: --openssl-legacy-provider
+
 jobs:
   run_tests:
     runs-on: ubuntu-latest
