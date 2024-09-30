@@ -10,15 +10,18 @@ on:
   # Run this workflow for pull requests
   pull_request:
 
-env:
-  NODE_OPTIONS: --openssl-legacy-provider
-
 jobs:
   run_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [15.x, 16.x, 18.x, 20.x]
+        node:
+          - version: 15.x
+          - version: 16.x
+          - version: 18.x
+            env: NODE_OPTIONS=--openssl-legacy-provider
+          - version: 20.x
+            env: NODE_OPTIONS=--openssl-legacy-provider
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
