@@ -26,10 +26,10 @@ jobs:
             option: --openssl-legacy-provider
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node.version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ matrix.node.version }}
     - name: Install dependencies
       run: npm ci
     - name: Lint files
@@ -37,7 +37,7 @@ jobs:
     - name: Build library
       run: npm run build
       env:
-        NODE_OPTIONS: ${{ matrix.node-option }}
+        NODE_OPTIONS: ${{ matrix.node.option }}
     - name: Run tests
       run: |
         npm install --no-save @vue/composition-api
@@ -45,7 +45,7 @@ jobs:
         npm prune @vue/composition-api
         npm prune --production
       env:
-        NODE_OPTIONS: ${{ matrix.node-option }}
+        NODE_OPTIONS: ${{ matrix.node.option }}
 
   build_and_publish_package:
     # Only run this job if the run_tests job has succeeded, and if
