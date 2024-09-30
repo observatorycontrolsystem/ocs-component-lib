@@ -39,7 +39,7 @@ export default {
   name: 'ExtraParamsFields',
   components: {
     CustomField,
-    CustomSelect,
+    CustomSelect
   },
   props: {
     extraParams: {
@@ -74,6 +74,35 @@ export default {
       show: this.parentShow
     };
   },
+  computed: {
+    fields: function() {
+      var extraParamsFields = [];
+      if (this.validationSchema) {
+        if (this.validationSchema.schema) {
+          for (const [field, schema] of Object.entries(this.validationSchema.schema)) {
+            var extraParamsField = {
+              field: field,
+              type: this.typeMapping(schema.type),
+              description: schema.description,
+              label:
+                schema.label ||
+                _.capitalize(field)
+                  .split('_')
+                  .join(' '),
+              show: schema.show || true,
+              default: schema.default,
+              min: schema.min,
+              max: schema.max,
+              options: schema.allowed,
+              required: schema.required || false
+            };
+            extraParamsFields.push(extraParamsField);
+          }
+        }
+      }
+      return extraParamsFields;
+    }
+  },
   watch: {
     validationSchema: function() {
       // When the validation schema changes, this means the selected instrument type has changed
@@ -89,53 +118,27 @@ export default {
       let separate_params = ['offset_ra', 'offset_dec'];
       for (let index in separate_params) {
         if (separate_params[index] in this.extraParams) {
-          cleanedExtraParams[separate_params[index]] = this.extraParams[separate_params[index]]
+          cleanedExtraParams[separate_params[index]] = this.extraParams[separate_params[index]];
         }
       }
-      this.$emit("update:extraParams", cleanedExtraParams);
-      console.log("Schema changed!")
-    }
-  },
-  computed: {
-    fields: function() {
-      var extraParamsFields = [];
-      if (this.validationSchema) {
-        if (this.validationSchema.schema) {
-          for (const [field, schema] of Object.entries(this.validationSchema.schema)) {
-            var extraParamsField = {
-              'field': field,
-              'type': this.typeMapping(schema.type),
-              'description': schema.description,
-              'label': schema.label || _.capitalize(field).split('_').join(' '),
-              'show': schema.show || true,
-              'default': schema.default,
-              'min': schema.min,
-              'max': schema.max,
-              'options': schema.allowed,
-              'required': schema.required || false
-            };
-            extraParamsFields.push(extraParamsField);
-          }
-        }
-      }
-      return extraParamsFields;
+      this.$emit('update:extraParams', cleanedExtraParams);
+      console.log('Schema changed!');
     }
   },
   methods: {
     fieldError: function(field) {
-      if (this.errors){
-        return this.errors[field]
+      if (this.errors) {
+        return this.errors[field];
       }
-      return null
+      return null;
     },
     update: function() {
-      this.$emit("extraparamsupdate");
+      this.$emit('extraparamsupdate');
     },
     typeMapping: function(type) {
       if (type == 'string') {
         return 'text';
-      }
-      else if(type == 'float' || type == 'integer') {
+      } else if (type == 'float' || type == 'integer') {
         return 'number';
       }
       return type;
@@ -143,5 +146,4 @@ export default {
   }
 };
 </script>
-<style scoped>
-</style>
+<style scoped></style>

@@ -8,4 +8,14 @@ import FormPanel from './FormPanel.vue';
 import RequestGroupCompositionForm from './RequestGroupCompositionForm.vue';
 import SexagesimalCustomField from './SexagesimalCustomField.vue';
 
-export { CustomAlert, CustomDatetime, CustomField, CustomModal, CustomSelect, ExtraParamsFields, FormPanel, RequestGroupCompositionForm, SexagesimalCustomField };
+export {
+  CustomAlert,
+  CustomDatetime,
+  CustomField,
+  CustomModal,
+  CustomSelect,
+  ExtraParamsFields,
+  FormPanel,
+  RequestGroupCompositionForm,
+  SexagesimalCustomField
+};

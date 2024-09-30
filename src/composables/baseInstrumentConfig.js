@@ -44,7 +44,11 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
   });
 
   const extraParamsValidationSchema = computed(() => {
-    return _.get(availableInstruments.value, [selectedInstrument.value, 'validation_schema', 'instrument_configs', 'schema', 'schema', 'extra_params'], {});
+    return _.get(
+      availableInstruments.value,
+      [selectedInstrument.value, 'validation_schema', 'instrument_configs', 'schema', 'schema', 'extra_params'],
+      {}
+    );
   });
 
   const rotatorModeOptions = computed(() => {
