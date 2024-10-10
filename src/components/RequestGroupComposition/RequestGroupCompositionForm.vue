@@ -132,6 +132,7 @@ export default {
                 {
                   type: 'EXPOSE',
                   instrument_type: '',
+                  extra_params: {},
                   instrument_configs: [
                     {
                       exposure_count: 1,

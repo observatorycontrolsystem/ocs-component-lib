@@ -43,6 +43,14 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     return readoutModes;
   });
 
+  const extraParamsValidationSchema = computed(() => {
+    return _.get(
+      availableInstruments.value,
+      [selectedInstrument.value, 'validation_schema', 'instrument_configs', 'schema', 'schema', 'extra_params'],
+      {}
+    );
+  });
+
   const rotatorModeOptions = computed(() => {
     let options = [];
     let requiredModeFields = [];
@@ -196,6 +204,7 @@ export default function baseInstrumentConfig(instrumentConfig, availableInstrume
     rotatorModeOptions,
     requiredRotatorModeFields,
     availableOpticalElementGroups,
+    extraParamsValidationSchema,
     // Methods
     update,
     updateOpticalElement,
