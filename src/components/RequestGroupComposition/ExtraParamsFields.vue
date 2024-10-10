@@ -62,6 +62,13 @@ export default {
         return null;
       }
     },
+    ignoreParams: {
+      // A list of params to ignore in the extra_params section when clearing it
+      type: Array,
+      default: () => {
+        return [];
+      }
+    },
     hide: {
       type: Boolean
     },
@@ -115,14 +122,12 @@ export default {
         }
       }
       // Add some other extra_params fields that are handled separately back into the config if they were there
-      let separate_params = ['offset_ra', 'offset_dec'];
-      for (let index in separate_params) {
-        if (separate_params[index] in this.extraParams) {
-          cleanedExtraParams[separate_params[index]] = this.extraParams[separate_params[index]];
+      for (let index in this.ignoreParams) {
+        if (this.ignoreParams[index] in this.extraParams) {
+          cleanedExtraParams[this.ignoreParams[index]] = this.extraParams[this.ignoreParams[index]];
         }
       }
       this.$emit('update:extraParams', cleanedExtraParams);
-      console.log('Schema changed!');
     }
   },
   methods: {

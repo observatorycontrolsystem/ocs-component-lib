@@ -88,6 +88,7 @@
       :extra-params.sync="instrumentConfig.extra_params"
       :validation-schema="extraParamsValidationSchema"
       :errors="getFromObject(errors, 'extra_params', {})"
+      :ignore-params="['offset_ra', 'offset_dec']"
       :parent-show="show"
       @extraparamsupdate="update"
     >
