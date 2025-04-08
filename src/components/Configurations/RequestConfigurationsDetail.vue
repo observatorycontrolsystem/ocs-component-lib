@@ -127,6 +127,20 @@
                   </b-row>
                 </li>
               </ul>
+              <br />
+              <h4 v-if="!isObjEmpty(configuration.extra_params)">Config Extra Params</h4>
+              <ul class="list-unstyled card-count card-column-two">
+                <li v-for="(x, idx) in configuration.extra_params" :key="'config-extra-params-' + idx">
+                  <b-row v-if="configuration.extra_params[idx] && x">
+                    <b-col v-if="configuration.extra_params[idx]" class="font-weight-bold text-nowrap">
+                      {{ idx | formatField }}
+                    </b-col>
+                    <b-col v-if="x" class="text-right">
+                      <span>{{ x | formatValue }}</span>
+                    </b-col>
+                  </b-row>
+                </li>
+              </ul>
             </b-col>
           </b-row>
         </b-card-body>
