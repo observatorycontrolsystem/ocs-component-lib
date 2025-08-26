@@ -193,7 +193,12 @@ export default {
   },
   computed: {
     topLevelErrors: function() {
-      return extractTopLevelErrors(this.errors);
+      let combinedError = extractTopLevelErrors(this.errors);
+      // If showAirmass is false, it means that the airmassData is actually an error message returned from the endpoint
+      if (!this.showAirmass) {
+        combinedError = _.concat(combinedError, extractTopLevelErrors(this.airmassData));
+      }
+      return combinedError;
     }
   },
   methods: {

@@ -24,7 +24,7 @@
             <custom-field
               v-model="requestGroup.name"
               field="name"
-              :label="getFromObject(formConfig, ['requestGroup', 'name', 'label'], 'Name')"
+              :label="getFromObject(formConfig, ['requestGroup', 'name', 'label'], 'Request Name')"
               :desc="getFromObject(formConfig, ['requestGroup', 'name', 'desc'], '')"
               :hide="getFromObject(formConfig, ['requestGroup', 'name', 'hide'], false)"
               :errors="errors.name"
